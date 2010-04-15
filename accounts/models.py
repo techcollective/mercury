@@ -1,8 +1,8 @@
 import datetime
 
 from django.db import models
-
 from configuration.models import PaymentMethod, InvoiceStatus, Config
+
 
 class Customer(models.Model):
     name = models.CharField(max_length=50)
@@ -12,26 +12,29 @@ class Customer(models.Model):
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
+
     def __unicode__(self):
         return self.name
 
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=8,decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     number_in_stock = models.PositiveIntegerField(default=0)
     manage_stock = models.BooleanField(default=True, help_text="Uncheck this \
                                        to prevent the stock count being \
                                        changed when this product is added to \
                                        an invoice.")
     is_taxable = models.BooleanField(default=True)
+
     def __unicode__(self):
         return self.name
 
 
 class Service(models.Model):
     name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=8,decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+
     def __unicode__(self):
         return self.name
 
@@ -49,17 +52,19 @@ class Invoice(models.Model):
             status.save()
             default_status = status
         return default_status
+
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     date_due = models.DateField(default=datetime.date.today)
     status = models.ForeignKey(InvoiceStatus, default=get_default_status)
     comment = models.CharField(max_length=200, blank=True)
-    subtotal = models.DecimalField(max_digits=8,decimal_places=2,
+    subtotal = models.DecimalField(max_digits=8, decimal_places=2,
                                    blank=True, default=0)
-    total_tax = models.DecimalField(max_digits=8,decimal_places=2,
+    total_tax = models.DecimalField(max_digits=8, decimal_places=2,
                                     blank=True, default=0)
-    total = models.DecimalField(max_digits=8,decimal_places=2,
+    total = models.DecimalField(max_digits=8, decimal_places=2,
                                 blank=True, default=0)
+
     def __unicode__(self):
         return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
 
@@ -71,18 +76,22 @@ class InvoiceProductEntry(models.Model):
     tax = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
                               default=0)
     invoice = models.ForeignKey(Invoice)
+
     def save(self, *args, **kwargs):
         if self.product.manage_stock:
             self.product.number_in_stock -= self.quantity
             self.product.save()
         super(InvoiceProductEntry, self).save(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
         if self.product.manage_stock:
             self.product.number_in_stock += self.quantity
             self.product.save()
         super(InvoiceProductEntry, self).delete(*args, **kwargs)
+
     def __unicode__(self):
         return "Invoice Product Entry #%s" % self.id
+
     class Meta:
         verbose_name_plural = "Invoice product entries"
 
@@ -92,26 +101,31 @@ class InvoiceServiceEntry(models.Model):
     cost = models.DecimalField(max_digits=8, decimal_places=2)
     quantity = models.DecimalField(max_digits=6, decimal_places=2, default=1)
     invoice = models.ForeignKey(Invoice)
+
     def __unicode__(self):
         return "Invoice Service Entry #%s" % self.id
+
     class Meta:
         verbose_name_plural = "Invoice service entries"
 
 
 class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
+
     def total(self):
         return sum([x.amount for x in self.payment_set.all()])
+
     def __unicode__(self):
         return "Deposit of %s" % self.total()
 
 
 class Payment(models.Model):
-    amount = models.DecimalField(max_digits=8,decimal_places=2)
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
     payment_method = models.ForeignKey(PaymentMethod)
     date_received = models.DateField(default=datetime.date.today)
     invoice = models.ForeignKey(Invoice)
-    deposit = models.ForeignKey(Deposit, blank=True)
+    deposit = models.ForeignKey(Deposit, blank=True, null=True)
+
     def __unicode__(self):
         return "%s payment of %s for invoice #%s" % (self.payment_method,
                                                      self.amount,
