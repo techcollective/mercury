@@ -17,7 +17,10 @@ class InvoiceStatus(models.Model):
 
 class ConfigManager(models.Manager):
     def get_setting(self, setting_name):
-        value = self.get(name=setting_name).value
+        try:
+            value = self.get(name=setting_name).value
+        except Config.DoesNotExist:
+            value = None
         return value
 
 

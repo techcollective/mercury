@@ -40,13 +40,15 @@ class Invoice(models.Model):
     def get_default_status():
         desired_status = Config.settings.get_setting("default invoice status")
         status = InvoiceStatus.objects.filter(status=desired_status).all()
+        default_status = None
         if status:
-            return status[0]
-        else:
+            default_status = status[0]
+        elif desired_status:
             status = InvoiceStatus()
             status.status = desired_status
             status.save()
-            return status
+            default_status = status
+        return default_status
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     date_due = models.DateField(default=datetime.date.today)
@@ -83,7 +85,6 @@ class InvoiceProductEntry(models.Model):
         return "Invoice Product Entry #%s" % self.id
     class Meta:
         verbose_name_plural = "Invoice product entries"
-
 
 
 class InvoiceServiceEntry(models.Model):
