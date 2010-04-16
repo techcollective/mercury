@@ -4,14 +4,14 @@ from accounts.models import Customer, Product, Service, PaymentMethod,\
                            InvoiceProductEntry, InvoiceServiceEntry, Deposit
 
 
-class ProductInline(admin.TabularInline):
+class ProductInline(admin.StackedInline):
     model = InvoiceProductEntry
-    extra = 2
+    extra = 1
 
 
 class ServiceInline(admin.TabularInline):
     model = InvoiceServiceEntry
-    extra = 2
+    extra = 1
 
 
 class PaymentInvoiceInline(admin.TabularInline):

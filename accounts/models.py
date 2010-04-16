@@ -91,7 +91,8 @@ class InvoiceProductEntry(models.Model):
         return "Invoice Product Entry #%s" % self.id
 
     class Meta:
-        verbose_name_plural = "Invoice product entries"
+        verbose_name = "Product"
+        verbose_name_plural = "Product entries"
 
 
 class InvoiceServiceEntry(models.Model):
@@ -104,7 +105,8 @@ class InvoiceServiceEntry(models.Model):
         return "Invoice Service Entry #%s" % self.id
 
     class Meta:
-        verbose_name_plural = "Invoice service entries"
+        verbose_name = "Service"
+        verbose_name_plural = "Service entries"
 
 
 class Deposit(models.Model):
