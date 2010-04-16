@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from configuration.models import PaymentMethod, InvoiceStatus, Config
+from accounts.fields import CurrencyField
 
 
 class Customer(models.Model):
@@ -19,7 +20,7 @@ class Customer(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = CurrencyField()
     number_in_stock = models.PositiveIntegerField(default=0)
     manage_stock = models.BooleanField(default=True, help_text="Uncheck this \
                                        to prevent the stock count being \
@@ -33,7 +34,7 @@ class Product(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = CurrencyField()
 
     def __unicode__(self):
         return self.name
@@ -58,12 +59,9 @@ class Invoice(models.Model):
     date_due = models.DateField(default=datetime.date.today)
     status = models.ForeignKey(InvoiceStatus, default=get_default_status)
     comment = models.CharField(max_length=200, blank=True)
-    subtotal = models.DecimalField(max_digits=8, decimal_places=2,
-                                   blank=True, default=0)
-    total_tax = models.DecimalField(max_digits=8, decimal_places=2,
-                                    blank=True, default=0)
-    total = models.DecimalField(max_digits=8, decimal_places=2,
-                                blank=True, default=0)
+    subtotal = CurrencyField()
+    total_tax = CurrencyField()
+    total = CurrencyField()
 
     def __unicode__(self):
         return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
@@ -71,7 +69,7 @@ class Invoice(models.Model):
 
 class InvoiceProductEntry(models.Model):
     product = models.ForeignKey(Product)
-    cost = models.DecimalField(max_digits=8, decimal_places=2)
+    cost = CurrencyField()
     quantity = models.PositiveIntegerField(default=1)
     tax = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
                               default=0)
@@ -98,7 +96,7 @@ class InvoiceProductEntry(models.Model):
 
 class InvoiceServiceEntry(models.Model):
     service = models.ForeignKey(Service)
-    cost = models.DecimalField(max_digits=8, decimal_places=2)
+    cost = CurrencyField()
     quantity = models.DecimalField(max_digits=6, decimal_places=2, default=1)
     invoice = models.ForeignKey(Invoice)
 
@@ -120,7 +118,7 @@ class Deposit(models.Model):
 
 
 class Payment(models.Model):
-    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    amount = CurrencyField()
     payment_method = models.ForeignKey(PaymentMethod)
     date_received = models.DateField(default=datetime.date.today)
     invoice = models.ForeignKey(Invoice)
