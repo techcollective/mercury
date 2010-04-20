@@ -1,26 +1,37 @@
 from django.contrib import admin
-from accounts.models import Customer, Product, Service, PaymentMethod,\
-                           InvoiceStatus, Invoice, Payment,\
-                           InvoiceProductEntry, InvoiceServiceEntry, Deposit
+from accounts.models import Customer, Product, Service, PaymentMethod, \
+                           InvoiceStatus, Invoice, Payment, Quote, \
+                           InvoiceProductEntry, InvoiceServiceEntry, Deposit, \
+                           QuoteProductEntry, QuoteServiceEntry
 
 
-class ProductInline(admin.TabularInline):
+class InvoiceProductInline(admin.TabularInline):
     model = InvoiceProductEntry
     extra = 1
 
 
-class ServiceInline(admin.TabularInline):
+class InvoiceServiceInline(admin.TabularInline):
     model = InvoiceServiceEntry
     extra = 1
 
 
-class PaymentInvoiceInline(admin.TabularInline):
+class QuoteProductInline(admin.TabularInline):
+    model = QuoteProductEntry
+    extra = 1
+
+
+class QuoteServiceInline(admin.TabularInline):
+    model = QuoteServiceEntry
+    extra = 1
+
+
+class InvoicePaymentInline(admin.TabularInline):
     model = Payment
     extra = 1
     exclude = ["deposit"]
 
 
-class PaymentDepositInline(admin.TabularInline):
+class DepositPaymentInline(admin.TabularInline):
     model = Payment
     extra = 0
 
@@ -30,7 +41,16 @@ class InvoiceAdmin(admin.ModelAdmin):
         (None, {"fields": ["customer", "date_created", "date_due", "status"]}),
         ("More", {"fields": ["comment"], "classes": ["collapse"]}),
     ]
-    inlines = [ServiceInline, ProductInline, PaymentInvoiceInline]
+    inlines = [InvoiceServiceInline, InvoiceProductInline, InvoicePaymentInline]
+    date_hierarchy = "date_created"
+
+
+class QuoteAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None, {"fields": ["customer", "date_created"]}),
+        ("More", {"fields": ["comment"], "classes": ["collapse"]}),
+    ]
+    inlines = [QuoteServiceInline, QuoteProductInline]
     date_hierarchy = "date_created"
 
 
@@ -43,12 +63,13 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 class DepositAdmin(admin.ModelAdmin):
-    inlines = [PaymentDepositInline]
+    inlines = [DepositPaymentInline]
 
 
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Product)
 admin.site.register(Service)
 admin.site.register(Invoice, InvoiceAdmin)
+admin.site.register(Quote, QuoteAdmin)
 admin.site.register(Payment)
 admin.site.register(Deposit, DepositAdmin)

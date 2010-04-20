@@ -40,33 +40,54 @@ class Service(models.Model):
         return self.name
 
 
-class Invoice(models.Model):
-    def get_default_status():
-        desired_status = Config.settings.get_setting("default invoice status")
-        status = None
-        if desired_status:
-            status, created = InvoiceStatus.objects.get_or_create(status=desired_status)
-        return status
-
+class Quote(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
-    date_due = models.DateField(default=datetime.date.today)
-    status = models.ForeignKey(InvoiceStatus, default=get_default_status)
     comment = models.CharField(max_length=200, blank=True)
     subtotal = CurrencyField()
     total_tax = CurrencyField()
     total = CurrencyField()
 
     def __unicode__(self):
+        return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
+
+
+class Invoice(Quote):
+    def get_or_create_default_status():
+        desired_status = Config.settings.get_setting("default invoice status")
+        status = None
+        if desired_status:
+            status, created = InvoiceStatus.objects.get_or_create(status=desired_status)
+        return status
+
+    status = models.ForeignKey(InvoiceStatus, default=get_or_create_default_status)
+    date_due = models.DateField(default=datetime.date.today)
+
+    def __unicode__(self):
         return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
 
 
-class InvoiceProductEntry(models.Model):
+class ProductEntry(models.Model):
     product = models.ForeignKey(Product)
     cost = CurrencyField()
     quantity = models.PositiveIntegerField(default=1)
     tax = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
                               default=0)
+
+    class Meta:
+        abstract = True
+        verbose_name = "Product"
+        verbose_name_plural = "Product entries"
+
+
+class QuoteProductEntry(ProductEntry):
+    quote = models.ForeignKey(Quote)
+
+    def __unicode__(self):
+        return "Product entry #%s on %s" % (self.id, str(self.quote))
+
+
+class InvoiceProductEntry(ProductEntry):
     invoice = models.ForeignKey(Invoice)
 
     def save(self, *args, **kwargs):
@@ -82,25 +103,31 @@ class InvoiceProductEntry(models.Model):
         super(InvoiceProductEntry, self).delete(*args, **kwargs)
 
     def __unicode__(self):
-        return "Invoice Product Entry #%s" % self.id
-
-    class Meta:
-        verbose_name = "Product"
-        verbose_name_plural = "Product entries"
+        return "Product Entry #%s on %s" % (self.id, str(self.invoice))
 
 
-class InvoiceServiceEntry(models.Model):
+class ServiceEntry(models.Model):
     service = models.ForeignKey(Service)
     cost = CurrencyField()
     quantity = models.DecimalField(max_digits=6, decimal_places=2, default=1)
+
+    class Meta:
+        abstract = True
+        verbose_name = "Service"
+        verbose_name_plural = "Service entries"
+
+
+class QuoteServiceEntry(ServiceEntry):
+    quote = models.ForeignKey(Quote)
+
+    def __unicode__(self):
+        return "Service Entry #%s on %s" % (self.id, str(self.quote))
+
+class InvoiceServiceEntry(ServiceEntry):
     invoice = models.ForeignKey(Invoice)
 
     def __unicode__(self):
-        return "Invoice Service Entry #%s" % self.id
-
-    class Meta:
-        verbose_name = "Service"
-        verbose_name_plural = "Service entries"
+        return "Service Entry #%s on %s" % (self.id, str(self.invoice))
 
 
 class Deposit(models.Model):
@@ -110,7 +137,7 @@ class Deposit(models.Model):
         return sum([x.amount for x in self.payment_set.all()])
 
     def __unicode__(self):
-        return "Deposit of %s" % self.total()
+        return "Deposit of %s on %s" % (self.total(), self.date)
 
 
 class Payment(models.Model):
