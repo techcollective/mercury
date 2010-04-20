@@ -36,16 +36,18 @@ class CurrencyInputWidget(Widget):
         return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs), suffix))
 
 
-class CurrencyInputField(fields.DecimalField):
+class CurrencyFormField(fields.DecimalField):
     def __init__(self, *args, **kwargs):
-        super(CurrencyInputField, self).__init__(widget=CurrencyInputWidget)
+        kwargs.update({"widget": CurrencyInputWidget})
+        super(CurrencyFormField, self).__init__(*args, **kwargs)
 
 
 class CurrencyField(models.DecimalField):
-    def __init__(self):
-        super(CurrencyField, self).__init__(decimal_places=2, max_digits=15)
+    def __init__(self, *args, **kwargs):
+        kwargs.update({"decimal_places": 2, "max_digits": 15})
+        super(CurrencyField, self).__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
-        defaults = {"form_class": CurrencyInputField}
+        defaults = {"form_class": CurrencyFormField}
         defaults.update(kwargs)
         return super(CurrencyField, self).formfield(**defaults)

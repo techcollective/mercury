@@ -4,7 +4,7 @@ from accounts.models import Customer, Product, Service, PaymentMethod,\
                            InvoiceProductEntry, InvoiceServiceEntry, Deposit
 
 
-class ProductInline(admin.StackedInline):
+class ProductInline(admin.TabularInline):
     model = InvoiceProductEntry
     extra = 1
 
