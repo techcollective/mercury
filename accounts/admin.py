@@ -41,7 +41,8 @@ class InvoiceAdmin(admin.ModelAdmin):
         (None, {"fields": ["customer", "date_created", "date_due", "status"]}),
         ("More", {"fields": ["comment"], "classes": ["collapse"]}),
     ]
-    inlines = [InvoiceServiceInline, InvoiceProductInline, InvoicePaymentInline]
+    inlines = [InvoiceServiceInline, InvoiceProductInline,
+               InvoicePaymentInline]
     date_hierarchy = "date_created"
 
 

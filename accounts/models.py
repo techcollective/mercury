@@ -44,9 +44,9 @@ class Quote(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
-    subtotal = CurrencyField()
-    total_tax = CurrencyField()
-    total = CurrencyField()
+    subtotal = CurrencyField(editable=False)
+    total_tax = CurrencyField(editable=False)
+    total = CurrencyField(editable=False)
 
     def __unicode__(self):
         return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
@@ -57,10 +57,12 @@ class Invoice(Quote):
         desired_status = Config.settings.get_setting("default invoice status")
         status = None
         if desired_status:
-            status, created = InvoiceStatus.objects.get_or_create(status=desired_status)
+            status, created = InvoiceStatus.objects.get_or_create(
+                status=desired_status)
         return status
 
-    status = models.ForeignKey(InvoiceStatus, default=get_or_create_default_status)
+    status = models.ForeignKey(InvoiceStatus,
+                               default=get_or_create_default_status)
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):
@@ -122,6 +124,7 @@ class QuoteServiceEntry(ServiceEntry):
 
     def __unicode__(self):
         return "Service Entry #%s on %s" % (self.id, str(self.quote))
+
 
 class InvoiceServiceEntry(ServiceEntry):
     invoice = models.ForeignKey(Invoice)
