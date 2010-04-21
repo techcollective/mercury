@@ -44,9 +44,9 @@ class Quote(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
-    subtotal = CurrencyField(editable=False)
-    total_tax = CurrencyField(editable=False)
-    total = CurrencyField(editable=False)
+    subtotal = CurrencyField(default=0)
+    total_tax = CurrencyField(default=0)
+    grand_total = CurrencyField(default=0)
 
     def __unicode__(self):
         return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
@@ -78,7 +78,6 @@ class ProductEntry(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = "Product"
         verbose_name_plural = "Product entries"
 
 
@@ -115,7 +114,6 @@ class ServiceEntry(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = "Service"
         verbose_name_plural = "Service entries"
 
 

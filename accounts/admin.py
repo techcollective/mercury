@@ -5,30 +5,39 @@ from accounts.models import Customer, Product, Service, PaymentMethod, \
                            QuoteProductEntry, QuoteServiceEntry
 
 
-class InvoiceProductInline(admin.TabularInline):
+class ServiceInline(admin.TabularInline):
+    extra = 1
+    verbose_name = "Service"
+    verbose_name_plural = "Services"
+
+
+class ProductInline(admin.TabularInline):
+    extra = 1
+    verbose_name = "Product"
+    verbose_name_plural = "Products"
+
+
+class InvoiceProductInline(ProductInline):
     model = InvoiceProductEntry
-    extra = 1
 
 
-class InvoiceServiceInline(admin.TabularInline):
+class InvoiceServiceInline(ServiceInline):
     model = InvoiceServiceEntry
-    extra = 1
 
 
-class QuoteProductInline(admin.TabularInline):
+class QuoteProductInline(ProductInline):
     model = QuoteProductEntry
-    extra = 1
 
 
-class QuoteServiceInline(admin.TabularInline):
+class QuoteServiceInline(ServiceInline):
     model = QuoteServiceEntry
-    extra = 1
 
 
 class InvoicePaymentInline(admin.TabularInline):
     model = Payment
     extra = 1
     exclude = ["deposit"]
+    show_last = True
 
 
 class DepositPaymentInline(admin.TabularInline):
@@ -38,9 +47,10 @@ class DepositPaymentInline(admin.TabularInline):
 
 class InvoiceAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {"fields": ["customer", "date_created", "date_due", "status"]}),
-        ("More", {"fields": ["comment"], "classes": ["collapse"]}),
+        ("Information", {"fields": ["customer", "date_created", "date_due", "status", "comment"]}),
+        ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
+    readonly_fields = ["subtotal", "total_tax", "grand_total"]
     inlines = [InvoiceServiceInline, InvoiceProductInline,
                InvoicePaymentInline]
     date_hierarchy = "date_created"
@@ -48,9 +58,10 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 class QuoteAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {"fields": ["customer", "date_created"]}),
-        ("More", {"fields": ["comment"], "classes": ["collapse"]}),
+        ("Information", {"fields": ["customer", "date_created", "comment"]}),
+        ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
+    readonly_fields = ["subtotal", "total_tax", "grand_total"]
     inlines = [QuoteServiceInline, QuoteProductInline]
     date_hierarchy = "date_created"
 
