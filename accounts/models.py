@@ -40,19 +40,22 @@ class Service(models.Model):
         return self.name
 
 
-class Quote(models.Model):
+class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     subtotal = CurrencyField(default=0)
     total_tax = CurrencyField(default=0)
     grand_total = CurrencyField(default=0)
+    class Meta:
+        abstract = True
 
+class Quote(QuoteInvoiceBase):
     def __unicode__(self):
         return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
 
 
-class Invoice(Quote):
+class Invoice(QuoteInvoiceBase):
     def get_or_create_default_status():
         desired_status = Config.settings.get_setting("default invoice status")
         status = None

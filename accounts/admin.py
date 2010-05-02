@@ -1,4 +1,6 @@
 from django.contrib import admin
+from ajax_select import make_ajax_form
+from ajax_select.admin import AjaxSelectAdmin
 from accounts.models import Customer, Product, Service, PaymentMethod, \
                            InvoiceStatus, Invoice, Payment, Quote, \
                            InvoiceProductEntry, InvoiceServiceEntry, Deposit, \
@@ -15,6 +17,7 @@ class ProductInline(admin.TabularInline):
     extra = 1
     verbose_name = "Product"
     verbose_name_plural = "Products"
+    form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"})
 
 
 class InvoiceProductInline(ProductInline):
@@ -45,7 +48,9 @@ class DepositPaymentInline(admin.TabularInline):
     extra = 0
 
 
-class InvoiceAdmin(admin.ModelAdmin):
+class InvoiceAdmin(AjaxSelectAdmin):
+    search_fields = ["customer__name"]
+    form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "date_due", "status", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
@@ -67,6 +72,7 @@ class QuoteAdmin(admin.ModelAdmin):
 
 
 class CustomerAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
     fieldsets = [
         (None, {"fields": ["name"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),

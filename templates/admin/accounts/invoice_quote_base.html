@@ -4,6 +4,11 @@
 {% block extrahead %}{{ block.super }}
 {% url admin:jsi18n as jsi18nurl %}
 <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery-1.4.2.min.js"</script>-->
+<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.autocomplete.js"</script>-->
+<!--<script type="text/javascript" src="{{ MEDIA_URL }}ajax_select.js"</script>-->
+<!--<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}jquery.autocomplete.css " />-->
+<!--<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}iconic.css " />-->
 {{ media }}
 {% endblock %}
 

@@ -1,0 +1,1 @@
+../../django-ajax-selects/ajax_select/js/ajax_select.js
