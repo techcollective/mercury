@@ -14,10 +14,11 @@ class ServiceInline(admin.TabularInline):
 
 
 class ProductInline(admin.TabularInline):
-    extra = 1
+    extra = 2
     verbose_name = "Product"
     verbose_name_plural = "Products"
-    form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"})
+    form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"},
+                          autofill={"product": {"field": "cost", "related_field": "price"}})
 
 
 class InvoiceProductInline(ProductInline):

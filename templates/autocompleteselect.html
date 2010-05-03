@@ -12,7 +12,9 @@ jQuery(document).ready(function($){{% block script %}
 		width: 320,
 		formatItem: function(row) { return row[2]; },
 		formatResult: function(row) { return row[1]; },
-		dataType: "text"
+		mustMatch: "true"{% if autofill %},
+		extraParams: {"extra":"{{ autofill.related_field }}"}
+		{% endif %}
 	});
 	function receiveResult(event, data) {
 		prev = $("#{{html_id}}").val();
@@ -20,9 +22,10 @@ jQuery(document).ready(function($){{% block script %}
 			kill_{{ func_slug }}(prev);
 		}
 		$("#{{html_id}}").val(data[0]);
-		$("#{{html_id}}_text").val("");
 		addKiller_{{ func_slug }}(data[1],data[0]);
-		$("#{{html_id}}_on_deck").trigger("added");
+		{% if autofill %}
+		$(this).parent().createTextNode("Hello")
+		{% endif %}
 	}
 	$("#{{html_id}}_text").result(receiveResult);
 	function addKiller_{{func_slug}}(repr,id) {
@@ -39,7 +42,7 @@ jQuery(document).ready(function($){{% block script %}
 		}}() );
 	}
 	function kill_{{func_slug}}() {
-		$("#{{html_id}}").val( '' );
+		$("#{{html_id}}_text").val("");
 		$( "#{{html_id}}_on_deck" ).children().fadeOut(1.0).remove();
 	}
 	if($("#{{ html_id }}").val()) { // add X for initial value if any
@@ -54,4 +57,3 @@ jQuery(document).ready(function($){{% block script %}
 {% block extra_script %}{% endblock %}
 {% endblock %}});
 </script>
-

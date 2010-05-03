@@ -36,4 +36,4 @@ class Config(models.Model):
         return "'%s' is set to '%s'" % (self.name, self.value)
 
     class Meta:
-        verbose_name = "Setting"
+        verbose_name = "System Setting"
