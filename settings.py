@@ -86,4 +86,5 @@ INSTALLED_APPS = (
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': {"model": "accounts.Customer", "search_field": "name"},
     'product_name': {"model": "accounts.Product", "search_field": "name"},
+    'service_name': {"model": "accounts.Service", "search_field": "name"},
 }

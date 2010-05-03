@@ -38,10 +38,9 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
         else:
             current_result = ''
 
-        print current_id
         context = {
                 'name': name,
-                'html_id' : self.html_id,
+                'html_id' : "id_" + self.html_id,
                 'lookup_url': reverse('ajax_lookup',kwargs={'channel':self.channel}),
                 'current_id': value,
                 'current_result': current_result,
@@ -52,7 +51,6 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 'admin_media_prefix' : settings.ADMIN_MEDIA_PREFIX,
                 'autofill': self.autofill,
                 }
-
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
 
     def value_from_datadict(self, data, files, name):

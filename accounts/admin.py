@@ -1,20 +1,30 @@
 from django.contrib import admin
 from ajax_select import make_ajax_form
 from ajax_select.admin import AjaxSelectAdmin
+from ajax_select.fields import autoselect_fields_check_can_add
 from accounts.models import Customer, Product, Service, PaymentMethod, \
                            InvoiceStatus, Invoice, Payment, Quote, \
                            InvoiceProductEntry, InvoiceServiceEntry, Deposit, \
                            QuoteProductEntry, QuoteServiceEntry
 
 
-class ServiceInline(admin.TabularInline):
+class AjaxTabularInline(admin.TabularInline):
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super(AjaxTabularInline,self).get_formset(request,obj,**kwargs)
+        autoselect_fields_check_can_add(formset.form,self.model,request.user)
+        return formset
+
+
+class ServiceInline(AjaxTabularInline):
     extra = 1
     verbose_name = "Service"
     verbose_name_plural = "Services"
+    form = make_ajax_form(InvoiceServiceEntry, {"service": "service_name"},
+                          autofill={"service": {"field": "cost", "related_field": "price"}})
 
 
-class ProductInline(admin.TabularInline):
-    extra = 2
+class ProductInline(AjaxTabularInline):
+    extra = 1
     verbose_name = "Product"
     verbose_name_plural = "Products"
     form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"},
