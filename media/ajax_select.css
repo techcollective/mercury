@@ -1,1 +1,21 @@
-/*
+.ajax-input {
+    float: left;
+}
+
+.ajax-clearfield div {
+    float: left;
+    background: url("inline-delete.png");
+    width: 15px;
+    height: 15px;
+    border: 0px none;
+    outline: 0; /* Remove dotted border around link */
+}
+
+.ajax-clearfield span {
+    display: none;
+}
+
+.ajax-clearfield div:hover {
+    background-position: -15px 0;
+    cursor: pointer;
+}

@@ -50,6 +50,7 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 'add_link' : self.add_link,
                 'admin_media_prefix' : settings.ADMIN_MEDIA_PREFIX,
                 'autofill': self.autofill,
+                'media_url': settings.MEDIA_URL,
                 }
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
 
