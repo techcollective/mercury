@@ -44,9 +44,9 @@ class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
-    subtotal = CurrencyField(default=0)
-    total_tax = CurrencyField(default=0)
-    grand_total = CurrencyField(default=0)
+    subtotal = CurrencyField(default=0, read_only=True)
+    total_tax = CurrencyField(default=0, read_only=True)
+    grand_total = CurrencyField(default=0, read_only=True)
     class Meta:
         abstract = True
 
@@ -76,8 +76,6 @@ class ProductEntry(models.Model):
     product = models.ForeignKey(Product)
     cost = CurrencyField()
     quantity = models.PositiveIntegerField(default=1)
-    tax = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
-                              default=0)
 
     class Meta:
         abstract = True

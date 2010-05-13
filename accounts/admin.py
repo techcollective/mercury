@@ -66,7 +66,6 @@ class InvoiceAdmin(AjaxSelectAdmin):
         ("Information", {"fields": ["customer", "date_created", "date_due", "status", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
-    readonly_fields = ["subtotal", "total_tax", "grand_total"]
     inlines = [InvoiceServiceInline, InvoiceProductInline,
                InvoicePaymentInline]
     date_hierarchy = "date_created"
