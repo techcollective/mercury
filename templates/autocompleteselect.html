@@ -5,10 +5,15 @@
 	<a href="{{ add_link }}" class="add-another" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);"> <img src="{{ admin_media_prefix }}img/admin/icon_addlink.gif" width="10" height="10" alt="Add Another"></a>
 {% endif %}
 {% block help %}{# {% if help_text %}<p class="help">{{help_text}}</p>{% endif %} #}{% endblock %}
-<input type="text" name="{{name}}" id="{{html_id}}_hidden" value="{{current_id}}" />
+<input type="hidden" name="{{name}}" id="{{html_id}}_hidden" value="{{current_id}}" />
 <script type="text/javascript">
 jQuery(document).ready(function($){{% block script %}
 	$("#{{ html_id }}_clear").hide();
+	$("#{{ html_id }}_clear").click(function(){
+		$("#{{html_id}}_hidden").val("");
+		$("#{{html_id}}").val("");
+		$("#{{ html_id }}_clear").hide();
+	});
 	$("#{{html_id}}").autocomplete('{{lookup_url}}', {
 		width: 320,
 		formatItem: function(row) { return row[2]; },
@@ -17,16 +22,13 @@ jQuery(document).ready(function($){{% block script %}
 		extraParams: {"extra":"{{ autofill.related_field }}"}
 		{% endif %}
 	});
+	$("#{{ html_id }}").keypress(function(){
+		$("#{{html_id}}_hidden").val("");
+	});
 	function receiveResult(event, data) {
-		prev = $("#{{html_id}}").val();
 		$("#{{html_id}}_hidden").val(data[0]);
 		$("#{{html_id}}").val(data[1]);
-		if($("#{{ html_id }}").val()) {
-			alert("has val");
-		}
-		else{
-			alert("no val");
-		}
+		$("#{{ html_id }}_clear").show();
 		{% if autofill %}
 		replace = "{{ html_id }}";
 		replace = replace.split("-");
