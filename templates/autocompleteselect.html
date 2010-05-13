@@ -42,7 +42,7 @@ jQuery(document).ready(function($){{% block script %}
 	if($("#{{ html_id }}_hidden").val()) { // add X for initial value if any
 		$("#{{ html_id }}_clear").show();
 	}
-	$("#{{ html_id }}_hidden").bind('didAddPopup',function(event,id,repr) {
+	$("#{{ html_id }}").bind('didAddPopup',function(event,id,repr) {
 		data = Array();
 		data[0] = id;
 		data[1] = repr;
