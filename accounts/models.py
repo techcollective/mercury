@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.db import models
 from configuration.models import PaymentMethod, InvoiceStatus, Config
@@ -47,8 +48,10 @@ class QuoteInvoiceBase(models.Model):
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
+
     class Meta:
         abstract = True
+
 
 class Quote(QuoteInvoiceBase):
     def __unicode__(self):
@@ -70,6 +73,27 @@ class Invoice(QuoteInvoiceBase):
 
     def __unicode__(self):
         return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
+
+    def update_tax(self, *args, **kwargs):
+        subtotal = 0
+        tax = 0
+        grand_total = 0
+        tax_percentage = Config.settings.get_setting("tax as percentage")
+        try:
+            tax_percentage = decimal.Decimal(tax_percentage)
+        except (ValueError, TypeError):
+            tax_percentage = 0
+            # TODO: warn
+        for product in self.invoiceproductentry_set.all():
+            subtotal += product.cost
+            tax += product.cost * tax_percentage / 100
+        for service in self.invoiceserviceentry_set.all():
+            subtotal += service.cost
+        grand_total = subtotal + tax
+        self.total_tax = tax
+        self.subtotal = subtotal
+        self.grand_total = grand_total
+        self.save()
 
 
 class ProductEntry(models.Model):
