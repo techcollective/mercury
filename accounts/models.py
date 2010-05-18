@@ -6,6 +6,16 @@ from configuration.models import PaymentMethod, InvoiceStatus, Config
 from accounts.fields import CurrencyField
 
 
+def get_tax_percentage():
+    tax_percentage = Config.settings.get_setting("tax as percentage")
+    try:
+        tax_percentage = decimal.Decimal(tax_percentage)
+    except (ValueError, TypeError):
+        tax_percentage = 0
+        # TODO: warn
+    return tax_percentage
+
+
 class Customer(models.Model):
     name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=50, blank=True)
@@ -78,12 +88,7 @@ class Invoice(QuoteInvoiceBase):
         subtotal = 0
         tax = 0
         grand_total = 0
-        tax_percentage = Config.settings.get_setting("tax as percentage")
-        try:
-            tax_percentage = decimal.Decimal(tax_percentage)
-        except (ValueError, TypeError):
-            tax_percentage = 0
-            # TODO: warn
+        tax_percentage = get_tax_percentage()
         for product in self.invoiceproductentry_set.all():
             subtotal += product.cost
             tax += product.cost * tax_percentage / 100
