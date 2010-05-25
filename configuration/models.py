@@ -23,7 +23,7 @@ class ConfigManager(models.Manager):
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            value = None
+            value = ""
         return value
 
 

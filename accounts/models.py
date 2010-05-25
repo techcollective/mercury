@@ -2,18 +2,10 @@ import datetime
 import decimal
 
 from django.db import models
-from configuration.models import PaymentMethod, InvoiceStatus, Config
+
+from configuration.models import PaymentMethod, InvoiceStatus
 from accounts.fields import CurrencyField
-
-
-def get_tax_percentage():
-    tax_percentage = Config.settings.get_setting("tax as percentage")
-    try:
-        tax_percentage = decimal.Decimal(tax_percentage)
-    except (ValueError, TypeError):
-        tax_percentage = 0
-        # TODO: warn
-    return tax_percentage
+from helpers import get_currency_symbol, get_or_create_default_invoice_status, get_tax_percentage
 
 
 class Customer(models.Model):
@@ -68,17 +60,16 @@ class Quote(QuoteInvoiceBase):
         return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
 
 
-class Invoice(QuoteInvoiceBase):
-    def get_or_create_default_status():
-        desired_status = Config.settings.get_setting("default invoice status")
-        status = None
-        if desired_status:
-            status, created = InvoiceStatus.objects.get_or_create(
-                status=desired_status)
-        return status
+def get_default():
+    status = InvoiceStatus.objects.get(id=4)
+    print status
+    return status
 
+
+class Invoice(QuoteInvoiceBase):
     status = models.ForeignKey(InvoiceStatus,
-                               default=get_or_create_default_status)
+                               default=get_or_create_default_invoice_status)
+    # TODO: default should be customizable, default=in a month
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):

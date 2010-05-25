@@ -1,4 +1,4 @@
-# Django settings for Stanley.
+# Django settings for Mercury.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -35,7 +35,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/Stanley/media'
+MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/Mercury/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -63,13 +63,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'Stanley.urls'
+ROOT_URLCONF = 'Mercury.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/vasili/.virtualenvs/TC/src/Stanley/templates"
+    "/home/vasili/.virtualenvs/TC/src/Mercury/templates"
 )
 
 INSTALLED_APPS = (

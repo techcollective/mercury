@@ -16,7 +16,7 @@ class AjaxTabularInline(admin.TabularInline):
 
 
 class ServiceInline(AjaxTabularInline):
-    extra = 1
+    extra = 0
     verbose_name = "Service"
     verbose_name_plural = "Services"
     form = make_ajax_form(InvoiceServiceEntry, {"service": "service_name"},
@@ -24,7 +24,7 @@ class ServiceInline(AjaxTabularInline):
 
 
 class ProductInline(AjaxTabularInline):
-    extra = 1
+    extra = 0
     verbose_name = "Product"
     verbose_name_plural = "Products"
     form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"},
@@ -49,7 +49,7 @@ class QuoteServiceInline(ServiceInline):
 
 class InvoicePaymentInline(admin.TabularInline):
     model = Payment
-    extra = 1
+    extra = 0
     exclude = ["deposit"]
     show_last = True
 

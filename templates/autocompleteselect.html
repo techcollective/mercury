@@ -10,6 +10,7 @@
 <script type="text/javascript">
 $("#{{ html_id }}").autocomplete("{{ lookup_url }}", {
     width: 320,
+    delay: 200,
     formatItem: function(row) { return row[2]; },
     formatResult: function(row) { return row[1]; },
     mustMatch: "true"{% if autofill %},
