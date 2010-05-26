@@ -1,5 +1,11 @@
 # Django settings for Mercury.
 
+import sys
+import os
+
+lib_path = os.path.join(os.path.dirname(__file__), "lib")
+sys.path.append(lib_path)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
