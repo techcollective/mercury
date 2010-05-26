@@ -85,8 +85,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'ajax_select',
-    'configuration',
-    'accounts',
+    'Mercury.configuration',
+    'Mercury.accounts',
 )
 
 AJAX_LOOKUP_CHANNELS = {
