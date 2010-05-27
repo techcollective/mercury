@@ -1,6 +1,6 @@
 import decimal
 
-from configuration.models import Config, InvoiceStatus
+from mercury.configuration.models import Config, InvoiceStatus
 
 def get_or_create_default_invoice_status():
     desired_status = Config.settings.get_setting("default invoice status")

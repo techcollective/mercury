@@ -5,7 +5,7 @@ from django.utils.encoding import force_unicode
 from django.forms.util import flatatt
 from django.forms import fields
 
-from configuration.models import Config
+from mercury.configuration.models import Config
 
 
 class CurrencyInputWidget(Widget):

@@ -1,4 +1,4 @@
-# Django settings for Mercury.
+# Django settings for mercury.
 
 import sys
 import os
@@ -41,7 +41,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/Mercury/media'
+MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/mercury/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -69,13 +69,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'Mercury.urls'
+ROOT_URLCONF = 'mercury.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/vasili/.virtualenvs/TC/src/Mercury/templates"
+    "/home/vasili/.virtualenvs/TC/src/mercury/templates"
 )
 
 INSTALLED_APPS = (
@@ -85,8 +85,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'ajax_select',
-    'Mercury.configuration',
-    'Mercury.accounts',
+    'mercury.configuration',
+    'mercury.accounts',
 )
 
 AJAX_LOOKUP_CHANNELS = {

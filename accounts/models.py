@@ -3,9 +3,9 @@ import decimal
 
 from django.db import models
 
-from configuration.models import PaymentMethod, InvoiceStatus
-from accounts.fields import CurrencyField
-from helpers import get_currency_symbol, get_or_create_default_invoice_status, get_tax_percentage
+from mercury.configuration.models import PaymentMethod, InvoiceStatus
+from mercury.accounts.fields import CurrencyField
+from mercury.helpers import get_currency_symbol, get_or_create_default_invoice_status, get_tax_percentage
 
 
 class Customer(models.Model):
