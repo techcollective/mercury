@@ -3,7 +3,8 @@
 import sys
 import os
 
-lib_path = os.path.join(os.path.dirname(__file__), "lib")
+this_dir = os.path.dirname(__file__)
+lib_path = os.path.join(this_dir, "lib")
 sys.path.append(lib_path)
 
 DEBUG = True
@@ -16,7 +17,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'db.sqlite'             # Or path to database file if using sqlite3.
+DATABASE_NAME = os.path.join(this_dir, 'db.sqlite')             # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
