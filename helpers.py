@@ -2,6 +2,7 @@ import decimal
 
 from mercury.configuration.models import Config, InvoiceStatus
 
+
 def get_or_create_default_invoice_status():
     desired_status = Config.settings.get_setting("default invoice status")
     status = None
@@ -25,7 +26,6 @@ def get_currency_symbol():
     return (prefix, suffix)
 
 
-
 def get_tax_percentage():
     tax_percentage = Config.settings.get_setting("tax as percentage")
     try:
@@ -34,3 +34,14 @@ def get_tax_percentage():
         tax_percentage = 0
         # TODO: warn
     return tax_percentage
+
+
+def get_taxable_default(entity):
+    taxable = Config.settings.get_setting("%s taxable by default")
+    if taxable and taxable.lower() == "true":
+        return True
+    else:
+        return False
+
+
+def get_default_customer_taxable():

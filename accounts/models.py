@@ -5,7 +5,9 @@ from django.db import models
 
 from mercury.configuration.models import PaymentMethod, InvoiceStatus
 from mercury.accounts.fields import CurrencyField
-from mercury.helpers import get_currency_symbol, get_or_create_default_invoice_status, get_tax_percentage
+from mercury.helpers import get_currency_symbol, \
+     get_or_create_default_invoice_status, get_tax_percentage, \
+     get_taxable_default
 
 
 class Customer(models.Model):
@@ -16,12 +18,13 @@ class Customer(models.Model):
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
+    is_taxable = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
 
 
-class Product(models.Model):
+class ProductOrService(models.Model):
     name = models.CharField(max_length=50)
     price = CurrencyField()
     number_in_stock = models.PositiveIntegerField(default=0)
@@ -34,13 +37,8 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
-
-class Service(models.Model):
-    name = models.CharField(max_length=50)
-    price = CurrencyField()
-
-    def __unicode__(self):
-        return self.name
+    class Meta:
+        verbose_name_plural = "Products and services"
 
 
 class QuoteInvoiceBase(models.Model):
@@ -50,30 +48,6 @@ class QuoteInvoiceBase(models.Model):
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
-
-    class Meta:
-        abstract = True
-
-
-class Quote(QuoteInvoiceBase):
-    def __unicode__(self):
-        return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
-
-
-def get_default():
-    status = InvoiceStatus.objects.get(id=4)
-    print status
-    return status
-
-
-class Invoice(QuoteInvoiceBase):
-    status = models.ForeignKey(InvoiceStatus,
-                               default=get_or_create_default_invoice_status)
-    # TODO: default should be customizable, default=in a month
-    date_due = models.DateField(default=datetime.date.today)
-
-    def __unicode__(self):
-        return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
 
     def update_tax(self, *args, **kwargs):
         subtotal = 0
@@ -91,22 +65,35 @@ class Invoice(QuoteInvoiceBase):
         self.grand_total = grand_total
         self.save()
 
+    class Meta:
+        abstract = True
 
-class ProductEntry(models.Model):
-    product = models.ForeignKey(Product)
+
+class Quote(QuoteInvoiceBase):
+    def __unicode__(self):
+        return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
+
+
+class Invoice(QuoteInvoiceBase):
+    status = models.ForeignKey(InvoiceStatus,
+                               default=get_or_create_default_invoice_status)
+    # TODO: default should be customizable, default=in a month
+    date_due = models.DateField(default=datetime.date.today)
+
+    def __unicode__(self):
+        return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
+
+
+class Entry(models.Model):
     cost = CurrencyField()
-    quantity = models.PositiveIntegerField(default=1)
+    discount = CurrencyField()
+    tax = CurrencyField(read_only=True)
+    total = CurrencyField(read_only=True)
+    quantity = models.DecimalField(max_digits=14, decimal_places=2, default=1)
 
     class Meta:
         abstract = True
-        verbose_name_plural = "Product entries"
-
-
-class QuoteProductEntry(ProductEntry):
-    quote = models.ForeignKey(Quote)
-
-    def __unicode__(self):
-        return "Product entry #%s on %s" % (self.id, str(self.quote))
+        verbose_name_plural = "Invoice entries"
 
 
 class InvoiceProductEntry(ProductEntry):
@@ -128,10 +115,8 @@ class InvoiceProductEntry(ProductEntry):
         return "Product Entry #%s on %s" % (self.id, str(self.invoice))
 
 
-class ServiceEntry(models.Model):
+class ServiceEntry(InvoiceEntry):
     service = models.ForeignKey(Service)
-    cost = CurrencyField()
-    quantity = models.DecimalField(max_digits=6, decimal_places=2, default=1)
 
     class Meta:
         abstract = True
