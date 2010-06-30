@@ -2,7 +2,7 @@ from django.contrib import admin
 from ajax_select import make_ajax_form
 from ajax_select.admin import AjaxSelectAdmin
 from ajax_select.fields import autoselect_fields_check_can_add
-from mercury.accounts.models import Customer, Product, Service, PaymentMethod, \
+from mercury.accounts.models import Customer, Product, Service, PaymentMethod,\
                            InvoiceStatus, Invoice, Payment, Quote, \
                            InvoiceProductEntry, InvoiceServiceEntry, Deposit, \
                            QuoteProductEntry, QuoteServiceEntry
@@ -10,8 +10,9 @@ from mercury.accounts.models import Customer, Product, Service, PaymentMethod, \
 
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
-        formset = super(AjaxTabularInline,self).get_formset(request,obj,**kwargs)
-        autoselect_fields_check_can_add(formset.form,self.model,request.user)
+        formset = super(AjaxTabularInline, self).get_formset(request, obj,
+                                                            **kwargs)
+        autoselect_fields_check_can_add(formset.form, self.model, request.user)
         return formset
 
 
@@ -69,6 +70,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
     inlines = [InvoiceServiceInline, InvoiceProductInline,
                InvoicePaymentInline]
     date_hierarchy = "date_created"
+
     def post_save(self, instance):
         instance.update_totals()
 

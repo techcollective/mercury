@@ -28,7 +28,8 @@ class CurrencyInputWidget(Widget):
             suffix = symbol
         else:
             prefix = symbol
-        if value is None: value = ''
+        if value is None:
+            value = ''
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.

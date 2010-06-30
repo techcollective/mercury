@@ -48,6 +48,7 @@ class TaxableDefault(object):
         else:
             return False
 
+
 def get_customer_term(plural=False):
     query = "term for customer"
     if plural:
