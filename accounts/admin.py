@@ -70,7 +70,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
                InvoicePaymentInline]
     date_hierarchy = "date_created"
     def post_save(self, instance):
-        instance.update_tax()
+        instance.update_totals()
 
 
 

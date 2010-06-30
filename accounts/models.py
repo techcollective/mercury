@@ -3,11 +3,11 @@ import decimal
 
 from django.db import models
 
-from mercury.configuration.models import PaymentMethod, InvoiceStatus
+from mercury.configuration.models import PaymentMethod, InvoiceStatus, Config
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import get_currency_symbol, \
      get_or_create_default_invoice_status, get_tax_percentage, \
-     get_taxable_default
+     TaxableDefault
 
 
 class Customer(models.Model):
@@ -18,10 +18,16 @@ class Customer(models.Model):
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
-    is_taxable = models.BooleanField(default=True)
+    is_taxable = models.BooleanField(
+        default=TaxableDefault("customer").get_setting)
+    default_payment_terms = models.ForeignKey(InvoiceTerms)
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = Customer.get_term()
+        verbose_name_plural = get_term(plural=True)
 
 
 class ProductOrService(models.Model):
@@ -30,9 +36,10 @@ class ProductOrService(models.Model):
     number_in_stock = models.PositiveIntegerField(default=0)
     manage_stock = models.BooleanField(default=True, help_text="Uncheck this \
                                        to prevent the stock count being \
-                                       changed when this product is added to \
+                                       changed when this item is added to \
                                        an invoice.")
-    is_taxable = models.BooleanField(default=True)
+    is_taxable = models.BooleanField(
+        default=TaxableDefault("products and services").get_setting)
 
     def __unicode__(self):
         return self.name
@@ -49,16 +56,14 @@ class QuoteInvoiceBase(models.Model):
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
 
-    def update_tax(self, *args, **kwargs):
+    def update_totals(self, *args, **kwargs):
         subtotal = 0
         tax = 0
         grand_total = 0
-        tax_percentage = get_tax_percentage()
-        for product in self.invoiceproductentry_set.all():
-            subtotal += product.cost
-            tax += product.cost * tax_percentage / 100
-        for service in self.invoiceserviceentry_set.all():
-            subtotal += service.cost
+
+        for item in self.invoiceentry_set.all():
+            subtotal += item.cost
+            tax += item.tax
         grand_total = subtotal + tax
         self.total_tax = tax
         self.subtotal = subtotal
@@ -71,20 +76,23 @@ class QuoteInvoiceBase(models.Model):
 
 class Quote(QuoteInvoiceBase):
     def __unicode__(self):
+        # TODO: make zero padding a setting
         return "Quote #%s - %s" % (str(self.id).zfill(5), self.customer)
 
 
 class Invoice(QuoteInvoiceBase):
     status = models.ForeignKey(InvoiceStatus,
                                default=get_or_create_default_invoice_status)
-    # TODO: default should be customizable, default=in a month
+    # TODO: auto-add customer's terms to date due
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):
+        # TODO: make zero padding a setting
         return "Invoice #%s - %s" % (str(self.id).zfill(5), self.customer)
 
 
 class Entry(models.Model):
+    item = models.ForeignKey(ProductOrService)
     cost = CurrencyField()
     discount = CurrencyField()
     tax = CurrencyField(read_only=True)
@@ -95,46 +103,33 @@ class Entry(models.Model):
         abstract = True
         verbose_name_plural = "Invoice entries"
 
-
-class InvoiceProductEntry(ProductEntry):
-    invoice = models.ForeignKey(Invoice)
-
     def save(self, *args, **kwargs):
+        tax_percentage = get_tax_percentage()
+        # FIXME calculate and save tax.
         if self.product.manage_stock:
             self.product.number_in_stock -= self.quantity
             self.product.save()
-        super(InvoiceProductEntry, self).save(*args, **kwargs)
+        super(Entry, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.product.manage_stock:
             self.product.number_in_stock += self.quantity
             self.product.save()
-        super(InvoiceProductEntry, self).delete(*args, **kwargs)
-
-    def __unicode__(self):
-        return "Product Entry #%s on %s" % (self.id, str(self.invoice))
+        super(Entry, self).delete(*args, **kwargs)
 
 
-class ServiceEntry(InvoiceEntry):
-    service = models.ForeignKey(Service)
-
-    class Meta:
-        abstract = True
-        verbose_name_plural = "Service entries"
-
-
-class QuoteServiceEntry(ServiceEntry):
-    quote = models.ForeignKey(Quote)
-
-    def __unicode__(self):
-        return "Service Entry #%s on %s" % (self.id, str(self.quote))
-
-
-class InvoiceServiceEntry(ServiceEntry):
+class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
 
     def __unicode__(self):
-        return "Service Entry #%s on %s" % (self.id, str(self.invoice))
+        return "Entry #%s on %s" % (self.id, str(self.invoice))
+
+
+class QuoteEntry(Entry):
+    quote = models.ForeignKey(Quote)
+
+    def __unicode__(self):
+        return "Entry #%s on %s" % (self.id, str(self.quote))
 
 
 class Deposit(models.Model):

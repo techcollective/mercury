@@ -18,12 +18,26 @@ class InvoiceStatus(models.Model):
         return self.status
 
 
+class InvoiceTerms(models.Model):
+    days_until_due = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = "Invoice terms"
+
+    def __unicode__(self):
+        if self.days_until_due > 0:
+            name = "Payment due in %s days" % self.days_until_due
+        else:
+            name = "Payment due on receipt"
+        return name
+
+
 class ConfigManager(models.Manager):
-    def get_setting(self, setting_name):
+    def get_setting(self, setting_name, default=""):
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            value = ""
+            value = default
         return value
 
 

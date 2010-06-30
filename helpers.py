@@ -36,12 +36,20 @@ def get_tax_percentage():
     return tax_percentage
 
 
-def get_taxable_default(entity):
-    taxable = Config.settings.get_setting("%s taxable by default")
-    if taxable and taxable.lower() == "true":
-        return True
-    else:
-        return False
+class TaxableDefault(object):
+    def __init__(self, entity):
+        self.entity = entity
 
+    def get_setting(entity):
+        taxable = Config.settings.get_setting("%s taxable by default" \
+                                              % self.entity)
+        if taxable and taxable.lower() == "true":
+            return True
+        else:
+            return False
 
-def get_default_customer_taxable():
+def get_customer_term(plural=False):
+    query = "term for customer"
+    if plural:
+        query += " (plural)"
+    return Config.settings.get_setting(query)
