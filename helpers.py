@@ -40,7 +40,7 @@ class TaxableDefault(object):
     def __init__(self, entity):
         self.entity = entity
 
-    def get_setting(entity):
+    def get_setting(self):
         taxable = Config.settings.get_setting("new %s taxable by default" \
                                               % self.entity)
         if taxable and taxable.lower() == "true":

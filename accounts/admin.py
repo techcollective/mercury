@@ -24,8 +24,7 @@ class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
     verbose_name = "Product or service"
     verbose_name_plural = "Products or services"
-    model = InvoiceEntry
-    form = make_ajax_form(InvoiceServiceEntry, {"item": "product_or_service_name"},
+    form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"},
                           autofill={"item": {"field": "cost", "related_field": "price"}})
 
 
@@ -56,30 +55,28 @@ class InvoiceAdmin(AjaxSelectAdmin):
         ("Information", {"fields": ["customer", "date_created", "date_due", "status", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
-    inlines = [InvoiceServiceInline, InvoiceProductInline,
-               InvoicePaymentInline]
+    inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
 
     def post_save(self, instance):
         instance.update_totals()
 
 
-
 class QuoteAdmin(admin.ModelAdmin):
-    # FIXME: ajax
+    search_fields = ["customer__name"]
+    form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
-    readonly_fields = ["subtotal", "total_tax", "grand_total"]
-    inlines = [QuoteServiceInline, QuoteProductInline]
+    inlines = [QuoteEntryInline]
     date_hierarchy = "date_created"
 
 
 class CustomerAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     fieldsets = [
-        (None, {"fields": ["name"]}),
+        (None, {"fields": ["name", "default_payment_terms"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
@@ -90,8 +87,7 @@ class DepositAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Customer, CustomerAdmin)
-admin.site.register(Product)
-admin.site.register(Service)
+admin.site.register(ProductOrService)
 admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(Quote, QuoteAdmin)
 admin.site.register(Payment)

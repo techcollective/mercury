@@ -28,9 +28,10 @@ class Customer(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Meta:
-        verbose_name = get_customer_term()
-        verbose_name_plural = get_customer_term(plural=True)
+    # TODO: how can this work? custom admin template?
+    #class Meta:
+    #    verbose_name = get_customer_term()
+    #    verbose_name_plural = get_customer_term(plural=True)
 
 
 class ProductOrService(models.Model):
@@ -101,7 +102,7 @@ class Entry(models.Model):
     cost = CurrencyField()
     quantity = models.DecimalField(max_digits=14, decimal_places=2,
                                    default=get_default_item_quantity)
-    discount = CurrencyField()
+    discount = CurrencyField(default=0)
 
     class Meta:
         abstract = True

@@ -22,8 +22,8 @@ class InvoiceTerm(models.Model):
     days_until_invoice_due = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
-        if self.days_until_due > 0:
-            name = "Payment due in %s days" % self.days_until_due
+        if self.days_until_invoice_due > 0:
+            name = "Payment due in %s days" % self.days_until_invoice_due
         else:
             name = "Payment due on receipt"
         return name
