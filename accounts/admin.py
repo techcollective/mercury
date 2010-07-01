@@ -2,11 +2,15 @@ from django.contrib import admin
 from ajax_select import make_ajax_form
 from ajax_select.admin import AjaxSelectAdmin
 from ajax_select.fields import autoselect_fields_check_can_add
-from mercury.accounts.models import Customer, Product, Service, PaymentMethod,\
-                           InvoiceStatus, Invoice, Payment, Quote, \
-                           InvoiceProductEntry, InvoiceServiceEntry, Deposit, \
-                           QuoteProductEntry, QuoteServiceEntry
-
+from mercury.accounts.models import (Customer,
+                                     ProductOrService,
+                                     Invoice,
+                                     Quote,
+                                     InvoiceEntry,
+                                     QuoteEntry,
+                                     Payment,
+                                     Deposit,
+                                    )
 
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
@@ -16,36 +20,21 @@ class AjaxTabularInline(admin.TabularInline):
         return formset
 
 
-class ServiceInline(AjaxTabularInline):
+class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
-    verbose_name = "Service"
-    verbose_name_plural = "Services"
-    form = make_ajax_form(InvoiceServiceEntry, {"service": "service_name"},
-                          autofill={"service": {"field": "cost", "related_field": "price"}})
+    verbose_name = "Product or service"
+    verbose_name_plural = "Products or services"
+    model = InvoiceEntry
+    form = make_ajax_form(InvoiceServiceEntry, {"item": "product_or_service_name"},
+                          autofill={"item": {"field": "cost", "related_field": "price"}})
 
 
-class ProductInline(AjaxTabularInline):
-    extra = 0
-    verbose_name = "Product"
-    verbose_name_plural = "Products"
-    form = make_ajax_form(InvoiceProductEntry, {"product": "product_name"},
-                          autofill={"product": {"field": "cost", "related_field": "price"}})
+class InvoiceEntryInline(ProductOrServiceInline):
+    model = InvoiceEntry
 
 
-class InvoiceProductInline(ProductInline):
-    model = InvoiceProductEntry
-
-
-class InvoiceServiceInline(ServiceInline):
-    model = InvoiceServiceEntry
-
-
-class QuoteProductInline(ProductInline):
-    model = QuoteProductEntry
-
-
-class QuoteServiceInline(ServiceInline):
-    model = QuoteServiceEntry
+class QuoteEntryInline(ProductOrServiceInline):
+    model = QuoteEntry
 
 
 class InvoicePaymentInline(admin.TabularInline):
@@ -77,6 +66,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
 
 
 class QuoteAdmin(admin.ModelAdmin):
+    # FIXME: ajax
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),

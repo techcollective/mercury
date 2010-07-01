@@ -1,6 +1,6 @@
 import decimal
 
-from mercury.configuration.models import Config, InvoiceStatus
+from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
 
 
 def get_or_create_default_invoice_status():
@@ -41,7 +41,7 @@ class TaxableDefault(object):
         self.entity = entity
 
     def get_setting(entity):
-        taxable = Config.settings.get_setting("%s taxable by default" \
+        taxable = Config.settings.get_setting("new %s taxable by default" \
                                               % self.entity)
         if taxable and taxable.lower() == "true":
             return True
@@ -50,7 +50,42 @@ class TaxableDefault(object):
 
 
 def get_customer_term(plural=False):
+    default = "Customer"
     query = "term for customer"
     if plural:
+        default = "Customers"
         query += " (plural)"
-    return Config.settings.get_setting(query)
+    result = Config.settings.get_setting(query)
+    if not result:
+        result = default
+    return result
+
+
+def get_invoice_number_padding():
+    num_zeros = Config.settings.get_setting("pad invoice numbers with zeros")
+    try:
+        result = int(num_zeros)
+    except ValueError:
+        result = 0
+    return result
+
+def get_default_item_quantity():
+    number = Config.settings.get_setting("default quantity for items added to invoices")
+    try:
+        result = int(number)
+    except ValueError:
+        result = 1
+    return result
+
+def get_or_create_default_invoice_term():
+    desired_term = Config.settings.get_setting("default invoice term in days")
+    default_term = None
+    if desired_term:
+        try:
+            term = int(desired_term)
+        except ValueError:
+            pass
+        else:
+            default_term, created = InvoiceTerm.objects.get_or_create(
+                                                days_until_invoice_due=term)
+    return default_term
