@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'ajax_select',
+    'tinymce',
     'mercury.configuration',
     'mercury.accounts',
 )
@@ -94,3 +95,9 @@ AJAX_LOOKUP_CHANNELS = {
     'customer_name': {"model": "accounts.Customer", "search_field": "name"},
     'product_or_service_name': {"model": "accounts.ProductOrService", "search_field": "name"},
 }
+
+TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
+                          "relative_urls": False,
+                          "theme_advanced_toolbar_location": "top",
+                          "theme_advanced_disable" : "styleselect",
+                          }

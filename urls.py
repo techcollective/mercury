@@ -6,6 +6,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'', include(admin.site.urls)),
     (r'^ajax_select/', include('ajax_select.urls')),
+    (r'^tinymce/', include('tinymce.urls')),
+    (r'', include(admin.site.urls)),
 )
