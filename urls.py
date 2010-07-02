@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 import ajax_select
 
 # Uncomment the next two lines to enable the admin:

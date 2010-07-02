@@ -8,6 +8,7 @@ lib_path = os.path.join(this_dir, "lib")
 sys.path.append(lib_path)
 
 DEBUG = True
+
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -42,7 +43,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/mercury/media'
+MEDIA_ROOT = '/home/vasili/.virtualenvs/TC/src/mercury/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -52,7 +53,7 @@ MEDIA_URL = 'http://localhost/media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin-media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '&9mi$c4iipu26j4amu9sevvzsalnn+3e$g1_r(g_cs@8stv&z!'
@@ -99,5 +100,5 @@ AJAX_LOOKUP_CHANNELS = {
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
                           "relative_urls": False,
                           "theme_advanced_toolbar_location": "top",
-                          "theme_advanced_disable" : "styleselect",
+                          "theme_advanced_disable" : "styleselect,help",
                           }
