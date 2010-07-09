@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base.html" %}
 {% load i18n %}
 
 {% block extrahead %}
@@ -14,3 +14,5 @@
 {% block branding %}
 <h1 id="site-name">{% trans 'Mercury' %}</h1>
 {% endblock %}
+
+{% block nav-global %}{% endblock %}
