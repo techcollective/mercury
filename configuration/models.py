@@ -29,13 +29,16 @@ class InvoiceTerm(models.Model):
         return name
 
 
-class InvoiceTemplate(models.Model):
+class PdfTemplate(models.Model):
     name = models.CharField(max_length=50)
     template = HTMLField(help_text="The invoice template is " +
                                    "processed using the django template " +
                                    "language and should yield valid html.")
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "PDF Template"
 
 
 class ConfigManager(models.Manager):

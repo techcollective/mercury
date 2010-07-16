@@ -73,7 +73,7 @@ SECRET_KEY = '7%hdis&vi#rv&z#6jpu-_g3s(0$+b(*!f9f-5iko*h%rc=t0d+'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'mercury.custom.TemplateLoader'
+    'mercury.custom.PdfTemplateLoader'
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -116,4 +116,6 @@ TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
                           "relative_urls": False,
                           "theme_advanced_toolbar_location": "top",
                           "theme_advanced_disable" : "styleselect,help",
+                          "force_p_newlines": False,
+                          "forced_root_block": "",
                           }

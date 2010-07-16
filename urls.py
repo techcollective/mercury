@@ -10,7 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^ajax_select/', include('ajax_select.urls')),
     (r'^tinymce/', include('tinymce.urls')),
-    url(r'^/accounts/invoice/pdf/(\d+)/$', "accounts.views.invoice_to_pdf",
+    url(r'^accounts/invoice/pdf/(\d+)/$', "accounts.views.invoice_to_pdf",
      name="invoice_to_pdf"),
     (r'', include(admin.site.urls)),
 )
