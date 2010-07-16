@@ -69,6 +69,7 @@ def get_invoice_number_padding():
         result = 0
     return result
 
+
 def get_default_item_quantity():
     number = Config.settings.get_setting("default quantity for items added to invoices")
     try:
@@ -76,6 +77,7 @@ def get_default_item_quantity():
     except ValueError:
         result = 1
     return result
+
 
 def get_or_create_default_invoice_term():
     desired_term = Config.settings.get_setting("default invoice term in days")
