@@ -3,7 +3,8 @@ Views module for mercury accounts
 """
 
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         HttpResponseNotFound)
 from django.core.urlresolvers import reverse
 from django.template import Context, Template, TemplateDoesNotExist
 from django.template.loader import get_template
@@ -28,13 +29,15 @@ def render_pdf(request, model, id):
         try:
             template = get_template(pdf_template)
         except TemplateDoesNotExist:
-            messages.error(request,
-                           "Couldn't generate PDF. Template \"%s\" not found." % pdf_template)
-            return HttpResponseRedirect(reverse("admin:%s_%s_change" % model_info,
-                                                args=[id]))
+            error = "Couldn't generate PDF. Template \"%s\" not found." % \
+                                                                pdf_template
+            messages.error(request, error)
+            return HttpResponseRedirect(reverse("admin:%s_%s_change" % \
+                                                model_info, args=[id]))
     else:
-        messages.error(request,
-                       "Couldn't generate PDF. No setting for \"%s template\" found." % name)
+        error = "Couldn't generate PDF. No setting for \"%s template\" found."\
+                % name
+        messages.error(request, error)
         return HttpResponseRedirect(reverse("admin:%s_%s_change" % model_info,
                                             args=[id]))
 
@@ -45,9 +48,11 @@ def render_pdf(request, model, id):
     html = template.render(context)
     return HttpResponse(html)
 
+
 def invoice_to_pdf(request, invoice_id):
     response = render_pdf(request, Invoice, invoice_id)
     return response
+
 
 def quote_to_pdf(request, quote_id):
     response = render_pdf(request, Quote, quote_id)

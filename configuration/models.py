@@ -1,6 +1,7 @@
 from django.db import models
 from tinymce.models import HTMLField
 
+
 class PaymentMethod(models.Model):
     name = models.CharField(max_length=50)
 
@@ -34,6 +35,7 @@ class PdfTemplate(models.Model):
     template = HTMLField(help_text="The invoice template is " +
                                    "processed using the django template " +
                                    "language and should yield valid html.")
+
     def __unicode__(self):
         return self.name
 

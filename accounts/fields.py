@@ -21,9 +21,10 @@ class CurrencyInputWidget(Widget):
         symbol = Config.settings.get_setting("currency symbol")
         if not symbol:
             symbol = "please set the 'currency symbol' setting"
-        after_number = False
-        if Config.settings.get_setting("currency symbol after number").lower() == "true":
-            after_number = True
+        # todo: move setting retrieval to helpers.py
+        after_number = Config.settings.get_setting(
+                                                "currency symbol after number")
+        after_number = after_number.lower() == "true"
         if after_number:
             suffix = symbol
         else:
@@ -37,15 +38,19 @@ class CurrencyInputWidget(Widget):
         return (prefix, final_attrs, suffix)
 
     def render(self, name, value, attrs=None):
-        prefix, final_attrs, suffix = self._get_render_result(name, value, attrs)
-        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs), suffix))
+        prefix, final_attrs, suffix = self._get_render_result(name, value,
+                                                              attrs)
+        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs),
+                                                 suffix))
 
 
 class ReadOnlyCurrencyInputWidget(CurrencyInputWidget):
     def render(self, name, value, attrs=None):
-        prefix, final_attrs, suffix = self._get_render_result(name, value, attrs)
+        prefix, final_attrs, suffix = self._get_render_result(name, value,
+                                                              attrs)
         final_attrs.update({"readonly": ""})
-        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs), suffix))
+        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs),
+                                                 suffix))
 
 
 class CurrencyFormField(fields.DecimalField):

@@ -73,7 +73,7 @@ SECRET_KEY = '7%hdis&vi#rv&z#6jpu-_g3s(0$+b(*!f9f-5iko*h%rc=t0d+'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'mercury.custom.PdfTemplateLoader'
+    'mercury.custom.PdfTemplateLoader',
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -91,7 +91,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/vasili/.virtualenvs/TC/src/mercury/templates"
+    "/home/vasili/.virtualenvs/TC/src/mercury/templates",
 )
 
 INSTALLED_APPS = (
@@ -115,7 +115,7 @@ AJAX_LOOKUP_CHANNELS = {
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
                           "relative_urls": False,
                           "theme_advanced_toolbar_location": "top",
-                          "theme_advanced_disable" : "styleselect,help",
+                          "theme_advanced_disable": "styleselect,help",
                           "force_p_newlines": False,
                           "forced_root_block": "",
                           }

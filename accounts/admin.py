@@ -12,6 +12,7 @@ from mercury.accounts.models import (Customer,
                                      Deposit,
                                     )
 
+
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(AjaxTabularInline, self).get_formset(request, obj,
@@ -25,7 +26,9 @@ class ProductOrServiceInline(AjaxTabularInline):
     verbose_name = "Product or service"
     verbose_name_plural = "Products or services"
     form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"},
-                          autofill={"item": {"field": "cost", "related_field": "price"}})
+                          autofill={"item": {"field": "cost",
+                                             "related_field": "price",
+                                             }})
 
 
 class InvoiceEntryInline(ProductOrServiceInline):
@@ -52,7 +55,8 @@ class InvoiceAdmin(AjaxSelectAdmin):
     search_fields = ["customer__name"]
     form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
-        ("Information", {"fields": ["customer", "date_created", "date_due", "status", "comment"]}),
+        ("Information", {"fields": ["customer", "date_created", "date_due",
+                                    "status", "comment"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
