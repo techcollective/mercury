@@ -76,6 +76,9 @@ class QuoteAdmin(admin.ModelAdmin):
     inlines = [QuoteEntryInline]
     date_hierarchy = "date_created"
 
+    def post_save(self, instance):
+        instance.update_totals()
+
 
 class CustomerAdmin(admin.ModelAdmin):
     search_fields = ["name"]

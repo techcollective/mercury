@@ -65,7 +65,7 @@ class QuoteInvoiceBase(models.Model):
         tax = 0
         grand_total = 0
         tax_percentage = get_tax_percentage()
-        for entry in self.invoiceentry_set.all():
+        for entry in self.get_entries():
             item_total = entry.cost * entry.quantity - entry.discount
             subtotal += item_total
             if entry.item.is_taxable:
@@ -85,6 +85,9 @@ class Quote(QuoteInvoiceBase):
         return "Quote #%s - %s" % (str(self.id).zfill(num_zeros),
                                    self.customer)
 
+    def get_entries(self):
+        return self.quoteentry_set.all()
+
 
 class Invoice(QuoteInvoiceBase):
     status = models.ForeignKey(InvoiceStatus,
@@ -95,6 +98,9 @@ class Invoice(QuoteInvoiceBase):
         num_zeros = get_invoice_number_padding()
         return "Invoice #%s - %s" % (str(self.id).zfill(num_zeros),
                                      self.customer)
+
+    def get_entries(self):
+        return self.invoiceentry_set.all()
 
 
 class Entry(models.Model):
