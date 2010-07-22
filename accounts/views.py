@@ -12,6 +12,7 @@ from configuration.models import Config, PdfTemplate
 from accounts.models import Invoice, Quote
 from accounts.exceptions import ObjectNotFound, AccountsRedirect
 
+import ho.pisa as pisa
 
 def get_model_name(model):
     return model._meta.verbose_name.lower()
@@ -25,8 +26,8 @@ def get_model_instance(model, id):
     try:
         instance = model.objects.get(id=id)
     except model.DoesNotExist:
-        raise AccountsException("Couldn't find " +
-                                "%s with id %s" % (get_model_name(model), id))
+        raise ObjectNotFound("Couldn't find " +
+                             "%s with id %s" % (get_model_name(model), id))
     return instance
 
 
@@ -111,6 +112,7 @@ def get_response(request, method, args):
     return response
 
 
+# todo: add authentication
 def invoice_to_pdf(request, invoice_id):
     response = get_response(request, render_invoice_html, [invoice_id])
     return response
