@@ -75,15 +75,18 @@ class QuoteInvoiceBase(models.Model):
         self.grand_total = subtotal + tax
         self.save()
 
+    def get_number(self):
+        num_zeros = get_invoice_number_padding()
+        print num_zeros
+        return str(self.id).zfill(num_zeros)
+
     class Meta:
         abstract = True
 
 
 class Quote(QuoteInvoiceBase):
     def __unicode__(self):
-        num_zeros = get_invoice_number_padding()
-        return "Quote #%s - %s" % (str(self.id).zfill(num_zeros),
-                                   self.customer)
+        return "Quote #%s - %s" % (self.get_number(), self.customer)
 
     def get_entries(self):
         return self.quoteentry_set.all()
@@ -95,9 +98,7 @@ class Invoice(QuoteInvoiceBase):
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):
-        num_zeros = get_invoice_number_padding()
-        return "Invoice #%s - %s" % (str(self.id).zfill(num_zeros),
-                                     self.customer)
+        return "Invoice #%s - %s" % (self.get_number(), self.customer)
 
     def get_entries(self):
         return self.invoiceentry_set.all()
