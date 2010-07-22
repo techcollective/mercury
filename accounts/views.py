@@ -53,21 +53,29 @@ def get_template(model):
         return template
 
 
-def get_invoice_context(invoice_id):
-    instance = get_model_instance(Invoice, invoice_id)
+def generate_context(invoice_or_quote):
+    instance = invoice_or_quote
     data = {}
     for field in instance._meta.fields:
         data[field.name] = str(getattr(instance, field.name))
+    data["customer_name"] = data["customer"]
+    data["customer"] = instance.customer
+    data["entries"] = instance.get_entries()
     context = Context(data)
+    return context
+
+
+def get_invoice_context(invoice_id):
+    instance = get_model_instance(Invoice, invoice_id)
+    context = generate_context(instance)
+    context["payments"] = instance.payment_set.all()
+    print context
     return context
 
 
 def get_quote_context(quote_id):
     instance = get_model_instance(Quote, quote_id)
-    data = {}
-    for field in instance._meta.fields:
-        data[field.name] = str(getattr(instance, field.name))
-    context = Context(data)
+    context = generate_context(instance)
     return context
 
 
