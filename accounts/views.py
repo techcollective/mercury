@@ -58,9 +58,9 @@ def generate_context(invoice_or_quote):
     data = {}
     for field in instance._meta.fields:
         data[field.name] = str(getattr(instance, field.name))
-    data["customer_name"] = data["customer"]
     data["customer"] = instance.customer
     data["entries"] = instance.get_entries()
+    data["number"] = instance.get_number()
     context = Context(data)
     return context
 
@@ -69,7 +69,6 @@ def get_invoice_context(invoice_id):
     instance = get_model_instance(Invoice, invoice_id)
     context = generate_context(instance)
     context["payments"] = instance.payment_set.all()
-    print context
     return context
 
 

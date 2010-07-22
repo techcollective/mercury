@@ -117,8 +117,9 @@ class Entry(models.Model):
 
     def save(self, *args, **kwargs):
         if self.item.manage_stock:
-            self.item.number_in_stock -= self.quantity
-            self.item.save()
+            if self.item.number_in_stock > 0:
+                self.item.number_in_stock -= self.quantity
+                self.item.save()
         super(Entry, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
