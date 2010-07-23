@@ -2,6 +2,10 @@
 Views module for mercury accounts
 """
 
+import StringIO
+
+import ho.pisa as pisa
+
 from django.contrib import messages
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
@@ -12,7 +16,6 @@ from configuration.models import Config, PdfTemplate
 from accounts.models import Invoice, Quote
 from accounts.exceptions import ObjectNotFound, AccountsRedirect
 
-import ho.pisa as pisa
 
 def get_model_name(model):
     return model._meta.verbose_name.lower()
@@ -79,45 +82,53 @@ def get_quote_context(quote_id):
     return context
 
 
-def html_to_pdf(html):
-    # todo
-    return html
+def filename_from_context(context):
+    return "Invoice %s.pdf" % context["number"]
 
 
-def render_invoice_html(invoice_id):
+def render_pdf(html):
+    buffer = StringIO.StringIO()
+    result = pisa.CreatePDF(html, buffer)
+    return buffer.getvalue()
+
+
+def render_invoice_pdf(invoice_id):
     template = get_template(Invoice)
     context = get_invoice_context(invoice_id)
-    html = template.render(context)
+    filename = filename_from_context(context)
+    pdf = render_pdf(template.render(context))
     # css in template?
-    return html
+    return (filename, pdf)
 
 
-def render_quote_html(quote_id):
+def render_quote_pdf(quote_id):
     template = get_template(Quote)
     context = get_quote_context(quote_id)
-    html = template.render(context)
-    return html
+    filename = filename_from_context(context)
+    pdf = render_pdf(template.render(context))
+    return (filename, html)
 
 
 def get_response(request, method, args):
     try:
-        response = method(*args)
+        filename, response = method(*args)
     except ObjectNotFound as e:
         response = HttpResponseNotFound(str(e))
     except AccountsRedirect as e:
         messages.error(request, str(e))
         response = HttpResponseRedirect(e.url)
     else:
-        response = HttpResponse(response)
+        response = HttpResponse(response, mimetype="application/pdf")
+        header = 'attachment; filename="%s"' % filename
+        response['Content-Disposition'] = header
     return response
 
 
-# todo: add authentication
 def invoice_to_pdf(request, invoice_id):
-    response = get_response(request, render_invoice_html, [invoice_id])
+    response = get_response(request, render_invoice_pdf, [invoice_id])
     return response
 
 
 def quote_to_pdf(request, quote_id):
-    response = get_response(request, render_quote_html, [quote_id])
+    response = get_response(request, render_quote_pdf, [quote_id])
     return response
