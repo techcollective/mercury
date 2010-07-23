@@ -73,7 +73,7 @@ SECRET_KEY = '7%hdis&vi#rv&z#6jpu-_g3s(0$+b(*!f9f-5iko*h%rc=t0d+'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'mercury.custom.PdfTemplateLoader',
+    'mercury.custom.TemplateLoader',
 #     'django.template.loaders.eggs.Loader',
 )
 

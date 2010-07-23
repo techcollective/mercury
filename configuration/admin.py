@@ -3,7 +3,7 @@ from django.contrib import admin
 from mercury.configuration.models import (PaymentMethod,
                                           InvoiceStatus,
                                           InvoiceTerm,
-                                          PdfTemplate,
+                                          Template,
                                           Config,
                                          )
 
@@ -11,5 +11,5 @@ from mercury.configuration.models import (PaymentMethod,
 admin.site.register(PaymentMethod)
 admin.site.register(InvoiceStatus)
 admin.site.register(InvoiceTerm)
-admin.site.register(PdfTemplate)
+admin.site.register(Template)
 admin.site.register(Config)

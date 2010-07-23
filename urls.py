@@ -14,6 +14,10 @@ urlpatterns = patterns('',
         name="invoice_to_pdf"),
     url(r'^accounts/quote/pdf/(\d+)/$', "accounts.views.quote_to_pdf",
         name="quote_to_pdf"),
+    url(r'^accounts/invoice/html/(\d+)/$', "accounts.views.invoice_to_html",
+        name="invoice_to_html"),
+    url(r'^accounts/quote/html/(\d+)/$', "accounts.views.quote_to_html",
+        name="quote_to_html"),
     (r'', include(admin.site.urls)),
 )
 
