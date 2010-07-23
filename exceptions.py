@@ -1,5 +1,5 @@
 """
-Exception classes for accounts app
+Base exceptions for mercury apps
 """
 
 
