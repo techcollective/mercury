@@ -1,0 +1,98 @@
+[
+    {
+        "pk": 1, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "currency symbol", 
+            "value": "$"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "default invoice status", 
+            "value": "Created"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "currency symbol after number", 
+            "value": "false"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "tax as percentage", 
+            "value": "9.5"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "quote template", 
+            "value": "default-quote"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "pad invoice numbers with zeros", 
+            "value": "5"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "invoice template", 
+            "value": "default-invoice"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "new customers taxable by default", 
+            "value": "true"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "new products and services taxable by default", 
+            "value": "true"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "manage stock of new products and services by default", 
+            "value": "true"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "default quantity for items added to invoices", 
+            "value": "1"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "configuration.config", 
+        "fields": {
+            "name": "default invoice term in days for new customers", 
+            "value": "0"
+        }
+    }
+]
