@@ -50,7 +50,7 @@ class ConfigManager(models.Manager):
 
 
 class Config(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     value = models.CharField(max_length=200)
     settings = ConfigManager()
 

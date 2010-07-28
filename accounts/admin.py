@@ -83,7 +83,7 @@ class QuoteAdmin(AjaxSelectAdmin):
 class CustomerAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     fieldsets = [
-        (None, {"fields": ["name", "default_payment_terms"]}),
+        (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]

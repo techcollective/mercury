@@ -8,8 +8,12 @@ from mercury.configuration.models import (PaymentMethod,
                                          )
 
 
+class ConfigAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+
 admin.site.register(PaymentMethod)
 admin.site.register(InvoiceStatus)
 admin.site.register(InvoiceTerm)
 admin.site.register(Template)
-admin.site.register(Config)
+admin.site.register(Config, ConfigAdmin)

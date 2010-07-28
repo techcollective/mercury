@@ -3,6 +3,28 @@ import decimal
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
 
 
+class SettingFetcher(object):
+    def __init__(self, setting):
+        self.setting = setting
+
+    def get_setting(self):
+        return Config.settings.get_setting(self.setting)
+
+
+class BooleanFetcher(SettingFetcher):
+    def get_setting(self):
+        value = super(BooleanFetcher, self).get_setting()
+        if value and value.lower() == "true":
+            return True
+        else:
+            return False
+
+
+class TaxableDefault(BooleanFetcher):
+    def __init__(self, entity):
+        self.setting = "new %s taxable by default" % entity
+
+
 def get_or_create_default_invoice_status():
     desired_status = Config.settings.get_setting("default invoice status")
     status = None
@@ -36,19 +58,6 @@ def get_tax_percentage():
     return tax_percentage
 
 
-class TaxableDefault(object):
-    def __init__(self, entity):
-        self.entity = entity
-
-    def get_setting(self):
-        taxable = Config.settings.get_setting("new %s taxable by default" \
-                                              % self.entity)
-        if taxable and taxable.lower() == "true":
-            return True
-        else:
-            return False
-
-
 def get_customer_term(plural=False):
     default = "Customer"
     query = "term for customer"
@@ -80,7 +89,7 @@ def get_default_item_quantity():
 
 
 def get_or_create_default_invoice_term():
-    desired_term = Config.settings.get_setting("default invoice term in days")
+    desired_term = Config.settings.get_setting("default invoice term in days for new customers")
     default_term = None
     if desired_term:
         try:

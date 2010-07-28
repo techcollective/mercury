@@ -8,6 +8,7 @@ from mercury.configuration.models import (PaymentMethod,
                                           InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (TaxableDefault,
+                             BooleanFetcher,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
@@ -43,10 +44,9 @@ class ProductOrService(models.Model):
     name = models.CharField(max_length=50)
     price = CurrencyField()
     number_in_stock = models.PositiveIntegerField(default=0)
-    manage_stock = models.BooleanField(default=True, help_text="Uncheck this \
-                                       to prevent the stock count being \
-                                       changed when this item is added to \
-                                       an invoice.")
+    manage_stock = models.BooleanField(default=BooleanFetcher("manage stock " +
+                                       "of new products and services " +
+                                       "by default").get_setting)
     is_taxable = models.BooleanField(
         default=TaxableDefault("products and services").get_setting)
 
