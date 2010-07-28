@@ -3,13 +3,18 @@ import decimal
 
 from django.db import models
 
-from mercury.configuration.models import PaymentMethod, InvoiceStatus, Config,\
-     InvoiceTerm
+from mercury.configuration.models import (PaymentMethod,
+                                          InvoiceStatus,
+                                          InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
-from mercury.helpers import get_currency_symbol, \
-     get_or_create_default_invoice_status, get_tax_percentage, \
-     TaxableDefault, get_customer_term, get_invoice_number_padding, \
-     get_default_item_quantity, get_or_create_default_invoice_term
+from mercury.helpers import (TaxableDefault,
+                             get_currency_symbol,
+                             get_or_create_default_invoice_status,
+                             get_tax_percentage,
+                             get_customer_term,
+                             get_invoice_number_padding,
+                             get_default_item_quantity,
+                             get_or_create_default_invoice_term)
 
 
 class Customer(models.Model):

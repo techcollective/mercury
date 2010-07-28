@@ -25,7 +25,7 @@ def generate_context(quote_or_invoice):
     instance = quote_or_invoice
     data = {}
     for field in instance._meta.fields:
-        data[field.name] = str(getattr(instance, field.name))
+        data[field.name] = field.value_to_string(instance)
     data["customer"] = instance.customer
     data["entries"] = instance.get_entries()
     data["number"] = instance.get_number()

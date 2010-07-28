@@ -6,6 +6,7 @@ from django.forms.util import flatatt
 from django.forms import fields
 
 from mercury.configuration.models import Config
+from mercury.helpers import get_currency_symbol
 
 
 class CurrencyInputWidget(Widget):
@@ -78,3 +79,8 @@ class CurrencyField(models.DecimalField):
         defaults = {"form_class": self._formfield_class}
         defaults.update(kwargs)
         return super(CurrencyField, self).formfield(**defaults)
+
+    def value_to_string(self, obj):
+        prefix, suffix = get_currency_symbol()
+        value = super(CurrencyField, self).value_to_string(obj)
+        return "%s%s%s" % (prefix, value, suffix)
