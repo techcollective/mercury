@@ -66,7 +66,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
         instance.update_totals()
 
 
-class QuoteAdmin(admin.ModelAdmin):
+class QuoteAdmin(AjaxSelectAdmin):
     search_fields = ["customer__name"]
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
