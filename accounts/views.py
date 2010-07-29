@@ -14,7 +14,6 @@ from django.template import loader, Context, TemplateDoesNotExist, TemplateSynta
 from django.utils.text import capfirst
 
 from mercury.configuration.models import Config, Template
-from mercury.configuration.exceptions import BadConfiguration
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 
@@ -60,10 +59,6 @@ class HtmlRenderer(Renderer):
                 info = get_model_info(Template)
                 error = ("Couldn't render. " +
                          "Template \"%s\" not found." % template)
-                error_page = reverse("admin:%s_%s_changelist" % info)
-            except BadConfiguration as e:
-                info = get_model_info(Template)
-                error = "Couldn't render. %s" % str(e)
                 error_page = reverse("admin:%s_%s_changelist" % info)
             except TemplateSyntaxError as e:
                 instance = Template.objects.get(name=template)
@@ -157,6 +152,7 @@ def quote_to_html(request, quote_id):
     return response
 
 
+# todo: mimetype is a stupid way to decide if it should be an attachment
 def invoice_to_pdf(request, invoice_id):
     response = generate_response(request, InvoicePdfRenderer, [invoice_id],
                                  mimetype="application/pdf")

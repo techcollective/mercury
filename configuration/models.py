@@ -32,7 +32,7 @@ class InvoiceTerm(models.Model):
 
 
 class Template(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     template = HTMLField(help_text="The invoice template is " +
                                    "processed using the django template " +
                                    "language and should yield valid html.")
