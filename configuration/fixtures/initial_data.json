@@ -1,6 +1,84 @@
 [
     {
         "pk": 1,
+        "model": "configuration.paymentmethod",
+        "fields": {
+            "name": "MasterCard"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "configuration.paymentmethod",
+        "fields": {
+            "name": "Discover"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "configuration.paymentmethod",
+        "fields": {
+            "name": "American Express"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "configuration.paymentmethod",
+        "fields": {
+            "name": "Check"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "configuration.paymentmethod",
+        "fields": {
+            "name": "Cash"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "configuration.invoicestatus",
+        "fields": {
+            "status": "Created"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "configuration.invoicestatus",
+        "fields": {
+            "status": "Sent"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "configuration.invoicestatus",
+        "fields": {
+            "status": "Paid"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "configuration.invoiceterm",
+        "fields": {
+            "days_until_invoice_due": 0
+        }
+    },
+    {
+        "pk": 2,
+        "model": "configuration.invoiceterm",
+        "fields": {
+            "days_until_invoice_due": 30
+        }
+    },
+    {
+        "pk": 1,
+        "model": "configuration.template",
+        "fields": {
+            "name": "default",
+            "template": "<h1>TechCollective {{ type }}</h1>\r\n<p style=\"text-align: right;\">{{ type }} {{ id_number }}:&nbsp; {{ date_created }}</p>\r\n<h3 style=\"text-align: right;\">{% if date_due %}Due date: {{ date_due }}{% endif %}</h3>\r\n{% block main %}\r\n<p><strong>{{ customer.name }}</strong><br />{{ customer.address }}<br />{{ customer.city }} {{ customer.state }} {{ customer.zip_code }}<br />{{ customer.phone_number }}</p>\r\n<br /> \r\n<table border=\"0\">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<h3>Item</h3>\r\n</td>\r\n<td>\r\n<h3>Cost</h3>\r\n</td>\r\n<td>\r\n<h3>Quantity</h3>\r\n</td>\r\n<td>\r\n<h3>Discount</h3>\r\n</td>\r\n<td>\r\n<h3>Total</h3>\r\n</td>\r\n</tr>\r\n{% for entry in entries %}                       \r\n<tr>\r\n<td>{{ entry.item }}</td>\r\n<td>{{ entry.cost }}</td>\r\n<td>{{ entry.quantity }}</td>\r\n<td>{{ entry.discount }}</td>\r\n<td>{{ entry.total }}</td>\r\n</tr>\r\n{% endfor %}                       \r\n<tr>\r\n<td colspan=\"3\">&nbsp;</td>\r\n<td>&nbsp;</td>\r\n<td>&nbsp;</td>\r\n</tr>\r\n<tr>\r\n<td colspan=\"3\" rowspan=\"3\"><br /></td>\r\n<td>\r\n<p>Subtotal:</p>\r\n</td>\r\n<td>\r\n<p>{{ subtotal }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p>Tax:</p>\r\n</td>\r\n<td>\r\n<p>{{ total_tax }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<h3>Grand Total:</h3>\r\n</td>\r\n<td>\r\n<h3>{{ grand_total }}</h3>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n{% endblock %}<br />"
+        }
+    },
+    {
+        "pk": 1,
         "model": "configuration.config",
         "fields": {
             "name": "currency symbol",
@@ -93,14 +171,6 @@
         "fields": {
             "name": "default invoice term in days for new customers",
             "value": "0"
-        }
-    },
-    {
-        "pk": 1,
-        "model": "configuration.template",
-        "fields": {
-            "name": "default",
-            "template": "<h1>TechCollective {{ type }}</h1>\r\n<p style=\"text-align: right;\">{{ type }} {{ id_number }}:&nbsp; {{ date_created }}</p>\r\n<h3 style=\"text-align: right;\">{% if date_due %}Due date: {{ date_due }}{% endif %}</h3>\r\n{% block main %}\r\n<p><strong>{{ customer.name }}</strong><br />{{ customer.address }}<br />{{ customer.city }} {{ customer.state }} {{ customer.zip_code }}<br />{{ customer.phone_number }}</p>\r\n<br /> \r\n<table border=\"0\">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<h3>Item</h3>\r\n</td>\r\n<td>\r\n<h3>Cost</h3>\r\n</td>\r\n<td>\r\n<h3>Quantity</h3>\r\n</td>\r\n<td>\r\n<h3>Discount</h3>\r\n</td>\r\n<td>\r\n<h3>Total</h3>\r\n</td>\r\n</tr>\r\n{% for entry in entries %}                       \r\n<tr>\r\n<td>{{ entry.item }}</td>\r\n<td>{{ entry.cost }}</td>\r\n<td>{{ entry.quantity }}</td>\r\n<td>{{ entry.discount }}</td>\r\n<td>{{ entry.total }}</td>\r\n</tr>\r\n{% endfor %}                       \r\n<tr>\r\n<td colspan=\"3\">&nbsp;</td>\r\n<td>&nbsp;</td>\r\n<td>&nbsp;</td>\r\n</tr>\r\n<tr>\r\n<td colspan=\"3\" rowspan=\"3\"><br /></td>\r\n<td>\r\n<p>Subtotal:</p>\r\n</td>\r\n<td>\r\n<p>{{ subtotal }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p>Tax:</p>\r\n</td>\r\n<td>\r\n<p>{{ total_tax }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<h3>Grand Total:</h3>\r\n</td>\r\n<td>\r\n<h3>{{ grand_total }}</h3>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n{% endblock %}<br />"
         }
     }
 ]
