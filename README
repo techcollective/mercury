@@ -1,0 +1,9 @@
+You'll need to patch django 1.2.X twice:
+
+1) with the django.diff file in the top level of the project.
+
+2) undo r12721 (from the django svn repository)
+
+svn merge -c -12721 .
+
+in a working copy should do it.
