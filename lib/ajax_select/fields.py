@@ -19,12 +19,12 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
     def __init__(self,
                  channel,
                  help_text='',
-                 autofill=[],
+                 autofill=None,
                  *args, **kw):
         super(forms.widgets.TextInput, self).__init__(*args, **kw)
         self.channel = channel
         self.help_text = help_text
-        self.autofill = autofill
+        self.autofill = autofill or []
 
     def render(self, name, value, attrs=None):
 
@@ -69,7 +69,7 @@ class AutoCompleteSelectField(forms.fields.CharField):
 
     channel = None
 
-    def __init__(self, channel, autofill=[], *args, **kwargs):
+    def __init__(self, channel, autofill=None, *args, **kwargs):
         self.channel = channel
         widget = kwargs.get("widget", False)
         if not widget or not isinstance(widget, AutoCompleteSelectWidget):
