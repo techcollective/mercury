@@ -10,12 +10,13 @@ from django.contrib import messages
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
 from django.core.urlresolvers import reverse
-from django.template import loader, Context, TemplateDoesNotExist
+from django.template import loader, Context, TemplateDoesNotExist, TemplateSyntaxError
 from django.utils.text import capfirst
 
-from configuration.models import Config, Template
-from accounts.models import Invoice, Quote
-from accounts.exceptions import ObjectNotFound, AccountsRedirect
+from mercury.configuration.models import Config, Template
+from mercury.configuration.exceptions import BadConfiguration
+from mercury.accounts.models import Invoice, Quote
+from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 
 
 def get_model_info(model):
@@ -60,6 +61,16 @@ class HtmlRenderer(Renderer):
                 error = ("Couldn't render. " +
                          "Template \"%s\" not found." % template)
                 error_page = reverse("admin:%s_%s_changelist" % info)
+            except BadConfiguration as e:
+                info = get_model_info(Template)
+                error = "Couldn't render. %s" % str(e)
+                error_page = reverse("admin:%s_%s_changelist" % info)
+            except TemplateSyntaxError as e:
+                instance = Template.objects.get(name=template)
+                info = get_model_info(Template)
+                error = "Couldn't render template. %s" % str(e)
+                error_page = reverse("admin:%s_%s_change" % info,
+                                     args=[instance.id])
         else:
             info = get_model_info(Config)
             error = ("Couldn't render. " +

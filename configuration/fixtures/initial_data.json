@@ -36,7 +36,7 @@
         "model": "configuration.config",
         "fields": {
             "name": "quote template",
-            "value": "default-quote"
+            "value": "default"
         }
     },
     {
@@ -52,7 +52,7 @@
         "model": "configuration.config",
         "fields": {
             "name": "invoice template",
-            "value": "default-invoice"
+            "value": "default"
         }
     },
     {
