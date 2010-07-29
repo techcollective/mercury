@@ -113,9 +113,12 @@ AJAX_LOOKUP_CHANNELS = {
 }
 
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
+                          "plugins": "table",
                           "relative_urls": False,
                           "theme_advanced_toolbar_location": "top",
                           "theme_advanced_disable": "styleselect,help",
+                          "theme_advanced_buttons1_add": "backcolor",
+                          "theme_advanced_buttons3_add": "tablecontrols",
                           "force_p_newlines": False,
                           "forced_root_block": "",
                           }

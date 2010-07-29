@@ -11,6 +11,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
 from django.core.urlresolvers import reverse
 from django.template import loader, Context, TemplateDoesNotExist
+from django.utils.text import capfirst
 
 from configuration.models import Config, Template
 from accounts.models import Invoice, Quote
@@ -28,7 +29,8 @@ def generate_context(quote_or_invoice):
         data[field.name] = field.value_to_string(instance)
     data["customer"] = instance.customer
     data["entries"] = instance.get_entries()
-    data["number"] = instance.get_number()
+    data["id_number"] = instance.get_number()
+    data["type"] = capfirst(instance._meta.verbose_name)
     return Context(data)
 
 

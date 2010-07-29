@@ -29,6 +29,7 @@ class ProductOrServiceInline(AjaxTabularInline):
                           autofill={"item": {"field": "cost",
                                              "related_field": "price",
                                              }})
+    exclude = ["total"]
 
 
 class InvoiceEntryInline(ProductOrServiceInline):

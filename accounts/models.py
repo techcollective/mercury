@@ -71,10 +71,9 @@ class QuoteInvoiceBase(models.Model):
         grand_total = 0
         tax_percentage = get_tax_percentage()
         for entry in self.get_entries():
-            item_total = entry.cost * entry.quantity - entry.discount
-            subtotal += item_total
+            subtotal += entry.total
             if entry.item.is_taxable:
-                tax += item_total * tax_percentage / 100
+                tax += entry.total * tax_percentage / 100
         self.total_tax = tax
         self.subtotal = subtotal
         self.grand_total = subtotal + tax
@@ -115,12 +114,14 @@ class Entry(models.Model):
     quantity = models.DecimalField(max_digits=14, decimal_places=2,
                                    default=get_default_item_quantity)
     discount = CurrencyField(default=0)
+    total = CurrencyField()
 
     class Meta:
         abstract = True
         verbose_name_plural = "Invoice entries"
 
     def save(self, *args, **kwargs):
+        self.total = self.cost * self.quantity - self.discount
         if self.item.manage_stock:
             if self.item.number_in_stock > 0:
                 self.item.number_in_stock -= self.quantity
