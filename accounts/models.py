@@ -65,18 +65,23 @@ class QuoteInvoiceBase(models.Model):
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
 
-    def update_totals(self, *args, **kwargs):
-        subtotal = 0
+    def update_tax(self):
         tax = 0
-        grand_total = 0
         tax_percentage = get_tax_percentage()
+        if self.customer.is_taxable:
+            for entry in self.get_entries():
+                if entry.item.is_taxable:
+                    tax += entry.total * tax_percentage / 100
+        self.total_tax = tax
+
+    def update_totals(self, *args, **kwargs):
+        self.update_tax()
+        subtotal = 0
+        grand_total = 0
         for entry in self.get_entries():
             subtotal += entry.total
-            if entry.item.is_taxable:
-                tax += entry.total * tax_percentage / 100
-        self.total_tax = tax
         self.subtotal = subtotal
-        self.grand_total = subtotal + tax
+        self.grand_total = subtotal + self.total_tax
         self.save()
 
     def get_number(self):
