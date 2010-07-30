@@ -28,7 +28,7 @@ $("#{{ html_id }}").keypress(function(){
     $("#" + this.id + "_hidden").val("");
 });
 function receiveResult(event, data) {
-    input_id = this.id;
+    input_id = event.target.id;
     $("#" + input_id + "_hidden").val(data[0]);
     $("#" + input_id).val(data[1]);
     $("#" + input_id + "_clear").show();
@@ -49,10 +49,10 @@ if($("#{{ html_id }}_hidden").val()) {
 else{
     $("#{{ html_id }}_clear").hide();
 }
-$("#{{ html_id }}").bind('didAddPopup',function(event,id,repr) {
+$("#{{ html_id }}").bind('didAddPopup',function(event, id, repr) {
     data = Array();
     data[0] = id;
     data[1] = repr;
-    receiveResult(null,data);
+    receiveResult(event, data);
 });
 </script>
