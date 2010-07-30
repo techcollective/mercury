@@ -33,6 +33,7 @@ function receiveResult(event, data) {
     $("#" + input_id).val(data[1]);
     $("#" + input_id + "_clear").show();
     {% if autofill %}
+    alert("hello");
     replace = input_id;
     replace = replace.split("-");
     replace = replace.slice(0,-1);
