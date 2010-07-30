@@ -33,7 +33,6 @@ function receiveResult(event, data) {
     $("#" + input_id).val(data[1]);
     $("#" + input_id + "_clear").show();
     {% if autofill %}
-    alert("hello");
     replace = input_id;
     replace = replace.split("-");
     replace = replace.slice(0,-1);
@@ -50,7 +49,7 @@ if($("#{{ html_id }}_hidden").val()) {
 else{
     $("#{{ html_id }}_clear").hide();
 }
-$("#{{ html_id }}").bind('didAddPopup',function(event, id, repr) {
+$("#{{ html_id }}").bind('didAddPopup', function(event, id, repr) {
     data = Array();
     data[0] = id;
     data[1] = repr;
