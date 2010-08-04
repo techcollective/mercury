@@ -86,7 +86,6 @@ class QuoteInvoiceBase(models.Model):
 
     def get_number(self):
         num_zeros = get_invoice_number_padding()
-        print num_zeros
         return str(self.id).zfill(num_zeros)
 
     class Meta:
