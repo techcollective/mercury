@@ -14,6 +14,7 @@ from mercury.accounts.models import (Customer,
                                      Deposit,
                                     )
 
+# Custom inline classes
 
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
@@ -22,6 +23,8 @@ class AjaxTabularInline(admin.TabularInline):
         autoselect_fields_check_can_add(formset.form, self.model, request.user)
         return formset
 
+
+# Inlines
 
 class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
@@ -53,6 +56,8 @@ class DepositPaymentInline(admin.TabularInline):
     model = Payment
     extra = 0
 
+
+# Admin classes
 
 class InvoiceAdmin(AjaxSelectAdmin):
     search_fields = ["customer__name"]
@@ -95,6 +100,8 @@ class CustomerAdmin(admin.ModelAdmin):
 class DepositAdmin(admin.ModelAdmin):
     inlines = [DepositPaymentInline]
 
+
+# Registration
 
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(ProductOrService)
