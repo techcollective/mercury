@@ -1,8 +1,23 @@
 import decimal
 
 from django.db.models import ForeignKey
+from django.core.urlresolvers import reverse
 
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
+
+
+def get_model_info(model):
+    return (model._meta.app_label, model._meta.module_name)
+
+
+def get_changelist_url(model):
+    info = get_model_info(model)
+    return reverse("admin:%s_%s_changelist" % info)
+
+
+def get_change_url(instance):
+    info = get_model_info(instance)
+    return reverse("admin:%s_%s_change" % info, args=[instance.pk])
 
 
 def model_to_dict(instance):

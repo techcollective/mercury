@@ -6,7 +6,7 @@
 {% if invoice_data.invoices %}
 <div class="inline-group">
     <h2>{{ invoice_data.title }}</h2>
-<table>
+<table style="width:100%">
     <thead><tr><th>Invoice</th>
                <th>Status</th>
                <th>Created</th>
@@ -16,7 +16,7 @@
     </tr></thead>
     <tbody>
 {% for invoice in invoice_data.invoices %}
-<tr><td>Invoice {{ invoice.get_number }}</td>
+<tr><td><a href="{{ invoice.url }}">Invoice #{{ invoice.number }}</a></td>
     <td>{{ invoice.status }}</td>
     <td>{{ invoice.date_created }}</td>
     <td>{{ invoice.date_due }}</td>

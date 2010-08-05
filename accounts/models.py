@@ -3,6 +3,7 @@ import decimal
 
 from django.db import models
 from django.utils.text import capfirst
+from django.core.urlresolvers import reverse
 
 from mercury.configuration.models import (PaymentMethod,
                                           InvoiceStatus,
@@ -11,6 +12,7 @@ from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (TaxableDefault,
                              BooleanFetcher,
                              model_to_dict,
+                             get_change_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
@@ -72,8 +74,13 @@ class Customer(models.Model):
         if max_invoices == 1:
             title = "most recent invoice"
         title = capfirst(title)
-        invoices = [model_to_dict(x) for x in invoices]
-        return {"title": title, "invoices": invoices}
+        invoice_list = []
+        for invoice in invoices:
+            data = model_to_dict(invoice)
+            data["number"] = invoice.get_number()
+            data["url"] = get_change_url(invoice)
+            invoice_list.append(data)
+        return {"title": title, "invoices": invoice_list}
 
     # TODO: how can this work? custom admin template?
     #class Meta:
@@ -131,7 +138,7 @@ class QuoteInvoiceBase(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["-date_created"]
+        ordering = ["-date_created", "-id"]
 
 
 class Quote(QuoteInvoiceBase):

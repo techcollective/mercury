@@ -94,7 +94,7 @@ TEMPLATE_DIRS = (
     os.path.join(this_dir, "templates"),
 )
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -105,7 +105,10 @@ INSTALLED_APPS = (
     'tinymce',
     'mercury.configuration',
     'mercury.accounts',
-)
+]
+
+if DEBUG:
+    INSTALLED_APPS += ['django_extensions']
 
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': {"model": "accounts.Customer", "search_field": "name"},

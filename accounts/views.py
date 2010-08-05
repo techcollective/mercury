@@ -9,18 +9,13 @@ import ho.pisa as pisa
 from django.contrib import messages
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
-from django.core.urlresolvers import reverse
 from django.template import loader, Context, TemplateDoesNotExist, TemplateSyntaxError
 from django.utils.text import capfirst
 
 from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
-from mercury.helpers import model_to_dict
-
-def get_model_info(model):
-    return (model._meta.app_label, model._meta.module_name)
-
+from mercury.helpers import model_to_dict, get_changelist_url, get_change_url
 
 def generate_context(quote_or_invoice):
     instance = quote_or_invoice
@@ -54,21 +49,17 @@ class HtmlRenderer(Renderer):
             try:
                 self.template = loader.get_template(template)
             except TemplateDoesNotExist:
-                info = get_model_info(Template)
                 error = ("Couldn't render. " +
                          "Template \"%s\" not found." % template)
-                error_page = reverse("admin:%s_%s_changelist" % info)
+                error_page = get_changelist_url(Template)
             except TemplateSyntaxError as e:
                 instance = Template.objects.get(name=template)
-                info = get_model_info(Template)
                 error = "Couldn't render template. %s" % str(e)
-                error_page = reverse("admin:%s_%s_change" % info,
-                                     args=[instance.id])
+                error_page = get_change_url(instance)
         else:
-            info = get_model_info(Config)
             error = ("Couldn't render. " +
                      "No setting for \"%s template\" found." % self.model_name)
-            error_page = reverse("admin:%s_%s_changelist" % info)
+            error_page = get_changelist_url(Config)
 
         if error:
             raise AccountsRedirect(error, url=error_page)
