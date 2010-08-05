@@ -172,5 +172,29 @@
             "name": "default invoice term in days for new customers",
             "value": "0"
         }
+    },
+    {
+        "pk": 14,
+        "model": "configuration.config",
+        "fields": {
+            "name": "display paid invoices on customer page",
+            "value": "true"
+        }
+    },
+    {
+        "pk": 15,
+        "model": "configuration.config",
+        "fields": {
+            "name": "max number of invoices on customer detail page",
+            "value": "20"
+        }
+    },
+    {
+        "pk": 16,
+        "model": "configuration.config",
+        "fields": {
+            "name": "status for paid invoices",
+            "value": "Paid"
+        }
     }
 ]

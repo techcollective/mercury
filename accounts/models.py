@@ -2,6 +2,7 @@ import datetime
 import decimal
 
 from django.db import models
+from django.utils.text import capfirst
 
 from mercury.configuration.models import (PaymentMethod,
                                           InvoiceStatus,
@@ -15,7 +16,10 @@ from mercury.helpers import (TaxableDefault,
                              get_customer_term,
                              get_invoice_number_padding,
                              get_default_item_quantity,
-                             get_or_create_default_invoice_term)
+                             get_or_create_default_invoice_term,
+                             get_max_customer_invoices,
+                             get_display_paid_customer_invoices,
+                             get_or_create_paid_invoice_status)
 
 
 class Customer(models.Model):
@@ -34,6 +38,41 @@ class Customer(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_invoice_list(self):
+        """
+        This is used by the custom customer change template to show a
+        customer's invoice list. It should belong in a view, but it's
+        easier to do it here than create a custom admin view that would first
+        have to duplicate the current render_change_form functionality.
+        """
+        max_invoices = get_max_customer_invoices()
+        display_paid = get_display_paid_customer_invoices()
+        paid_status = get_or_create_paid_invoice_status()
+
+        qs = self.invoice_set.all()
+        if not display_paid:
+            qs = qs.exclude(status__status__iexact=paid_status)
+        # the code below was written with the following in mind:
+        # 1) the most common scenario of len(invoices) < max_invoices is the
+        #    shortest fastest code path
+        # 2) there's no need to call .count() when we're retrieving the
+        #    objects anyway. i retrieve max_count+1 to avoid treating the
+        #    case of qs.count() == max_invoices the way way as when the
+        #    count has actually been exceeded.
+        invoices = qs[:max_invoices + 1]
+        if len(invoices) > max_invoices:
+            title = "%s most recent " % max_invoices
+            invoices = invoices[:max_invoices]
+        else:
+            title = ""
+        if not display_paid:
+            title += "unpaid "
+        title += "invoices"
+        if max_invoices == 1:
+            title = "most recent invoice"
+        title = capfirst(title)
+        return {"title": title, "invoices": invoices}
+
     # TODO: how can this work? custom admin template?
     #class Meta:
     #    verbose_name = get_customer_term()
@@ -46,9 +85,9 @@ class ProductOrService(models.Model):
     number_in_stock = models.PositiveIntegerField(default=0)
     manage_stock = models.BooleanField(default=BooleanFetcher("manage stock " +
                                        "of new products and services " +
-                                       "by default").get_setting)
+                                       "by default"))
     is_taxable = models.BooleanField(
-        default=TaxableDefault("products and services").get_setting)
+        default=TaxableDefault("products and services"))
 
     def __unicode__(self):
         return self.name
@@ -90,6 +129,7 @@ class QuoteInvoiceBase(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ["-date_created"]
 
 
 class Quote(QuoteInvoiceBase):

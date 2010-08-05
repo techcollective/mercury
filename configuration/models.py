@@ -46,7 +46,7 @@ class ConfigManager(models.Manager):
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            value = ""
+            value = None
         return value
 
 
@@ -57,6 +57,10 @@ class Config(models.Model):
 
     def __unicode__(self):
         return "'%s' is set to '%s'" % (self.name, self.value)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        super(Config, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "System Setting"
