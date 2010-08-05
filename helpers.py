@@ -1,6 +1,20 @@
 import decimal
 
+from django.db.models import ForeignKey
+
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
+
+
+def model_to_dict(instance):
+    data = {}
+    for field in instance._meta.fields:
+        if isinstance(field, ForeignKey):
+            value = field.rel.to.objects.get(id=field.value_from_object(instance))
+            value = str(value)
+        else:
+            value = field.value_to_string(instance)
+        data[field.name] = value
+    return data
 
 
 class SettingFetcher(object):
@@ -120,6 +134,10 @@ def get_or_create_paid_invoice_status():
     return status
 
 
-def get_display_paid_customer_invoices():
-    result = BooleanFetcher("display paid invoices on customer page")()
-    return result
+def get_currency_decimal_places():
+    places = IntegerFetcher("number of decimal places for currency display")()
+    if places is None:
+        places = 2
+    if places < 0:
+        places = 2
+    return places

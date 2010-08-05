@@ -10,6 +10,7 @@ from mercury.configuration.models import (PaymentMethod,
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (TaxableDefault,
                              BooleanFetcher,
+                             model_to_dict,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
@@ -18,7 +19,6 @@ from mercury.helpers import (TaxableDefault,
                              get_default_item_quantity,
                              get_or_create_default_invoice_term,
                              get_max_customer_invoices,
-                             get_display_paid_customer_invoices,
                              get_or_create_paid_invoice_status)
 
 
@@ -46,7 +46,8 @@ class Customer(models.Model):
         have to duplicate the current render_change_form functionality.
         """
         max_invoices = get_max_customer_invoices()
-        display_paid = get_display_paid_customer_invoices()
+        display_paid = BooleanFetcher(
+                                "display paid invoices on customer page")()
         paid_status = get_or_create_paid_invoice_status()
 
         qs = self.invoice_set.all()
@@ -57,7 +58,7 @@ class Customer(models.Model):
         #    shortest fastest code path
         # 2) there's no need to call .count() when we're retrieving the
         #    objects anyway. i retrieve max_count+1 to avoid treating the
-        #    case of qs.count() == max_invoices the way way as when the
+        #    case of qs.count() == max_invoices the same way as when the
         #    count has actually been exceeded.
         invoices = qs[:max_invoices + 1]
         if len(invoices) > max_invoices:
@@ -71,6 +72,7 @@ class Customer(models.Model):
         if max_invoices == 1:
             title = "most recent invoice"
         title = capfirst(title)
+        invoices = [model_to_dict(x) for x in invoices]
         return {"title": title, "invoices": invoices}
 
     # TODO: how can this work? custom admin template?

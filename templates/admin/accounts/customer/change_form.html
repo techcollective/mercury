@@ -6,10 +6,26 @@
 {% if invoice_data.invoices %}
 <div class="inline-group">
     <h2>{{ invoice_data.title }}</h2>
+<table>
+    <thead><tr><th>Invoice</th>
+               <th>Status</th>
+               <th>Created</th>
+               <th>Due</th>
+               <th>Total</th>
+               <th>Comment</th>
+    </tr></thead>
+    <tbody>
 {% for invoice in invoice_data.invoices %}
-{{ invoice }}
+<tr><td>Invoice {{ invoice.get_number }}</td>
+    <td>{{ invoice.status }}</td>
+    <td>{{ invoice.date_created }}</td>
+    <td>{{ invoice.date_due }}</td>
+    <td>{{ invoice.grand_total }}</td>
+    <td>{{ invoice.comment }}</td>
+    </tr>
 {% endfor %}
 {% endif %}
 {% endwith %}
+    </tbody></table>
 </div>
 {% endblock %}

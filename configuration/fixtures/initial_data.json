@@ -196,5 +196,13 @@
             "name": "status for paid invoices",
             "value": "Paid"
         }
+    },
+    {
+        "pk": 17,
+        "model": "configuration.config",
+        "fields": {
+            "name": "number of decimal places for currency display",
+            "value": "2"
+        }
     }
 ]

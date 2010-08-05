@@ -16,7 +16,7 @@ from django.utils.text import capfirst
 from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
-
+from mercury.helpers import model_to_dict
 
 def get_model_info(model):
     return (model._meta.app_label, model._meta.module_name)
@@ -24,9 +24,7 @@ def get_model_info(model):
 
 def generate_context(quote_or_invoice):
     instance = quote_or_invoice
-    data = {}
-    for field in instance._meta.fields:
-        data[field.name] = field.value_to_string(instance)
+    data = model_to_dict(instance)
     data["customer"] = instance.customer
     data["entries"] = instance.get_entries()
     data["id_number"] = instance.get_number()
