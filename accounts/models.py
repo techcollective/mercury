@@ -109,7 +109,7 @@ class ProductOrService(models.Model):
 class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
-    description = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=200)
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
@@ -137,15 +137,11 @@ class QuoteInvoiceBase(models.Model):
     def get_number(self):
         num_zeros = get_invoice_number_padding()
         return str(self.id).zfill(num_zeros)
+    get_number.short_description = "Number"
+    get_number.admin_order_field = "id"
 
     def __unicode__(self):
-        # i'm hoping there's a nicer way to get the formatted
-        # currencyfield that i haven't thought of
-        grand_total = self._meta.get_field_by_name("grand_total")[0]
-        grand_total = grand_total.value_to_string(self)
-        return "#%s for %s - %s" % (self.get_number(),
-                                    grand_total,
-                                    self.customer)
+        return self.description + " - " + str(self.customer)
 
     class Meta:
         abstract = True
@@ -154,7 +150,7 @@ class QuoteInvoiceBase(models.Model):
 
 class Quote(QuoteInvoiceBase):
     def __unicode__(self):
-        return "Quote " + super(Quote, self).__unicode__()
+        return "Quote - " + super(Quote, self).__unicode__()
 
     def get_entries(self):
         return self.quoteentry_set.all()
@@ -166,7 +162,7 @@ class Invoice(QuoteInvoiceBase):
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):
-        return "Invoice " + super(Invoice, self).__unicode__()
+        return "Invoice - " + super(Invoice, self).__unicode__()
 
     def get_entries(self):
         return self.invoiceentry_set.all()

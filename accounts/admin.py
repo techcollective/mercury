@@ -62,7 +62,7 @@ class DepositPaymentInline(admin.TabularInline):
 # Admin classes
 
 class InvoiceAdmin(AjaxSelectAdmin):
-    search_fields = ["customer__name", "description"]
+    search_fields = ["customer__name", "description", "id"]
     form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "date_due",
@@ -71,7 +71,8 @@ class InvoiceAdmin(AjaxSelectAdmin):
     ]
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
-    list_display = ["__str__", "status", "date_created", "date_due"]
+    list_display = ["get_number", "description", "customer", "status", "grand_total", "date_created", "date_due"]
+    list_display_links = ["get_number", "description"]
     list_filter = ["status"]
 
     def post_save(self, instance):
@@ -80,7 +81,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
 
 
 class QuoteAdmin(AjaxSelectAdmin):
-    search_fields = ["customer__name"]
+    search_fields = ["customer__name", "description", "id"]
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "description"]}),
@@ -88,6 +89,8 @@ class QuoteAdmin(AjaxSelectAdmin):
     ]
     inlines = [QuoteEntryInline]
     date_hierarchy = "date_created"
+    list_display = ["get_number", "description", "customer", "grand_total", "date_created"]
+    list_display_links = ["get_number", "description"]
 
     def post_save(self, instance):
         instance.update_totals()
