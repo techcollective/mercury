@@ -93,10 +93,10 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 1,
-            "description": "",
+            "total_tax": "7.6",
             "grand_total": "207.6",
             "date_due": "2010-08-05",
-            "total_tax": "7.6",
+            "description": "Testy McTesterson - System Recovery, 160G SATA Hard Drive",
             "status": 1,
             "date_created": "2010-08-05",
             "subtotal": "200"
@@ -107,10 +107,10 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 3,
-            "description": "",
+            "total_tax": "0",
             "grand_total": "150",
             "date_due": "2010-08-05",
-            "total_tax": "0",
+            "description": "Mr. Customer - Virus Removal",
             "status": 1,
             "date_created": "2010-08-01",
             "subtotal": "150"
@@ -121,10 +121,10 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 2,
-            "description": "",
+            "total_tax": "7.6",
             "grand_total": "457.6",
             "date_due": "2010-07-05",
-            "total_tax": "7.6",
+            "description": "Shit McShithead - Data Recovery, System Recovery, 160G SATA Hard Drive",
             "status": 1,
             "date_created": "2010-07-05",
             "subtotal": "450"
@@ -135,10 +135,10 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 2,
-            "description": "",
+            "total_tax": "0",
             "grand_total": "150",
             "date_due": "2010-07-01",
-            "total_tax": "0",
+            "description": "Shit McShithead - Virus Removal",
             "status": 1,
             "date_created": "2010-07-01",
             "subtotal": "150"
@@ -148,6 +148,7 @@
         "pk": 1,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 2,
             "cost": "150",
@@ -160,6 +161,7 @@
         "pk": 2,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 4,
             "cost": "120",
@@ -172,6 +174,7 @@
         "pk": 3,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 1,
             "cost": "80",
@@ -184,6 +187,7 @@
         "pk": 4,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 2,
             "cost": "150",
@@ -196,6 +200,7 @@
         "pk": 5,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 3,
             "cost": "250",
@@ -208,6 +213,7 @@
         "pk": 6,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 4,
             "cost": "120",
@@ -220,6 +226,7 @@
         "pk": 7,
         "model": "accounts.invoiceentry",
         "fields": {
+            "description": "",
             "discount": "0",
             "item": 1,
             "cost": "80",

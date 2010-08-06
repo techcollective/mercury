@@ -217,5 +217,13 @@
             "name": "number of decimal places for currency display",
             "value": "2"
         }
+    },
+    {
+        "pk": 18,
+        "model": "configuration.config",
+        "fields": {
+            "name": "automatically fill in blank invoice description",
+            "value": "true"
+        }
     }
 ]

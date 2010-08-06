@@ -133,7 +133,9 @@ class QuoteInvoiceBase(models.Model):
         self.grand_total = subtotal + self.total_tax
 
     def update_description(self):
-        if not self.description:
+        update = BooleanFetcher("automatically fill in " +
+                                "blank invoice description")()
+        if update and not self.description:
             entries = self.get_entries()
             entries = [(entry.description or str(entry.item))
                        for entry in entries]
