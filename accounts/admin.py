@@ -71,6 +71,8 @@ class InvoiceAdmin(AjaxSelectAdmin):
     ]
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
+    list_display = ["__str__", "status", "date_created", "date_due"]
+    list_filter = ["status"]
 
     def post_save(self, instance):
         instance.update_totals()

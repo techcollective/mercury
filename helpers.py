@@ -24,6 +24,8 @@ def model_to_dict(instance):
     data = {}
     for field in instance._meta.fields:
         if isinstance(field, ForeignKey):
+            # todo: better to do getattr(instance, field.name)? if the
+            # instance was obtained with select_related(), even better.
             value = field.rel.to.objects.get(id=field.value_from_object(instance))
             value = str(value)
         else:

@@ -138,6 +138,15 @@ class QuoteInvoiceBase(models.Model):
         num_zeros = get_invoice_number_padding()
         return str(self.id).zfill(num_zeros)
 
+    def __unicode__(self):
+        # i'm hoping there's a nicer way to get the formatted
+        # currencyfield that i haven't thought of
+        grand_total = self._meta.get_field_by_name("grand_total")[0]
+        grand_total = grand_total.value_to_string(self)
+        return "#%s for %s - %s" % (self.get_number(),
+                                    grand_total,
+                                    self.customer)
+
     class Meta:
         abstract = True
         ordering = ["-date_created", "-id"]
@@ -145,7 +154,7 @@ class QuoteInvoiceBase(models.Model):
 
 class Quote(QuoteInvoiceBase):
     def __unicode__(self):
-        return "Quote #%s - %s" % (self.get_number(), self.customer)
+        return "Quote " + super(Quote, self).__unicode__()
 
     def get_entries(self):
         return self.quoteentry_set.all()
@@ -157,7 +166,7 @@ class Invoice(QuoteInvoiceBase):
     date_due = models.DateField(default=datetime.date.today)
 
     def __unicode__(self):
-        return "Invoice #%s - %s" % (self.get_number(), self.customer)
+        return "Invoice " + super(Invoice, self).__unicode__()
 
     def get_entries(self):
         return self.invoiceentry_set.all()
@@ -225,10 +234,10 @@ class Payment(models.Model):
     amount = CurrencyField()
     payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
+    comment = models.CharField(max_length=200)
     invoice = models.ForeignKey(Invoice)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
     depositable = models.BooleanField(default=False)
-    # add comment field
 
     def save(self, *args, **kwargs):
         if self.payment_type.manage_deposits:
