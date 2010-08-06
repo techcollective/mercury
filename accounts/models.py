@@ -173,8 +173,7 @@ class Invoice(QuoteInvoiceBase):
 
     def update_status(self):
         total_payments = self.payment_set.all().aggregate(models.Sum("amount"))
-        total_payments = total_payments["amount__sum"]
-        if total_payments >= self.grand_total:
+        if total_payments["amount__sum"] >= self.grand_total:
             self.status = get_or_create_paid_invoice_status()
             self.save()
 
@@ -223,9 +222,11 @@ class QuoteEntry(Entry):
 class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
     total = CurrencyField(default=0, read_only=True)
+    comment = models.CharField(max_length=200, blank=True)
 
     def save(self, *args, **kwargs):
-        self.total = sum([x.amount for x in self.payment_set.all()])
+        total = self.payment_set.all().aggregate(models.Sum("amount"))
+        self.total = total["amount__sum"]
         super(Deposit, self).save(*args, **kwargs)
 
     def __unicode__(self):
