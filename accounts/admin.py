@@ -48,13 +48,15 @@ class QuoteEntryInline(ProductOrServiceInline):
 class InvoicePaymentInline(admin.TabularInline):
     model = Payment
     extra = 0
-    exclude = ["deposit"]
+    exclude = ["deposit", "depositable"]
     show_last = True
 
 
 class DepositPaymentInline(admin.TabularInline):
     model = Payment
+    exclude = ["depositable"]
     extra = 0
+    max_num = 0
 
 
 # Admin classes
@@ -105,12 +107,21 @@ class DepositAdmin(admin.ModelAdmin):
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "date_received", "deposit"]
-    list_filter = ["deposit"]
+    list_display = ["__str__", "date_received", "deposited"]
+    list_filter = ["depositable"]
     actions = ["deposit"]
+    exclude = ["depositable"]
+    date_hierarchy = "date_received"
+
+    def deposited(self, instance):
+        return instance.deposit is not None
+    deposited.boolean = True
+    deposited.admin_order_field = 'deposit'
 
     def deposit(self, request, queryset):
         new_deposit = Deposit()
+        # save() to create the deposit, otherwise it can't have
+        # payments assigned to it.
         new_deposit.save()
         rows_updated = queryset.update(deposit=new_deposit)
         if rows_updated == 1:
@@ -118,9 +129,15 @@ class PaymentAdmin(admin.ModelAdmin):
         else:
             message = "%s payments were" % rows_updated
         message += " deposited successfully"
-        new_deposit.update_total()
+        # save() again to update the deposit total field
+        new_deposit.save()
         self.message_user(request, message)
     deposit.short_description = "Deposit selected payments"
+
+    def get_actions(self, *args, **kwargs):
+        actions = super(PaymentAdmin, self).get_actions(*args, **kwargs)
+        del actions['delete_selected']
+        return actions
 
 
 # Registration

@@ -4,8 +4,9 @@ import decimal
 from django.db import models
 from django.utils.text import capfirst
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 
-from mercury.configuration.models import (PaymentMethod,
+from mercury.configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
@@ -207,9 +208,9 @@ class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
     total = CurrencyField(default=0, read_only=True)
 
-    def update_total(self):
+    def save(self, *args, **kwargs):
         self.total = sum([x.amount for x in self.payment_set.all()])
-        self.save()
+        super(Deposit, self).save(*args, **kwargs)
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
@@ -222,10 +223,26 @@ class Deposit(models.Model):
 
 class Payment(models.Model):
     amount = CurrencyField()
-    payment_method = models.ForeignKey(PaymentMethod)
+    payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
     invoice = models.ForeignKey(Invoice)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
+    depositable = models.BooleanField(default=False)
+    # add comment field
+
+    def save(self, *args, **kwargs):
+        if self.payment_method.manage_deposits:
+            self.depositable = True
+        super(Payment, self).save(*args, **kwargs)
+        if self.deposit:
+            # call save() on deposit to update total
+            self.deposit.save()
+
+    def clean(self):
+        if not self.depositable and self.deposit:
+            message = "The payment type '%s' isn't " % str(self.payment_method)
+            message += "depositable, so this payment can't belong to a deposit"
+            raise ValidationError(message)
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()

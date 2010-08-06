@@ -1,36 +1,49 @@
 [
     {
         "pk": 1,
-        "model": "configuration.paymentmethod",
+        "model": "configuration.paymenttype",
         "fields": {
-            "name": "MasterCard"
+            "manage_deposits": false,
+            "name": "Visa"
         }
     },
     {
         "pk": 2,
-        "model": "configuration.paymentmethod",
+        "model": "configuration.paymenttype",
         "fields": {
-            "name": "Discover"
+            "manage_deposits": false,
+            "name": "MasterCard"
         }
     },
     {
         "pk": 3,
-        "model": "configuration.paymentmethod",
+        "model": "configuration.paymenttype",
         "fields": {
+            "manage_deposits": false,
             "name": "American Express"
         }
     },
     {
         "pk": 4,
-        "model": "configuration.paymentmethod",
+        "model": "configuration.paymenttype",
         "fields": {
-            "name": "Check"
+            "manage_deposits": false,
+            "name": "Discover"
         }
     },
     {
         "pk": 5,
-        "model": "configuration.paymentmethod",
+        "model": "configuration.paymenttype",
         "fields": {
+            "manage_deposits": true,
+            "name": "Check"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "configuration.paymenttype",
+        "fields": {
+            "manage_deposits": true,
             "name": "Cash"
         }
     },

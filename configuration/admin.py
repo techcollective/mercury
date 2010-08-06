@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from mercury.configuration.models import (PaymentMethod,
+from mercury.configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm,
                                           Template,
@@ -12,7 +12,7 @@ class ConfigAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-admin.site.register(PaymentMethod)
+admin.site.register(PaymentType)
 admin.site.register(InvoiceStatus)
 admin.site.register(InvoiceTerm)
 admin.site.register(Template)

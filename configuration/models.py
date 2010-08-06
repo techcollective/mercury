@@ -3,8 +3,12 @@ from django.db import models
 from tinymce.models import HTMLField
 
 
-class PaymentMethod(models.Model):
+class PaymentType(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    manage_deposits = models.BooleanField(help_text="Check this if you want " +
+                                          "payments received with this " +
+                                          "type to be managed by the " +
+                                          "deposit system")
 
     def __unicode__(self):
         return self.name
