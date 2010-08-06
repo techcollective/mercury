@@ -62,11 +62,11 @@ class DepositPaymentInline(admin.TabularInline):
 # Admin classes
 
 class InvoiceAdmin(AjaxSelectAdmin):
-    search_fields = ["customer__name"]
+    search_fields = ["customer__name", "description"]
     form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "date_due",
-                                    "status", "comment"]}),
+                                    "status", "description"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
@@ -83,7 +83,7 @@ class QuoteAdmin(AjaxSelectAdmin):
     search_fields = ["customer__name"]
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
-        ("Information", {"fields": ["customer", "date_created", "comment"]}),
+        ("Information", {"fields": ["customer", "date_created", "description"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     inlines = [QuoteEntryInline]

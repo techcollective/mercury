@@ -93,7 +93,7 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 1,
-            "comment": "",
+            "description": "",
             "grand_total": "207.6",
             "date_due": "2010-08-05",
             "total_tax": "7.6",
@@ -107,7 +107,7 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 3,
-            "comment": "",
+            "description": "",
             "grand_total": "150",
             "date_due": "2010-08-05",
             "total_tax": "0",
@@ -121,7 +121,7 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 2,
-            "comment": "",
+            "description": "",
             "grand_total": "457.6",
             "date_due": "2010-07-05",
             "total_tax": "7.6",
@@ -135,7 +135,7 @@
         "model": "accounts.invoice",
         "fields": {
             "customer": 2,
-            "comment": "",
+            "description": "",
             "grand_total": "150",
             "date_due": "2010-07-01",
             "total_tax": "0",
