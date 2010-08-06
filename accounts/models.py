@@ -231,7 +231,7 @@ class Payment(models.Model):
     # add comment field
 
     def save(self, *args, **kwargs):
-        if self.payment_method.manage_deposits:
+        if self.payment_type.manage_deposits:
             self.depositable = True
         super(Payment, self).save(*args, **kwargs)
         if self.deposit:
@@ -240,7 +240,7 @@ class Payment(models.Model):
 
     def clean(self):
         if not self.depositable and self.deposit:
-            message = "The payment type '%s' isn't " % str(self.payment_method)
+            message = "The payment type '%s' isn't " % str(self.payment_type)
             message += "depositable, so this payment can't belong to a deposit"
             raise ValidationError(message)
 
@@ -249,8 +249,8 @@ class Payment(models.Model):
         return "%s%s%s %s payment for %s" % (prefix,
                                              self.amount,
                                              suffix,
-                                             self.payment_method,
+                                             self.payment_type,
                                              str(self.invoice))
 
     class Meta:
-        ordering = ["payment_method", "-date_received"]
+        ordering = ["payment_type", "-date_received"]
