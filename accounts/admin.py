@@ -116,7 +116,8 @@ class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = "date_received"
 
     def deposited(self, instance):
-        return instance.deposit is not None
+        return (instance.deposit is not None) or \
+               (instance.depositable == False)
     deposited.boolean = True
     deposited.admin_order_field = 'deposit'
 

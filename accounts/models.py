@@ -171,6 +171,9 @@ class Invoice(QuoteInvoiceBase):
     def get_entries(self):
         return self.invoiceentry_set.all()
 
+    def update_status(self):
+        total_payments = self.payment_set.all()
+
 
 class Entry(models.Model):
     item = models.ForeignKey(ProductOrService)
@@ -234,7 +237,7 @@ class Payment(models.Model):
     amount = CurrencyField()
     payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
-    comment = models.CharField(max_length=200)
+    comment = models.CharField(max_length=200, blank=True)
     invoice = models.ForeignKey(Invoice)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
     depositable = models.BooleanField(default=False)
