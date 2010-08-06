@@ -140,7 +140,7 @@ class QuoteInvoiceBase(models.Model):
             entries = [(entry.description or str(entry.item))
                        for entry in entries]
             entries = ", ".join(entries)
-            description = str(self.customer) + " - " + entries
+            description = "%s - %s" % (str(self.customer), entries)
             if len(description) > 200: # field length limit
                 description = description[:197] + "..."
             self.description = description
@@ -156,8 +156,14 @@ class QuoteInvoiceBase(models.Model):
     get_number.short_description = "Number"
     get_number.admin_order_field = "id"
 
+    def get_formatted_total(self):
+        # i'm hoping there's a nicer way to get the formatted
+        # currencyfield that i haven't thought of
+        grand_total = self._meta.get_field_by_name("grand_total")[0]
+        return grand_total.value_to_string(self)
+
     def __unicode__(self):
-        return self.description
+        return self.description + " - " + self.get_formatted_total()
 
     class Meta:
         abstract = True
@@ -265,6 +271,7 @@ class Payment(models.Model):
             # call save() on deposit to update total
             self.deposit.save()
         self.invoice.update_status()
+        self.invoice.save()
 
     def clean(self):
         if not self.depositable and self.deposit:
