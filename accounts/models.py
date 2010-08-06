@@ -172,7 +172,11 @@ class Invoice(QuoteInvoiceBase):
         return self.invoiceentry_set.all()
 
     def update_status(self):
-        total_payments = self.payment_set.all()
+        total_payments = self.payment_set.all().aggregate(models.Sum("amount"))
+        total_payments = total_payments["amount__sum"]
+        if total_payments >= self.grand_total:
+            self.status = get_or_create_paid_invoice_status()
+            self.save()
 
 
 class Entry(models.Model):
@@ -234,11 +238,11 @@ class Deposit(models.Model):
 
 
 class Payment(models.Model):
+    invoice = models.ForeignKey(Invoice)
     amount = CurrencyField()
     payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
-    invoice = models.ForeignKey(Invoice)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
     depositable = models.BooleanField(default=False)
 
@@ -249,6 +253,7 @@ class Payment(models.Model):
         if self.deposit:
             # call save() on deposit to update total
             self.deposit.save()
+        self.invoice.update_status()
 
     def clean(self):
         if not self.depositable and self.deposit:

@@ -76,6 +76,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
 
     def post_save(self, instance):
         instance.update_totals()
+        instance.update_status()
 
 
 class QuoteAdmin(AjaxSelectAdmin):
