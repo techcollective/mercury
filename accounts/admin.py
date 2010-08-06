@@ -100,6 +100,28 @@ class CustomerAdmin(admin.ModelAdmin):
 class DepositAdmin(admin.ModelAdmin):
     inlines = [DepositPaymentInline]
 
+    def merge_deposits(self, request, queryset):
+        pass
+
+
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ["__str__", "date_received", "deposit"]
+    list_filter = ["deposit"]
+    actions = ["deposit"]
+
+    def deposit(self, request, queryset):
+        new_deposit = Deposit()
+        new_deposit.save()
+        rows_updated = queryset.update(deposit=new_deposit)
+        if rows_updated == 1:
+            message = "1 payment was"
+        else:
+            message = "%s payments were" % rows_updated
+        message += " deposited successfully"
+        new_deposit.update_total()
+        self.message_user(request, message)
+    deposit.short_description = "Deposit selected payments"
+
 
 # Registration
 
@@ -107,5 +129,5 @@ admin.site.register(Customer, CustomerAdmin)
 admin.site.register(ProductOrService)
 admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(Quote, QuoteAdmin)
-admin.site.register(Payment)
+admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Deposit, DepositAdmin)

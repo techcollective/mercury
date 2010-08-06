@@ -121,6 +121,7 @@ class QuoteInvoiceBase(models.Model):
                 if entry.item.is_taxable:
                     tax += entry.total * tax_percentage / 100
         self.total_tax = tax
+        # todo: should also save() for correctness' sake?
 
     def update_totals(self, *args, **kwargs):
         self.update_tax()
@@ -204,14 +205,19 @@ class QuoteEntry(Entry):
 
 class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
+    total = CurrencyField(default=0, read_only=True)
 
-    def total(self):
-        return sum([x.amount for x in self.payment_set.all()])
+    def update_total(self):
+        self.total = sum([x.amount for x in self.payment_set.all()])
+        self.save()
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
-        return "Deposit of %s%s%s on %s" % (prefix, self.total(), suffix,
+        return "Deposit of %s%s%s on %s" % (prefix, self.total, suffix,
                                             self.date)
+
+    class Meta:
+        ordering = ["-date"]
 
 
 class Payment(models.Model):
@@ -224,7 +230,10 @@ class Payment(models.Model):
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
         return "%s%s%s %s payment for %s" % (prefix,
-                                                      self.amount,
-                                                      suffix,
-                                                      self.payment_method,
-                                                      str(self.invoice))
+                                             self.amount,
+                                             suffix,
+                                             self.payment_method,
+                                             str(self.invoice))
+
+    class Meta:
+        ordering = ["payment_method", "-date_received"]

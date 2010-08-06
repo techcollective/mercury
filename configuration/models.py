@@ -4,7 +4,7 @@ from tinymce.models import HTMLField
 
 
 class PaymentMethod(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __unicode__(self):
         return self.name
@@ -21,7 +21,7 @@ class InvoiceStatus(models.Model):
 
 
 class InvoiceTerm(models.Model):
-    days_until_invoice_due = models.PositiveIntegerField(default=0)
+    days_until_invoice_due = models.PositiveIntegerField(default=0, unique=True)
 
     def __unicode__(self):
         if self.days_until_invoice_due > 0:
