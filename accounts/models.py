@@ -109,7 +109,7 @@ class ProductOrService(models.Model):
 class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, blank=True)
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
@@ -122,9 +122,8 @@ class QuoteInvoiceBase(models.Model):
                 if entry.item.is_taxable:
                     tax += entry.total * tax_percentage / 100
         self.total_tax = tax
-        # todo: should also save() for correctness' sake?
 
-    def update_totals(self, *args, **kwargs):
+    def update_totals(self):
         self.update_tax()
         subtotal = 0
         grand_total = 0
@@ -132,7 +131,22 @@ class QuoteInvoiceBase(models.Model):
             subtotal += entry.total
         self.subtotal = subtotal
         self.grand_total = subtotal + self.total_tax
-        self.save()
+
+    def update_description(self):
+        if not self.description:
+            entries = self.get_entries()
+            entries = [(entry.description or str(entry.item))
+                       for entry in entries]
+            entries = ", ".join(entries)
+            description = str(self.customer) + " - " + entries
+            if len(description) > 200: # field length limit
+                description = description[:197] + "..."
+            self.description = description
+
+    def update(self):
+        self.update_totals()
+        self.update_tax()
+        self.update_description()
 
     def get_number(self):
         num_zeros = get_invoice_number_padding()
@@ -141,7 +155,7 @@ class QuoteInvoiceBase(models.Model):
     get_number.admin_order_field = "id"
 
     def __unicode__(self):
-        return self.description + " - " + str(self.customer)
+        return self.description
 
     class Meta:
         abstract = True
@@ -149,9 +163,6 @@ class QuoteInvoiceBase(models.Model):
 
 
 class Quote(QuoteInvoiceBase):
-    def __unicode__(self):
-        return "Quote - " + super(Quote, self).__unicode__()
-
     def get_entries(self):
         return self.quoteentry_set.all()
 
@@ -161,17 +172,17 @@ class Invoice(QuoteInvoiceBase):
                                default=get_or_create_default_invoice_status)
     date_due = models.DateField(default=datetime.date.today)
 
-    def __unicode__(self):
-        return "Invoice - " + super(Invoice, self).__unicode__()
-
     def get_entries(self):
         return self.invoiceentry_set.all()
+
+    def update(self):
+        super(Invoice, self).update()
+        self.update_status()
 
     def update_status(self):
         total_payments = self.payment_set.all().aggregate(models.Sum("amount"))
         if total_payments["amount__sum"] >= self.grand_total:
             self.status = get_or_create_paid_invoice_status()
-            self.save()
 
 
 class Entry(models.Model):

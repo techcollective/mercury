@@ -76,8 +76,8 @@ class InvoiceAdmin(AjaxSelectAdmin):
     list_filter = ["status"]
 
     def post_save(self, instance):
-        instance.update_totals()
-        instance.update_status()
+        instance.update()
+        instance.save()
 
 
 class QuoteAdmin(AjaxSelectAdmin):
@@ -93,7 +93,8 @@ class QuoteAdmin(AjaxSelectAdmin):
     list_display_links = ["get_number", "description"]
 
     def post_save(self, instance):
-        instance.update_totals()
+        instance.update()
+        instance.save()
 
 
 class CustomerAdmin(admin.ModelAdmin):
