@@ -10,20 +10,20 @@ from mercury.configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
-from mercury.helpers import (TaxableDefault,
-                             BooleanFetcher,
+from mercury.helpers import (get_boolean_setting,
                              model_to_dict,
                              get_change_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
-                             get_customer_term,
-                             get_invoice_number_padding,
-                             get_default_item_quantity,
                              get_or_create_default_invoice_term,
                              get_max_customer_invoices,
                              get_or_create_paid_invoice_status)
 
+
+customer_taxable = Callable(get_boolean_setting,
+                            ["new customers taxable by default"],
+                            kwargs={"default": False})
 
 class Customer(models.Model):
     name = models.CharField(max_length=50)
@@ -33,7 +33,7 @@ class Customer(models.Model):
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
-    is_taxable = models.BooleanField(default=TaxableDefault("customers"))
+    is_taxable = models.BooleanField(default=customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
 
@@ -48,8 +48,8 @@ class Customer(models.Model):
         have to duplicate the current render_change_form functionality.
         """
         max_invoices = get_max_customer_invoices()
-        display_paid = BooleanFetcher(
-                                "display paid invoices on customer page")()
+        setting = "display paid invoices on customer page"
+        display_paid = get_boolean_setting(setting)
         paid_status = get_or_create_paid_invoice_status()
 
         qs = self.invoice_set.all()
@@ -83,15 +83,18 @@ class Customer(models.Model):
         return {"title": title, "invoices": invoice_list}
 
 
+manage = Callable(get_boolean_setting,
+                  ["manage stock of new products and services by default"],
+                  kwargs={"default": True})
+taxable = Callable(get_boolean_setting,
+                   ["new products and services taxable by default"],
+                   kwargs={"default": True})
 class ProductOrService(models.Model):
     name = models.CharField(max_length=50)
     price = CurrencyField()
     number_in_stock = models.PositiveIntegerField(default=0)
-    manage_stock = models.BooleanField(default=BooleanFetcher("manage stock " +
-                                       "of new products and services " +
-                                       "by default"))
-    is_taxable = models.BooleanField(
-        default=TaxableDefault("products and services"))
+    manage_stock = models.BooleanField(default=manage)
+    is_taxable = models.BooleanField(default=taxable)
 
     def __unicode__(self):
         return self.name
@@ -127,8 +130,8 @@ class QuoteInvoiceBase(models.Model):
         self.grand_total = subtotal + self.total_tax
 
     def update_description(self):
-        update = BooleanFetcher("automatically fill in " +
-                                "blank invoice description")()
+        setting = "automatically fill in blank invoice description"
+        update = get_boolean_setting(setting)
         if update and not self.description:
             entries = self.get_entries()
             entries = [(entry.description or str(entry.item))
@@ -145,7 +148,8 @@ class QuoteInvoiceBase(models.Model):
         self.update_description()
 
     def get_number(self):
-        num_zeros = get_invoice_number_padding()
+        num_zeros = get_integer_setting("pad invoice numbers with zeros",
+                                        default=0)
         return str(self.id).zfill(num_zeros)
     get_number.short_description = "Number"
     get_number.admin_order_field = "id"
@@ -182,16 +186,20 @@ class Invoice(QuoteInvoiceBase):
         self.update_status()
 
     def update_status(self):
+        # todo: add a setting to disable this
         total_payments = self.payment_set.all().aggregate(models.Sum("amount"))
         if total_payments["amount__sum"] >= self.grand_total:
             self.status = get_or_create_paid_invoice_status()
 
 
+default_quantity = Callable(get_integer_setting,
+                            ["default quantity for items added to invoices"])
+
 class Entry(models.Model):
     item = models.ForeignKey(ProductOrService)
     cost = CurrencyField()
     quantity = models.DecimalField(max_digits=14, decimal_places=2,
-                                   default=get_default_item_quantity)
+                                   default=default_quantity)
     description = models.CharField(max_length=400, blank=True)
     discount = CurrencyField(default=0)
     total = CurrencyField()
