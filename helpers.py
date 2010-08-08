@@ -24,9 +24,7 @@ def model_to_dict(instance):
     data = {}
     for field in instance._meta.fields:
         if isinstance(field, ForeignKey):
-            # todo: better to do getattr(instance, field.name)? if the
-            # instance was obtained with select_related(), even better.
-            value = field.rel.to.objects.get(id=field.value_from_object(instance))
+            value = getattr(instance, field.name)
             value = str(value)
         else:
             value = field.value_to_string(instance)
@@ -34,42 +32,52 @@ def model_to_dict(instance):
     return data
 
 
-class SettingFetcher(object):
-    def __init__(self, setting):
-        self.setting = setting
+def get_setting(setting, default=""):
+    if not isinstance(default, str):
+        # make sure the default arg is the right type
+        raise TypeError("The 'default' argument must be a string")
+    value = Config.settings.get_setting(setting)
+    if value is None:
+        # this means the setting didn't exist
+        value = default
+    return value
 
-    def get_setting(self):
-        return Config.settings.get_setting(self.setting) or ""
+
+def get_boolean_setting(setting, default=False):
+    if not isinstance(default, bool):
+        # make sure the default arg is the right type
+        raise TypeError("The 'default' argument must be True or False")
+    value = get_setting(setting, default="")
+    if value.lower() == "true":
+        value = True
+    else:
+        value = default
+    return value
+
+
+def get_integer_setting(setting, default=0):
+    # make sure the default arg is the right type
+    if not isinstance(default, int):
+        raise TypeError("The 'default' argument must be an int")
+    value = get_setting(setting, default="")
+    try:
+        value = int(value)
+    except ValueError, TypeError:
+        value = default
+    return value
+
+
+class TaxableDefault(object):
+    def __init__(self, entity, default=False):
+        self.setting = "new %s taxable by default" % entity
+        self.default = default
 
     def __call__(self):
-        return self.get_setting()
-
-
-class BooleanFetcher(SettingFetcher):
-    def get_setting(self):
-        value = super(BooleanFetcher, self).get_setting()
-        if value and value.lower() == "true":
-            return True
-        else:
-            return False
-
-
-class IntegerFetcher(SettingFetcher):
-    def get_setting(self):
-        try:
-            value = int(super(IntegerFetcher, self).get_setting())
-        except ValueError, TypeError:
-            value = None
-        return value
-
-
-class TaxableDefault(BooleanFetcher):
-    def __init__(self, entity):
-        self.setting = "new %s taxable by default" % entity
+        return get_boolean_setting(self.setting, default=self.default)
 
 
 def get_or_create_default_invoice_status():
-    desired_status = SettingFetcher("default invoice status")()
+    desired_status = get_setting("default invoice status")
     status = None
     if desired_status:
         status, created = InvoiceStatus.objects.get_or_create(
@@ -80,11 +88,9 @@ def get_or_create_default_invoice_status():
 def get_currency_symbol():
     prefix = ""
     suffix = ""
-    symbol = SettingFetcher("currency symbol")()
+    symbol = get_setting("currency symbol")
     after_number = False
-    if SettingFetcher("currency symbol after number")().lower() == "true":
-        after_number = True
-    if after_number:
+    if get_boolean_setting("currency symbol after number"):
         suffix = symbol
     else:
         prefix = symbol
@@ -92,45 +98,27 @@ def get_currency_symbol():
 
 
 def get_tax_percentage():
-    tax_percentage = SettingFetcher("tax as percentage")()
+    tax_percentage = get_setting("tax as percentage")
     try:
         tax_percentage = decimal.Decimal(tax_percentage)
     except (ValueError, TypeError):
         tax_percentage = 0
-        # TODO: warn
     return tax_percentage
 
 
-# TODO: not currently used
-def get_customer_term(plural=False):
-    default = "Customer"
-    query = "term for customer"
-    if plural:
-        default = "Customers"
-        query += " (plural)"
-    result = SettingFetcher(query)()
-    if not result:
-        result = default
-    return result
-
-
 def get_invoice_number_padding():
-    num_zeros = IntegerFetcher("pad invoice numbers with zeros")()
-    num_zeros = num_zeros or 0
-    return num_zeros
+    return get_integer_setting("pad invoice numbers with zeros", default=0)
 
 
 def get_default_item_quantity():
-    number = IntegerFetcher("default quantity for items added to invoices")()
-    if number is None:
-        number = 1
-    return number
+    return get_integer_setting("default quantity for items added to invoices",
+                               default=1)
 
 
 def get_or_create_default_invoice_term():
-    desired_term = IntegerFetcher("default invoice term in days for new customers")()
+    desired_term = get_integer_setting("default invoice term in days for new customers")
     default_term = None
-    if desired_term is not None:
+    if desired_term:
             default_term, created = InvoiceTerm.objects.get_or_create(
                                            days_until_invoice_due=desired_term)
     return default_term

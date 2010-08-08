@@ -43,7 +43,7 @@ class Renderer(object):
 class HtmlRenderer(Renderer):
     def __init__(self, *args, **kwargs):
         super(HtmlRenderer, self).__init__(*args, **kwargs)
-        template = Config.settings.get_setting("%s template" % self.model_name)
+        template = SettingFetcher("%s template" % self.model_name)()
         error = None
         if template:
             try:

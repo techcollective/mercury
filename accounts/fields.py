@@ -5,8 +5,8 @@ from django.utils.encoding import force_unicode
 from django.forms.util import flatatt
 from django.forms import fields
 
-from mercury.configuration.models import Config
-from mercury.helpers import get_currency_symbol, get_currency_decimal_places
+from mercury.helpers import (get_currency_symbol, get_currency_decimal_places,
+                             BooleanFetcher, SettingFetcher)
 
 
 class CurrencyInputWidget(Widget):
@@ -17,19 +17,7 @@ class CurrencyInputWidget(Widget):
     input_type = "text"
 
     def _get_render_result(self, name, value, attrs):
-        prefix = ""
-        suffix = ""
-        symbol = Config.settings.get_setting("currency symbol")
-        if not symbol:
-            symbol = "please set the 'currency symbol' setting"
-        # todo: move setting retrieval to helpers.py
-        after_number = Config.settings.get_setting(
-                                                "currency symbol after number")
-        after_number = after_number.lower() == "true"
-        if after_number:
-            suffix = symbol
-        else:
-            prefix = symbol
+        prefix, suffix = get_currency_symbol()
         if value is None:
             value = ''
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)

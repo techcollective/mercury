@@ -33,8 +33,7 @@ class Customer(models.Model):
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
-    is_taxable = models.BooleanField(
-        default=TaxableDefault("customers").get_setting)
+    is_taxable = models.BooleanField(default=TaxableDefault("customers"))
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
 
@@ -82,11 +81,6 @@ class Customer(models.Model):
             data["url"] = get_change_url(invoice)
             invoice_list.append(data)
         return {"title": title, "invoices": invoice_list}
-
-    # TODO: how can this work? custom admin template?
-    #class Meta:
-    #    verbose_name = get_customer_term()
-    #    verbose_name_plural = get_customer_term(plural=True)
 
 
 class ProductOrService(models.Model):
