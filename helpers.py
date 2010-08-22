@@ -6,11 +6,16 @@ from django.core.urlresolvers import reverse
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
 
 
+get_setting = Config.settings.get_setting
+get_boolean_setting = Config.settings.get_boolean_setting
+get_integer_setting = Config.settings.get_integer_setting
+
+
 class Callable(object):
-    def __init__(self, method, args, kwargs={}):
+    def __init__(self, method, args=None, kwargs=None):
         self.method = method
-        self.args = args
-        self.kwargs = kwargs
+        self.args = args or []
+        self.kwargs = kwargs or {}
 
     def __call__(self):
         return self.method(*args, **kwargs)
@@ -42,44 +47,6 @@ def model_to_dict(instance):
     return data
 
 
-def get_setting(setting, default=None):
-    """
-    Returns the value of the specified setting, or the value of the 'default'
-    argument if the setting is missing.
-    """
-    value = Config.settings.get_setting(setting)
-    if value is None:
-        # this means the setting didn't exist
-        value = default
-    return value
-
-
-def get_boolean_setting(setting, default=None):
-    """
-    Returns True if the specified setting is set to "true" (case insensitive),
-    or the value of the 'default' argument otherwise.
-    """
-    value = get_setting(setting, default=default)
-    if str(value).lower() == "true":
-        value = True
-    else:
-        value = default
-    return value
-
-
-def get_integer_setting(setting, default=None):
-    """
-    Returns an int of the specified setting, or the value of the 'default'
-    argument if the setting is missing or an invalid int literal.
-    """
-    value = get_setting(setting, default=default)
-    try:
-        value = int(value)
-    except ValueError, TypeError:
-        value = default
-    return value
-
-
 def get_or_create_default_invoice_status():
     desired_status = get_setting("default invoice status")
     status = None
@@ -92,7 +59,7 @@ def get_or_create_default_invoice_status():
 def get_currency_symbol():
     prefix = ""
     suffix = ""
-    default = "Please set the \"currency symbol\" setting"
+    default = """Please set the "currency symbol" setting"""
     symbol = get_setting("currency symbol", default=default)
     if get_boolean_setting("currency symbol after number"):
         suffix = symbol
@@ -139,3 +106,35 @@ def get_currency_decimal_places():
     if places < 0:
         places = default
     return places
+
+
+def get_customer_taxable():
+    return get_boolean_setting("new customers taxable by default", default=True)
+
+
+def get_manage_stock():
+    return get_boolean_setting(
+                     "manage stock of new products and services by default",
+                     default=True)
+
+def get_product_taxable():
+    return get_boolean_setting("new products and services taxable by default",
+                               default=True)
+
+def get_default_quantity():
+    return get_integer_setting("default quantity for items added to invoices",
+                               default=1)
+
+def get_invoice_padding():
+    return get_integer_setting("pad invoice numbers with zeros", default=0)
+
+
+def get_display_paid():
+    return get_boolean_setting("display paid invoices on customer page",
+                               default=True)
+
+
+def get_fill_description():
+    return get_boolean_setting(
+                        "automatically fill in blank invoice description",
+                        default=True)

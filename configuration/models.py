@@ -46,12 +46,48 @@ class Template(models.Model):
 
 
 class ConfigManager(models.Manager):
-    def get_setting(self, setting_name):
+    def get_setting(self, setting_name, default=None):
+        """
+        Returns the value of the specified setting, or the value of the 'default'
+        argument if the setting is missing.
+        """
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            value = None
+            value = default
         return value
+
+
+    def get_boolean_setting(self, setting_name, default=False):
+        """
+        Returns True if the specified setting is set to "true" (case insensitive),
+        False otherwise, and the value of the 'default' argument if the specified
+        setting doesn't exist.
+        """
+        value = self.get_setting(setting_name)
+        if value is None:
+            value = default
+        elif str(value).lower() == "true":
+            value = True
+        else:
+            value = False
+        return value
+
+
+    def get_integer_setting(self, setting_name, default=None):
+        """
+        Returns int() of the specified setting, or the value of the 'default'
+        argument if the setting is missing or an invalid int literal.
+        """
+        value = self.get_setting(setting_name)
+        try:
+            value = int(value)
+        except ValueError, TypeError:
+            value = default
+        return value
+
+
+
 
 
 class Config(models.Model):

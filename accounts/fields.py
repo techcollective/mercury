@@ -5,8 +5,7 @@ from django.utils.encoding import force_unicode
 from django.forms.util import flatatt
 from django.forms import fields
 
-from mercury.helpers import (get_currency_symbol, get_currency_decimal_places,
-                             BooleanFetcher, SettingFetcher)
+from mercury.helpers import get_currency_symbol, get_currency_decimal_places
 
 
 class CurrencyInputWidget(Widget):

@@ -9,13 +9,15 @@ import ho.pisa as pisa
 from django.contrib import messages
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
-from django.template import loader, Context, TemplateDoesNotExist, TemplateSyntaxError
+from django.template import (loader, Context, TemplateDoesNotExist,
+                             TemplateSyntaxError)
 from django.utils.text import capfirst
 
 from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 from mercury.helpers import model_to_dict, get_changelist_url, get_change_url
+
 
 def generate_context(quote_or_invoice):
     instance = quote_or_invoice
@@ -43,7 +45,7 @@ class Renderer(object):
 class HtmlRenderer(Renderer):
     def __init__(self, *args, **kwargs):
         super(HtmlRenderer, self).__init__(*args, **kwargs)
-        template = SettingFetcher("%s template" % self.model_name)()
+        template = Config.settings.get_setting("%s template" % self.model_name)
         error = None
         if template:
             try:
