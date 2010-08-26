@@ -81,6 +81,14 @@
 {# JavaScript for prepopulated fields #}
 {% prepopulated_fields_js %}
 
+{% if add %}
+<script type="text/javascript">
+django.jQuery(document).ready(function() {
+     django.jQuery("a:contains('Add another Product Or Service')").click();
+ });
+</script>
+{% endif %}
+
 </div>
 </form></div>
 {% endblock %}
