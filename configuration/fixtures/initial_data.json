@@ -102,7 +102,7 @@
         "pk": 2,
         "model": "configuration.config",
         "fields": {
-            "name": "default invoice status",
+            "name": "default status for new invoices",
             "value": "Created"
         }
     },

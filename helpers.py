@@ -48,7 +48,7 @@ def model_to_dict(instance):
 
 
 def get_or_create_default_invoice_status():
-    desired_status = get_setting("default invoice status")
+    desired_status = get_setting("default status for new invoices")
     status = None
     if desired_status:
         status, created = InvoiceStatus.objects.get_or_create(
