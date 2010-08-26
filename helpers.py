@@ -109,7 +109,8 @@ def get_currency_decimal_places():
 
 
 def get_customer_taxable():
-    return get_boolean_setting("new customers taxable by default", default=True)
+    return get_boolean_setting("new customers taxable by default",
+                               default=True)
 
 
 def get_manage_stock():
@@ -117,13 +118,16 @@ def get_manage_stock():
                      "manage stock of new products and services by default",
                      default=True)
 
+
 def get_product_taxable():
     return get_boolean_setting("new products and services taxable by default",
                                default=True)
 
+
 def get_default_quantity():
     return get_integer_setting("default quantity for items added to invoices",
                                default=1)
+
 
 def get_invoice_padding():
     return get_integer_setting("pad invoice numbers with zeros", default=0)

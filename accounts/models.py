@@ -27,7 +27,6 @@ from mercury.helpers import (model_to_dict,
                              get_fill_description)
 
 
-
 class Customer(models.Model):
     name = models.CharField(max_length=50)
     phone_number = models.CharField(max_length=50, blank=True)
@@ -133,7 +132,7 @@ class QuoteInvoiceBase(models.Model):
                        for entry in entries]
             entries = ", ".join(entries)
             description = "%s - %s" % (str(self.customer), entries)
-            if len(description) > 200: # field length limit
+            if len(description) > 200:  # field length limit
                 description = description[:197] + "..."
             self.description = description
 

@@ -57,7 +57,6 @@ class ConfigManager(models.Manager):
             value = default
         return value
 
-
     def get_boolean_setting(self, setting_name, default=False):
         """
         Returns True if the specified setting is set to "true" (case insensitive),
@@ -73,7 +72,6 @@ class ConfigManager(models.Manager):
             value = False
         return value
 
-
     def get_integer_setting(self, setting_name, default=None):
         """
         Returns int() of the specified setting, or the value of the 'default'
@@ -82,12 +80,9 @@ class ConfigManager(models.Manager):
         value = self.get_setting(setting_name)
         try:
             value = int(value)
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             value = default
         return value
-
-
-
 
 
 class Config(models.Model):
