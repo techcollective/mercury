@@ -28,18 +28,20 @@ $("#{{ html_id }}").keypress(function(){
     $("#" + this.id + "_hidden").val("");
 });
 function receiveResult(event, data) {
-    input_id = event.target.id;
-    $("#" + input_id + "_hidden").val(data[0]);
-    $("#" + input_id).val(data[1]);
-    $("#" + input_id + "_clear").show();
-    {% if autofill %}
-    replace = input_id;
-    replace = replace.split("-");
-    replace = replace.slice(0,-1);
-    replace.push("{{ autofill.field }}");
-    replace = replace.join("-");
-    $("#"+replace).val(data[3]);
-    {% endif %}
+    if (data) {
+        input_id = event.target.id;
+        $("#" + input_id + "_hidden").val(data[0]);
+        $("#" + input_id).val(data[1]);
+        $("#" + input_id + "_clear").show();
+        {% if autofill %}
+        replace = input_id;
+        replace = replace.split("-");
+        replace = replace.slice(0,-1);
+        replace.push("{{ autofill.field }}");
+        replace = replace.join("-");
+        $("#"+replace).val(data[3]);
+        {% endif %}
+    }
 }
 $("#{{html_id}}").result(receiveResult);
 
