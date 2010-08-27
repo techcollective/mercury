@@ -225,5 +225,21 @@
             "name": "automatically fill in blank invoice description",
             "value": "true"
         }
+    },
+    {
+        "pk": 19,
+        "model": "configuration.config",
+        "fields": {
+            "name": "allow negative stock counts",
+            "value": "false"
+        }
+    },
+    {
+        "pk": 20,
+        "model": "configuration.config",
+        "fields": {
+            "name": "update invoice status when full payment is received",
+            "value": "true"
+        }
     }
 ]

@@ -25,7 +25,8 @@ from mercury.helpers import (model_to_dict,
                              get_invoice_padding,
                              get_display_paid,
                              get_fill_description,
-                             get_negative_stock)
+                             get_negative_stock,
+                             get_auto_invoice_status)
 
 
 class Customer(models.Model):
@@ -198,10 +199,11 @@ class Invoice(QuoteInvoiceBase):
         self.update_status()
 
     def update_status(self):
-        # todo: add a setting to disable this
-        total_payments = self.payment_set.all().aggregate(models.Sum("amount"))
-        if total_payments["amount__sum"] >= self.grand_total:
-            self.status = get_or_create_paid_invoice_status()
+        if get_auto_invoice_status():
+            total_payments = self.payment_set.all().aggregate(
+                                                        models.Sum("amount"))
+            if total_payments["amount__sum"] >= self.grand_total:
+                self.status = get_or_create_paid_invoice_status()
 
     def delete(self, *args, **kwargs):
         for entry in self.get_entries():

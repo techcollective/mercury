@@ -150,3 +150,9 @@ def get_fill_description():
 
 def get_negative_stock():
     return get_boolean_setting("allow negative stock counts", default=False)
+
+
+def get_auto_invoice_status():
+    return get_boolean_setting(
+                        "update invoice status when full payment is received",
+                        default=True)
