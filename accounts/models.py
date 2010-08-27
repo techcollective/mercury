@@ -172,6 +172,12 @@ class Quote(QuoteInvoiceBase):
     def get_entries(self):
         return self.quoteentry_set.all()
 
+    def create_invoice(self):
+        new_invoice = Invoice()
+        for field in self._meta.fields:
+            setattr(new_invoice, field, getattr(self, field))
+        new_invoice.save()
+
 
 class Invoice(QuoteInvoiceBase):
     status = models.ForeignKey(InvoiceStatus,

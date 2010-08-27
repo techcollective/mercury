@@ -154,3 +154,7 @@ def quote_to_pdf(request, quote_id):
     response = generate_response(request, QuotePdfRenderer, [quote_id],
                                  mimetype="application/pdf")
     return response
+
+
+def quote_to_invoice(request, quote_id):
+    pass

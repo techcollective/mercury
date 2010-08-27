@@ -10,14 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^ajax_select/', include('ajax_select.urls')),
     (r'^tinymce/', include('tinymce.urls')),
-    url(r'^accounts/invoice/(\d+)/pdf/$', "accounts.views.invoice_to_pdf",
-        name="invoice_to_pdf"),
-    url(r'^accounts/quote/(\d+)/pdf/$', "accounts.views.quote_to_pdf",
-        name="quote_to_pdf"),
-    url(r'^accounts/invoice/(\d+)/html/$', "accounts.views.invoice_to_html",
-        name="invoice_to_html"),
-    url(r'^accounts/quote/(\d+)/html/$', "accounts.views.quote_to_html",
-        name="quote_to_html"),
+    (r'^accounts/', include('mercury.accounts.urls')),
     (r'', include(admin.site.urls)),
 )
 
