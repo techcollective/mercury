@@ -1,8 +1,0 @@
-{% extends "admin/accounts/invoice_quote_base.html" %}
-
-{% block links %}
-{% if object_id %}
-<a href="{% url invoice_to_pdf object_id %}">Download as PDF</a>
-<a href="{% url invoice_to_html object_id %}">(preview)</a>
-{% endif %}
-{% endblock %}
