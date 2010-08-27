@@ -215,13 +215,16 @@ class Entry(models.Model):
         self.total = self.cost * self.quantity - self.discount
         super(Entry, self).save(*args, **kwargs)
 
+    def __unicode__(self):
+        if self.quantity > 1:
+            add = " (%s)" % self.quantity
+        else:
+            add = ""
+        return "%s%s" % (str(self.item), add)
 
 
 class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
-
-    def __unicode__(self):
-        return "Entry #%s on %s" % (self.id, str(self.invoice))
 
     def delete(self, *args, **kwargs):
         if self.item.manage_stock:
@@ -256,9 +259,6 @@ models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
 
 class QuoteEntry(Entry):
     quote = models.ForeignKey(Quote)
-
-    def __unicode__(self):
-        return "Entry #%s on %s" % (self.id, str(self.quote))
 
 
 class Deposit(models.Model):
