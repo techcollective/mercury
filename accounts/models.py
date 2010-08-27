@@ -191,12 +191,6 @@ class Invoice(QuoteInvoiceBase):
         if total_payments["amount__sum"] >= self.grand_total:
             self.status = get_or_create_paid_invoice_status()
 
-    def delete(self, *args, **kwargs):
-        for entry in self.get_entries():
-            # this is done so that stock is updated
-            entry.delete()
-        super(Invoice, self).delete(*args, **kwargs)
-
 
 class Entry(models.Model):
     item = models.ForeignKey(ProductOrService)
