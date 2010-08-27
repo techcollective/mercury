@@ -1,8 +1,9 @@
 {% extends "admin/accounts/invoice_quote_base.html" %}
 
-{% block pdf_link %}
+{% block links %}
 {% if object_id %}
 <a href="{% url quote_to_pdf object_id %}">Download as PDF</a>
 <a href="{% url quote_to_html object_id %}">(preview)</a>
+<a href="{% url quote_to_invoice object_id %}">Create Invoice</a>
 {% endif %}
 {% endblock %}

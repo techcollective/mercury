@@ -174,9 +174,15 @@ class Quote(QuoteInvoiceBase):
 
     def create_invoice(self):
         new_invoice = Invoice()
-        for field in self._meta.fields:
+        fields = [f.name for f in self._meta.fields if f.name !="id"]
+        for field in fields:
             setattr(new_invoice, field, getattr(self, field))
+        # todo: date_due can be set based on customer terms
         new_invoice.save()
+        entries = self.get_entries()
+        for entry in entries:
+            entry.copy_to_invoice(new_invoice)
+        return new_invoice
 
 
 class Invoice(QuoteInvoiceBase):
@@ -265,6 +271,16 @@ models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
 
 class QuoteEntry(Entry):
     quote = models.ForeignKey(Quote)
+
+    def copy_to_invoice(self, invoice):
+        new_invoice_entry = InvoiceEntry()
+        skip = ["id", "quote"]
+        fields = [f.name for f in self._meta.fields if f.name not in skip]
+        for field in fields:
+            setattr(new_invoice_entry, field, getattr(self, field))
+        new_invoice_entry.invoice = invoice
+        new_invoice_entry.save()
+
 
 
 class Deposit(models.Model):
