@@ -21,6 +21,10 @@ class Callable(object):
         return self.method(*args, **kwargs)
 
 
+def refresh(instance):
+    return instance.__class__.objects.get(pk=instance.pk)
+
+
 def get_model_info(model):
     return (model._meta.app_label, model._meta.module_name)
 

@@ -10,6 +10,7 @@ from mercury.configuration.models import (PaymentType,
                                           InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (model_to_dict,
+                             refresh,
                              get_change_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
@@ -218,8 +219,11 @@ class InvoiceEntry(Entry):
 
     def delete(self, *args, **kwargs):
         if self.item.manage_stock:
-            self.item.number_in_stock += self.quantity
-            self.item.save()
+            # refresh is called because if multiple items are deleted, they
+            # contain stale versions of item.number_in_stock
+            item = refresh(self.item)
+            item.number_in_stock += self.quantity
+            item.save()
         super(InvoiceEntry, self).delete(*args, **kwargs)
 
 
@@ -234,8 +238,11 @@ def stock_callback(sender, **kwargs):
         else:
             # an existing entry is being edited
             stock_change = new_instance.quantity - old_instance.quantity
-        new_instance.item.number_in_stock -= stock_change
-        new_instance.item.save()
+        # refresh is called because if multiple items are modified, they
+        # contain stale versions of item.number_in_stock
+        item = refresh(new_instance.item)
+        item.number_in_stock -= stock_change
+        item.save()
 
 # this is to manage stock when invoice items are added or edited
 models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
