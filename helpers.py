@@ -142,3 +142,7 @@ def get_fill_description():
     return get_boolean_setting(
                         "automatically fill in blank invoice description",
                         default=True)
+
+
+def get_negative_stock():
+    return get_boolean_setting("allow negative stock counts", default=False)

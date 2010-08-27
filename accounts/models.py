@@ -3,7 +3,6 @@ import decimal
 
 from django.db import models
 from django.utils.text import capfirst
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 
 from mercury.configuration.models import (PaymentType,
@@ -24,7 +23,8 @@ from mercury.helpers import (model_to_dict,
                              get_default_quantity,
                              get_invoice_padding,
                              get_display_paid,
-                             get_fill_description)
+                             get_fill_description,
+                             get_negative_stock)
 
 
 class Customer(models.Model):
@@ -87,9 +87,15 @@ class Customer(models.Model):
 class ProductOrService(models.Model):
     name = models.CharField(max_length=50)
     price = CurrencyField()
-    number_in_stock = models.PositiveIntegerField(default=0)
+    number_in_stock = models.IntegerField(default=0)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
+
+    def save(self, *args, **kwargs):
+        allow_negative = get_negative_stock()
+        if not allow_negative and self.number_in_stock < 0:
+            self.number_in_stock = 0
+        super(ProductOrService, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -200,17 +206,8 @@ class Entry(models.Model):
 
     def save(self, *args, **kwargs):
         self.total = self.cost * self.quantity - self.discount
-        if self.item.manage_stock:
-            if self.item.number_in_stock > 0:
-                self.item.number_in_stock -= self.quantity
-                self.item.save()
         super(Entry, self).save(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        if self.item.manage_stock:
-            self.item.number_in_stock += self.quantity
-            self.item.save()
-        super(Entry, self).delete(*args, **kwargs)
 
 
 class InvoiceEntry(Entry):
@@ -218,6 +215,30 @@ class InvoiceEntry(Entry):
 
     def __unicode__(self):
         return "Entry #%s on %s" % (self.id, str(self.invoice))
+
+    def delete(self, *args, **kwargs):
+        if self.item.manage_stock:
+            self.item.number_in_stock += self.quantity
+            self.item.save()
+        super(InvoiceEntry, self).delete(*args, **kwargs)
+
+
+def stock_callback(sender, **kwargs):
+    new_instance = kwargs["instance"]
+    if new_instance.item.manage_stock:
+        try:
+            old_instance = sender.objects.get(pk=new_instance.pk)
+        except sender.DoesNotExist:
+            # a new entry is being added
+            stock_change = new_instance.quantity
+        else:
+            # an existing entry is being edited
+            stock_change = new_instance.quantity - old_instance.quantity
+        new_instance.item.number_in_stock -= stock_change
+        new_instance.item.save()
+
+# this is to manage stock when invoice items are added or edited
+models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
 
 
 class QuoteEntry(Entry):
