@@ -6,6 +6,7 @@ import StringIO
 
 import ho.pisa as pisa
 
+from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
@@ -156,8 +157,13 @@ def quote_to_pdf(request, quote_id):
     return response
 
 
-def quote_to_invoice(request, quote_id):
-    quote = Quote.objects.get(pk=quote_id)
-    invoice = quote.create_invoice()
-    messages.info(request, "Invoice successfully created.")
-    return HttpResponseRedirect(get_change_url(invoice))
+def quote_to_invoice(request):
+    if request.POST:
+        quote = Quote.objects.get(pk=request.POST["quote_id"])
+        invoice = quote.create_invoice()
+        messages.info(request, "Invoice successfully created.")
+        return HttpResponseRedirect(get_change_url(invoice))
+    else:
+        messages.error(request, ("The location %s shouldn't be directly " +
+                       " browsed to.") % reverse("quote_to_invoice"))
+        return HttpResponseRedirect(reverse("admin:index"))
