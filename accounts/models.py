@@ -151,7 +151,7 @@ class QuoteInvoiceBase(models.Model):
 
     def get_number(self):
         num_zeros = get_invoice_padding()
-        return str(self.id).zfill(num_zeros)
+        return str(self.pk).zfill(num_zeros)
     get_number.short_description = "Number"
     get_number.admin_order_field = "id"
 
@@ -162,7 +162,9 @@ class QuoteInvoiceBase(models.Model):
         return grand_total.value_to_string(self)
 
     def __unicode__(self):
-        return self.description + " - " + self.get_formatted_total()
+        return (capfirst(self._meta.verbose_name) + " " +
+                str(self.get_number()) + " - " +
+                self.description + " - " + self.get_formatted_total())
 
     class Meta:
         abstract = True

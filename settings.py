@@ -115,7 +115,7 @@ mod = "mercury.accounts.helpers."
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': mod + "CustomerNameAjaxChannel",
     'product_or_service_name': mod + "ProductNameAjaxChannel",
-    'payment_invoice': mod + "PaymentInvoiceAjaxChannel",
+    'invoice': mod + "InvoiceAjaxChannel",
 }
 
 del mod

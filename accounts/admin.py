@@ -118,7 +118,8 @@ class DepositAdmin(admin.ModelAdmin):
         pass
 
 
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(AjaxSelectAdmin):
+    form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["__str__", "date_received", "deposited"]
     list_filter = ["depositable"]
     actions = ["deposit"]

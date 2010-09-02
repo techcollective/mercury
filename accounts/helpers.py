@@ -2,7 +2,10 @@
 Helper classes and functions for the accounts app
 """
 
+import decimal
+
 from mercury.accounts import models
+from django.db.models import Q
 
 
 class AjaxChannel(object):
@@ -58,7 +61,29 @@ class ProductNameAjaxChannel(AjaxChannel):
         self.field = "name"
 
 
-class PaymentInvoiceAjaxChannel(AjaxChannel):
+class InvoiceAjaxChannel(AjaxChannel):
     def __init__(self):
-        self.model = models.Invoice
-        self.field = "pk"
+        pass
+
+    def _get_queryset(self, q):
+        filter = Q()
+
+        # search for invoice number if q is an int
+        try:
+            pk = int(q)
+        except (ValueError, TypeError):
+            pass
+        else:
+            filter = filter | Q(pk=q)
+
+        # also search for total is q is a decimal
+        try:
+            total = decimal.Decimal(q)
+        except (decimal.InvalidOperation, TypeError):
+            pass
+        else:
+            filter = filter | Q(grand_total__contains=q)
+
+        # also search for customer name
+        filter = filter | Q(customer__name__icontains=q)
+        return models.Invoice.objects.filter(filter).order_by("date_created")
