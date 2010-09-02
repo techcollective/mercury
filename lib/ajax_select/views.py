@@ -2,7 +2,7 @@
 from ajax_select import get_lookup
 from django.contrib.admin import site
 from django.db import models
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 
 
 def ajax_lookup(request,channel):
@@ -30,17 +30,21 @@ def ajax_lookup(request,channel):
     else:
         instances = []
 
-    results = []
-    for item in instances:
-        itemf = lookup_channel.format_item(item)
-        itemf = itemf.replace("\n","").replace("|","&brvbar;")
-        resultf = lookup_channel.format_result(item)
-        resultf = resultf.replace("\n","").replace("|","&brvbar;")
-        result = "|".join((unicode(item.pk),itemf,resultf))
-        if extra_field:
-            result += "|%s" % str(getattr(item,extra_field))
-        results.append(result)
-    return HttpResponse("\n".join(results))
+    if instances is None:  # This happens if the user is not logged in
+        response = HttpResponseForbidden()
+    else:
+        results = []
+        for item in instances:
+            itemf = lookup_channel.format_item(item)
+            itemf = itemf.replace("\n","").replace("|","&brvbar;")
+            resultf = lookup_channel.format_result(item)
+            resultf = resultf.replace("\n","").replace("|","&brvbar;")
+            result = "|".join((unicode(item.pk),itemf,resultf))
+            if extra_field:
+                result += "|%s" % str(getattr(item,extra_field))
+            results.append(result)
+        response = HttpResponse("\n".join(results))
+    return response
 
 
 def add_popup(request,app_label,model):

@@ -4,6 +4,7 @@ Helper classes and functions for the accounts app
 
 from mercury.accounts import models
 
+
 class AjaxChannel(object):
     def __init__(self, model, field):
         """
@@ -13,12 +14,18 @@ class AjaxChannel(object):
         self.model = model
         self.field = field
 
+    def _get_queryset(self, q):
+        kwargs = {"%s__icontains" % self.field : q}
+        return self.model.objects.filter(**kwargs).order_by(self.field)
+
     def get_query(self, q, request):
         """
         Return a QuerySet searching for the query string q
         """
-        kwargs = {"%s__icontains" % self.field : q}
-        return self.model.objects.filter(**kwargs).order_by(self.field)
+        if request.user.is_authenticated():
+            return self._get_queryset(q)
+        else:
+            return None
 
     def format_item(self, obj):
         """
