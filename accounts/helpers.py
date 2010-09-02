@@ -4,8 +4,10 @@ Helper classes and functions for the accounts app
 
 import decimal
 
-from mercury.accounts import models
 from django.db.models import Q
+
+from mercury.accounts import models
+from mercury.helpers import get_or_create_paid_invoice_status
 
 
 class AjaxChannel(object):
@@ -86,4 +88,7 @@ class InvoiceAjaxChannel(AjaxChannel):
 
         # also search for customer name
         filter = filter | Q(customer__name__icontains=q)
-        return models.Invoice.objects.filter(filter).order_by("date_created")
+
+        paid_status = get_or_create_paid_invoice_status()
+        return models.Invoice.objects.filter(
+                filter).order_by("date_created").exclude(status=paid_status)
