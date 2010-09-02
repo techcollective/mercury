@@ -110,10 +110,15 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS += ['django_extensions']
 
+mod = "mercury.accounts.helpers."
+
 AJAX_LOOKUP_CHANNELS = {
-    'customer_name': {"model": "accounts.Customer", "search_field": "name"},
-    'product_or_service_name': {"model": "accounts.ProductOrService", "search_field": "name"},
+    'customer_name': mod + "CustomerNameAjaxChannel",
+    'product_or_service_name': mod + "ProductNameAjaxChannel",
+    'payment_invoice': mod + "PaymentInvoiceAjaxChannel",
 }
+
+del mod
 
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
                           "plugins": "table",
