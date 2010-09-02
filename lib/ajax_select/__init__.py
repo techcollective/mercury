@@ -5,6 +5,8 @@ from django.forms.models import ModelForm
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.text import capfirst
+from django.core.urlresolvers import get_callable
+
 
 def make_ajax_form(model,fieldlist,superclass=ModelForm, autofill=[]):
     """ this will create a ModelForm subclass inserting
@@ -58,8 +60,6 @@ def make_ajax_form(model,fieldlist,superclass=ModelForm, autofill=[]):
     return TheForm
 
 
-
-
 def get_lookup(channel):
     """ find the lookup class for the named channel.  this is used internally """
     try:
@@ -72,11 +72,10 @@ def get_lookup(channel):
         # generate a simple channel dynamically
         return make_channel( lookup_label['model'], lookup_label['search_field'] )
     else:
-        # 'channel' : ('app.module','LookupClass')
+        # 'channel' : 'app.module.LookupClass'
         # from app.module load LookupClass and instantiate
-        lookup_module = __import__( lookup_label[0],{},{},[''])
-        lookup_class = getattr(lookup_module,lookup_label[1] )
-        return lookup_class()
+        lookup = get_callable(lookup_label)
+        return lookup()
 
 
 def make_channel(app_model,search_field):
