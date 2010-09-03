@@ -130,3 +130,5 @@ TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
                           "force_p_newlines": False,
                           "forced_root_block": "",
                           }
+
+LOGIN_URL = "/"

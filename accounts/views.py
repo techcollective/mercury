@@ -8,6 +8,7 @@ import ho.pisa as pisa
 
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import (HttpResponse, HttpResponseRedirect,
                          HttpResponseNotFound)
 from django.template import (loader, Context, TemplateDoesNotExist,
@@ -115,6 +116,7 @@ class QuotePdfRenderer(QuoteHtmlRenderer):
         return render_pdf(html)
 
 
+@login_required
 def generate_response(request, render_class, args, mimetype=None):
     try:
         renderer = render_class(*args)
@@ -157,6 +159,7 @@ def quote_to_pdf(request, quote_id):
     return response
 
 
+@login_required
 def quote_to_invoice(request):
     if request.POST:
         quote = Quote.objects.get(pk=request.POST["quote_id"])
