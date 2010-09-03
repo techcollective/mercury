@@ -6,16 +6,19 @@
 {% endif %}
 {% block help %}{# {% if help_text %}<p class="help">{{help_text}}</p>{% endif %} #}{% endblock %}
 <input type="hidden" name="{{ name }}" id="{{html_id}}_hidden" value="{{current_id}}" />
-<input type="hidden" name="{{ name }}_str" id="{{html_id}}_result" value="" />
 <script type="text/javascript">
 $("#{{ html_id }}").autocomplete("{{ lookup_url }}", {
     width: 320,
     delay: 200,
+    mustMatch: true,
     formatItem: function(row) { return row[2]; },
     formatResult: function(row) { return row[1]; }{% if autofill %},
     extraParams: {"extra":"{{ autofill.related_field }}"}
     {% endif %}
 });
+
+$("#{{ html_id }}").bind("submit.autocomplete", function(){ alert("hi"); });
+
 $("#{{ html_id }}_clear").click(function(){
     input_id = this.id;
     input_id = input_id.replace("_clear", "");
@@ -30,7 +33,6 @@ function receiveResult(event, data) {
     if (data) {
         input_id = event.target.id;
         $("#" + input_id + "_hidden").val(data[0]);
-        $("#" + input_id + "_result").val(data[1]);
         $("#" + input_id).val(data[1]);
         $("#" + input_id + "_clear").show();
         {% if autofill %}
