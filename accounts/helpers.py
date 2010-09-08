@@ -71,7 +71,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         else:
             filter = filter | Q(pk=q)
 
-        # also search for total is q is a decimal
+        # also search for total if q is a decimal
         try:
             total = decimal.Decimal(q)
         except (decimal.InvalidOperation, TypeError):
