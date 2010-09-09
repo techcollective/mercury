@@ -69,9 +69,6 @@
 
 {% block after_related_objects %}{% endblock %}
 
-{% block links %}
-{% endblock %}
-
 {% submit_row %}
 
 {% if adminform and add %}
@@ -91,7 +88,9 @@ django.jQuery(document).ready(function() {
 
 </div>
 </form>
-{% block extraform %}
+<div style="text-align: center; font-size: larger;">
+{% block links %}
 {% endblock %}
+</div>
 </div>
 {% endblock %}

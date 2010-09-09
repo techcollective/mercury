@@ -4,13 +4,10 @@
 {% if object_id %}
 <a href="{% url quote_to_pdf object_id %}">Download as PDF</a>
 <a href="{% url quote_to_html object_id %}">(preview)</a>
-{% endif %}
-{% endblock %}
-
-{% block extraform %}
 <form method="post" action="{% url quote_to_invoice %}">
     {% csrf_token %}
     <input type="hidden" value="{{ object_id }}" name="quote_id"/>
     <input type="submit" value="Create Invoice" name="createinvoice" />
 </form>
+{% endif %}
 {% endblock %}
