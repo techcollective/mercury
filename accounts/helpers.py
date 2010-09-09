@@ -61,7 +61,7 @@ class InvoiceAjaxChannel(AjaxChannel):
     def __init__(self):
         pass
 
-    def _get_queryset(self, q):
+    def get_query(self, q, request):
         filter = Q()
 
         # search for invoice number if q is an int
@@ -84,5 +84,5 @@ class InvoiceAjaxChannel(AjaxChannel):
         filter = filter | Q(customer__name__icontains=q)
 
         paid_status = get_or_create_paid_invoice_status()
-        return models.Invoice.objects.filter(
-                filter).order_by("date_created").exclude(status=paid_status)
+        return models.Invoice.objects.filter(filter).order_by(
+            "date_created").exclude(status=paid_status)
