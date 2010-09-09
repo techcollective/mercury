@@ -38,11 +38,11 @@ class TemplateLoader(object):
             return loader.get_template(self.template_name)
         except TemplateDoesNotExist:
             error = ("Couldn't render. " +
-                     "Template \"%s\" not found." % template)
+                     "Template \"%s\" not found." % self.template_name)
             error_page = get_changelist_url(Template)
             raise AccountsRedirect(error, url=error_page)
         except TemplateSyntaxError as e:
-            instance = Template.objects.get(name=template)
+            instance = Template.objects.get(name=self.template_name)
             error = "Couldn't render template. %s" % str(e)
             error_page = get_change_url(instance)
             raise AccountsRedirect(error, url=error_page)
