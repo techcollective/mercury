@@ -1,0 +1,7 @@
+{% extends "admin/change_list.html" %}
+
+{% load total %}
+{% block result_list %}
+    {{ block.super }}
+    {% total "amount" %}
+{% endblock %}
