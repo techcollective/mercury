@@ -14,5 +14,5 @@ urlpatterns = patterns('mercury.accounts.views',
     url(r'^quote/(\d+)/html/$', "quote_to_html",
         name="quote_to_html"),
     url(r'^quotetoinvoice/$', "quote_to_invoice",
-        name="quote_to_invoice")
+        name="quote_to_invoice"),
 )

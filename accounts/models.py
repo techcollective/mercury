@@ -177,7 +177,7 @@ class Quote(QuoteInvoiceBase):
 
     def create_invoice(self):
         new_invoice = Invoice()
-        fields = [f.name for f in self._meta.fields if f.name !="id"]
+        fields = [f.name for f in self._meta.fields if f.name != "id"]
         for field in fields:
             setattr(new_invoice, field, getattr(self, field))
         # todo: date_due can be set based on customer terms
@@ -284,7 +284,6 @@ class QuoteEntry(Entry):
             setattr(new_invoice_entry, field, getattr(self, field))
         new_invoice_entry.invoice = invoice
         new_invoice_entry.save()
-
 
 
 class Deposit(models.Model):

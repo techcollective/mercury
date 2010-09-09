@@ -9,6 +9,7 @@ from django.db.models import Q
 from mercury.accounts import models
 from mercury.helpers import get_or_create_paid_invoice_status
 
+
 class AjaxChannel(object):
     def __init__(self, model, field):
         """
@@ -22,7 +23,7 @@ class AjaxChannel(object):
         """
         Return a QuerySet searching for the query string q
         """
-        kwargs = {"%s__icontains" % self.field : q}
+        kwargs = {"%s__icontains" % self.field: q}
         return self.model.objects.filter(**kwargs).order_by(self.field)
 
     def format_item(self, obj):
