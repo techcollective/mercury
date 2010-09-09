@@ -2,6 +2,8 @@ from django.db import models
 
 from tinymce.models import HTMLField
 
+from mercury.configuration.exceptions import NoSuchSetting
+
 
 class PaymentType(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -39,49 +41,66 @@ class Template(models.Model):
     name = models.CharField(max_length=50, unique=True)
     template = HTMLField(help_text="The invoice template is " +
                                    "processed using the django template " +
-                                   "language and should yield valid html.")
+                                   "language and should yield valid html.",
+                         blank=True)
 
     def __unicode__(self):
         return self.name
 
 
 class ConfigManager(models.Manager):
-    def get_setting(self, setting_name, default=None):
+    def get_setting(self, setting_name, **kwargs):
         """
-        Returns the value of the specified setting, or the value of the 'default'
-        argument if the setting is missing.
+        Returns the value of the specified setting, or the value of the
+        'default' keyword argument if the setting is missing.
+        Raises NoSuchSetting if the setting is missing and the 'default' arg
+        is not supplied.
         """
+        default = None
+        raise_exception = True
+        if "default" in kwargs:
+            default = kwargs["default"]
+            raise_exception = False
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            value = default
+            if raise_exception:
+                raise NoSuchSetting(setting_name)
+            else:
+                value = default
         return value
 
-    def get_boolean_setting(self, setting_name, default=False):
+    def get_boolean_setting(self, setting_name, **kwargs):
         """
-        Returns True if the specified setting is set to "true" (case insensitive),
-        False otherwise, and the value of the 'default' argument if the specified
-        setting doesn't exist.
+        Returns True if the specified setting is set to "true" (case
+        insensitive), False otherwise, and the value of the 'default' argument
+        if the specified setting is missing.
+        Raises NoSuchSetting if the setting is missing and the 'default' arg
+        is not supplied.
         """
-        value = self.get_setting(setting_name)
-        if value is None:
-            value = default
-        elif str(value).lower() == "true":
+        value = self.get_setting(setting_name, **kwargs)
+        if str(value).lower() == "true":
             value = True
         else:
             value = False
         return value
 
-    def get_integer_setting(self, setting_name, default=None):
+    def get_integer_setting(self, setting_name, **kwargs):
         """
-        Returns int() of the specified setting, or the value of the 'default'
-        argument if the setting is missing or an invalid int literal.
+        Returns int() of the specified setting. The 'default' keyword argument
+        (or None if it's not supplied) is returned if the setting is an
+        invalid int literal.
+        Raises NoSuchSetting if the setting is missing and 'default' arg
+        is not supplied.
         """
         value = self.get_setting(setting_name)
         try:
             value = int(value)
         except (ValueError, TypeError):
-            value = default
+            if "default" in kwargs:
+                value = kwargs["default"]
+            else:
+                value = None
         return value
 
 

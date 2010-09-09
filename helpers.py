@@ -11,17 +11,10 @@ get_boolean_setting = Config.settings.get_boolean_setting
 get_integer_setting = Config.settings.get_integer_setting
 
 
-class Callable(object):
-    def __init__(self, method, args=None, kwargs=None):
-        self.method = method
-        self.args = args or []
-        self.kwargs = kwargs or {}
-
-    def __call__(self):
-        return self.method(*args, **kwargs)
-
-
 def refresh(instance):
+    """
+    Returns the same model instance fresh from the DB.
+    """
     return instance.__class__.objects.get(pk=instance.pk)
 
 
@@ -52,12 +45,12 @@ def model_to_dict(instance):
 
 
 def get_or_create_default_invoice_status():
-    desired_status = get_setting("default status for new invoices")
-    status = None
-    if desired_status:
-        status, created = InvoiceStatus.objects.get_or_create(
-            status=desired_status)
-    return status
+    desired_status = get_setting("default status for new invoices",
+                                 default=None)
+    if desired_status is not None:
+        desired_status, created = InvoiceStatus.objects.get_or_create(
+                                                     status=desired_status)
+    return desired_status
 
 
 def get_currency_symbol():
@@ -65,7 +58,7 @@ def get_currency_symbol():
     suffix = ""
     default = """Please set the "currency symbol" setting"""
     symbol = get_setting("currency symbol", default=default)
-    if get_boolean_setting("currency symbol after number"):
+    if get_boolean_setting("currency symbol after number", default=False):
         suffix = symbol
     else:
         prefix = symbol
@@ -73,7 +66,7 @@ def get_currency_symbol():
 
 
 def get_tax_percentage():
-    tax_percentage = get_setting("tax as percentage")
+    tax_percentage = get_setting("tax as percentage", default=0)
     try:
         tax_percentage = decimal.Decimal(tax_percentage)
     except (ValueError, TypeError):
@@ -83,12 +76,11 @@ def get_tax_percentage():
 
 def get_or_create_default_invoice_term():
     setting = "default invoice term in days for new customers"
-    desired_term = get_integer_setting(setting)
-    default_term = None
+    desired_term = get_integer_setting(setting, default=None)
     if desired_term is not None:
-            default_term, created = InvoiceTerm.objects.get_or_create(
+            desired_term, created = InvoiceTerm.objects.get_or_create(
                                            days_until_invoice_due=desired_term)
-    return default_term
+    return desired_term
 
 
 def get_max_customer_invoices():
@@ -156,3 +148,7 @@ def get_auto_invoice_status():
     return get_boolean_setting(
                         "update invoice status when full payment is received",
                         default=True)
+
+
+def get_template_name(entity):
+    return get_setting("%s template" % entity)

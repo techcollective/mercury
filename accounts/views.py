@@ -15,23 +15,40 @@ from django.template import (loader, Context, TemplateDoesNotExist,
                              TemplateSyntaxError)
 from django.utils.text import capfirst
 
+from mercury.configuration.exceptions import NoSuchSetting
 from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
-from mercury.helpers import model_to_dict, get_changelist_url, get_change_url
+from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
+                             get_template_name)
 
 
-def generate_context(quote_or_invoice):
-    instance = quote_or_invoice
-    data = model_to_dict(instance)
-    data["customer"] = instance.customer
-    data["entries"] = instance.get_entries()
-    data["id_number"] = instance.get_number()
-    data["type"] = capfirst(instance._meta.verbose_name)
-    return Context(data)
+class TemplateLoader(object):
+    def __init__(self, entity):
+        try:
+            self.template_name = get_template_name(entity)
+        except NoSuchSetting as e:
+            error = ("Couldn't render. " +
+                     "No setting called \"%s\" was found." % str(e))
+            error_page = get_changelist_url(Config)
+            raise AccountsRedirect(error, url=error_page)
+
+    def get_template(self):
+        try:
+            return loader.get_template(self.template_name)
+        except TemplateDoesNotExist:
+            error = ("Couldn't render. " +
+                     "Template \"%s\" not found." % template)
+            error_page = get_changelist_url(Template)
+            raise AccountsRedirect(error, url=error_page)
+        except TemplateSyntaxError as e:
+            instance = Template.objects.get(name=template)
+            error = "Couldn't render template. %s" % str(e)
+            error_page = get_change_url(instance)
+            raise AccountsRedirect(error, url=error_page)
 
 
-class Renderer(object):
+class HtmlRenderer(object):
     def __init__(self, model, instance_id):
         self.model = model
         self.instance_id = instance_id
@@ -42,78 +59,35 @@ class Renderer(object):
             raise ObjectNotFound("Couldn't find " +
                                  "%s with id %s" % (self.model_name,
                                                     self.instance_id))
-
-
-class HtmlRenderer(Renderer):
-    def __init__(self, *args, **kwargs):
-        super(HtmlRenderer, self).__init__(*args, **kwargs)
-        template = Config.settings.get_setting("%s template" % self.model_name)
-        error = None
-        if template:
-            try:
-                self.template = loader.get_template(template)
-            except TemplateDoesNotExist:
-                error = ("Couldn't render. " +
-                         "Template \"%s\" not found." % template)
-                error_page = get_changelist_url(Template)
-            except TemplateSyntaxError as e:
-                instance = Template.objects.get(name=template)
-                error = "Couldn't render template. %s" % str(e)
-                error_page = get_change_url(instance)
-        else:
-            error = ("Couldn't render. " +
-                     "No setting for \"%s template\" found." % self.model_name)
-            error_page = get_changelist_url(Config)
-
-        if error:
-            raise AccountsRedirect(error, url=error_page)
+        self.template = TemplateLoader(self.model_name).get_template()
+        self.terms = TemplateLoader("terms and conditions").get_template()
 
     def render(self):
-        return self.template.render(self.get_context())
+        return self.template.render(self.generate_context())
+
+    def generate_context(self):
+        data = model_to_dict(self.instance)
+        data["customer"] = self.instance.customer
+        data["entries"] = self.instance.get_entries()
+        data["id_number"] = self.instance.get_number()
+        data["type"] = capfirst(self.model_name)
+        # todo: context for terms template will in future contain company name
+        data["terms"] = self.terms.render(Context())
+        if hasattr(self.instance, "payment_set"):
+            data["payments"] = self.instance.payment_set.all()
+        return Context(data)
 
 
-class QuoteHtmlRenderer(HtmlRenderer):
-    def __init__(self, quote_id):
-        super(QuoteHtmlRenderer, self).__init__(Quote, quote_id)
-
-    def get_context(self):
-        return generate_context(self.instance)
-
-
-class InvoiceHtmlRenderer(HtmlRenderer):
-    def __init__(self, invoice_id):
-        super(InvoiceHtmlRenderer, self).__init__(Invoice, invoice_id)
-
-    def get_context(self):
-        context = generate_context(self.instance)
-        context["payments"] = self.instance.payment_set.all()
-        return context
-
-
-def render_pdf(html):
-    buffer = StringIO.StringIO()
-    result = pisa.CreatePDF(html, buffer)
-    return buffer.getvalue()
-
-
-class InvoicePdfRenderer(InvoiceHtmlRenderer):
+class PdfRenderer(HtmlRenderer):
     def __init__(self, *args, **kwargs):
-        super(InvoicePdfRenderer, self).__init__(*args, **kwargs)
-        self.filename = "Invoice %s.pdf" % self.instance.get_number()
+        super(PdfRenderer, self).__init__(*args, **kwargs)
+        self.filename = "%s %s.pdf" % (capfirst(self.model_name),
+                                       self.instance.get_number())
 
     def render(self):
-        html = super(InvoicePdfRenderer, self).render()
-        return render_pdf(html)
-
-
-class QuotePdfRenderer(QuoteHtmlRenderer):
-    def __init__(self, *args, **kwargs):
-        super(QuotePdfRenderer, self).__init__(*args, **kwargs)
-        self.filename = "Quote %s.pdf" % self.instance.get_number()
-
-    def render(self):
-        html = super(QuotePdfRenderer, self).render()
-        return render_pdf(html)
+        buffer = StringIO.StringIO()
+        result = pisa.CreatePDF(super(PdfRenderer, self).render(), buffer)
+        return buffer.getvalue()
 
 
 @login_required
@@ -137,24 +111,24 @@ def generate_response(request, render_class, args, mimetype=None):
 
 
 def invoice_to_html(request, invoice_id):
-    response = generate_response(request, InvoiceHtmlRenderer, [invoice_id])
+    response = generate_response(request, HtmlRenderer, [Invoice, invoice_id])
     return response
 
 
 def quote_to_html(request, quote_id):
-    response = generate_response(request, QuoteHtmlRenderer, [quote_id])
+    response = generate_response(request, HtmlRenderer, [Quote, quote_id])
     return response
 
 
 # todo: mimetype is a stupid way to decide if it should be an attachment
 def invoice_to_pdf(request, invoice_id):
-    response = generate_response(request, InvoicePdfRenderer, [invoice_id],
+    response = generate_response(request, PdfRenderer, [Invoice, invoice_id],
                                  mimetype="application/pdf")
     return response
 
 
 def quote_to_pdf(request, quote_id):
-    response = generate_response(request, QuotePdfRenderer, [quote_id],
+    response = generate_response(request, PdfRenderer, [Quote, quote_id],
                                  mimetype="application/pdf")
     return response
 

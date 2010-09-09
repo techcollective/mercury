@@ -91,6 +91,14 @@
         }
     },
     {
+        "pk": 2,
+        "model": "configuration.template",
+        "fields": {
+            "name": "terms and conditions",
+            "template": ""
+        }
+    },
+    {
         "pk": 1,
         "model": "configuration.config",
         "fields": {
@@ -240,6 +248,14 @@
         "fields": {
             "name": "update invoice status when full payment is received",
             "value": "true"
+        }
+    },
+    {
+        "pk": 21,
+        "model": "configuration.config",
+        "fields": {
+            "name": "terms and conditions template",
+            "value": "terms and conditions"
         }
     }
 ]
