@@ -12,7 +12,7 @@ from mercury.accounts.models import (Customer,
                                      Payment,
                                      Deposit,
                                     )
-from mercury.helpers import MercuryAdmin, MercuryAjaxAdmin
+from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 
 
 # Custom inline classes

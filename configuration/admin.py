@@ -6,7 +6,7 @@ from mercury.configuration.models import (PaymentType,
                                           Template,
                                           Config,
                                          )
-from mercury.helpers import MercuryAdmin
+from mercury.admin import MercuryAdmin
 
 
 class ConfigAdmin(MercuryAdmin):

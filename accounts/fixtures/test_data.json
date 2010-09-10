@@ -234,5 +234,13 @@
             "total": "80",
             "quantity": "1"
         }
+    },
+    {
+        "pk": 2,
+        "model": "configuration.template",
+        "fields": {
+            "name": "terms and conditions",
+            "template": "All hardware components sold by TechCollective are covered by a 30 day  limited warranty.  This warranty covers any hardware component that is  DOA, does not operate as it should, or has failed. The warranty does not  cover any components that have been damaged, broken or altered in any  way by the customer.  Any component returned within 30 days will be  replaced or refunded. Any hardware components that fail after the 30  days are not covered by TechCollective and are subject to the  manufacturer warranty.<br /><br />"
+        }
     }
 ]
