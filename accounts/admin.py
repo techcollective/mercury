@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from ajax_select import make_ajax_form
-from ajax_select.admin import AjaxSelectAdmin
 from ajax_select.fields import autoselect_fields_check_can_add
 
 from mercury.accounts.models import (Customer,
@@ -13,9 +12,10 @@ from mercury.accounts.models import (Customer,
                                      Payment,
                                      Deposit,
                                     )
+from mercury.helpers import MercuryAdmin, MercuryAjaxAdmin
+
 
 # Custom inline classes
-
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(AjaxTabularInline, self).get_formset(request, obj,
@@ -61,7 +61,7 @@ class DepositPaymentInline(admin.TabularInline):
 
 # Admin classes
 
-class InvoiceAdmin(AjaxSelectAdmin):
+class InvoiceAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
     form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
@@ -85,7 +85,7 @@ class InvoiceAdmin(AjaxSelectAdmin):
         return actions
 
 
-class QuoteAdmin(AjaxSelectAdmin):
+class QuoteAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
@@ -102,7 +102,7 @@ class QuoteAdmin(AjaxSelectAdmin):
         instance.save()
 
 
-class CustomerAdmin(admin.ModelAdmin):
+class CustomerAdmin(MercuryAdmin):
     search_fields = ["name"]
     fieldsets = [
         (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
@@ -111,15 +111,15 @@ class CustomerAdmin(admin.ModelAdmin):
     ]
 
 
-class DepositAdmin(admin.ModelAdmin):
+class DepositAdmin(MercuryAdmin):
     inlines = [DepositPaymentInline]
 
     def merge_deposits(self, request, queryset):
         pass
 
 
-class PaymentAdmin(admin.ModelAdmin):
-#class PaymentAdmin(AjaxSelectAdmin):
+class PaymentAdmin(MercuryAdmin):
+#class PaymentAdmin(MercuryAjaxAdmin):
     #form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["__str__", "date_received", "deposited"]
     list_filter = ["depositable"]

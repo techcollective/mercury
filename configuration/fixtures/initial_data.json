@@ -87,7 +87,7 @@
         "model": "configuration.template",
         "fields": {
             "name": "default",
-            "template": "<h1>TechCollective {{ type }}</h1>\r\n<p style=\"text-align: right;\">{{ type }} {{ id_number }}:&nbsp; {{ date_created }}</p>\r\n<h3 style=\"text-align: right;\">{% if date_due %}Due date: {{ date_due }}{% endif %}</h3>\r\n{% block main %}\r\n<p><strong>{{ customer.name }}</strong><br />{{ customer.address }}<br />{{ customer.city }} {{ customer.state }} {{ customer.zip_code }}<br />{{ customer.phone_number }}</p>\r\n<br /> \r\n<table border=\"0\">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<h3>Item</h3>\r\n</td>\r\n<td>\r\n<h3>Cost</h3>\r\n</td>\r\n<td>\r\n<h3>Quantity</h3>\r\n</td>\r\n<td>\r\n<h3>Discount</h3>\r\n</td>\r\n<td>\r\n<h3>Total</h3>\r\n</td>\r\n</tr>\r\n{% for entry in entries %}                       \r\n<tr>\r\n<td>{{ entry.item }}</td>\r\n<td>{{ entry.cost }}</td>\r\n<td>{{ entry.quantity }}</td>\r\n<td>{{ entry.discount }}</td>\r\n<td>{{ entry.total }}</td>\r\n</tr>\r\n{% endfor %}                       \r\n<tr>\r\n<td colspan=\"3\">&nbsp;</td>\r\n<td>&nbsp;</td>\r\n<td>&nbsp;</td>\r\n</tr>\r\n<tr>\r\n<td colspan=\"3\" rowspan=\"3\"><br /></td>\r\n<td>\r\n<p>Subtotal:</p>\r\n</td>\r\n<td>\r\n<p>{{ subtotal }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p>Tax:</p>\r\n</td>\r\n<td>\r\n<p>{{ total_tax }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<h3>Grand Total:</h3>\r\n</td>\r\n<td>\r\n<h3>{{ grand_total }}</h3>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n{% endblock %}<br />"
+            "template": "<h1>TechCollective {{ type }}</h1>\r\n<p style=\"text-align: right;\">{{ type }} {{ id_number }}:&nbsp; {{ date_created }}</p>\r\n<h3 style=\"text-align: right;\">{% if date_due %}Due date: {{ date_due }}{% endif %}</h3>\r\n{% block main %}\r\n<p><strong>{{ customer.name }}</strong><br />{{ customer.address }}<br />{{ customer.city }} {{ customer.state }} {{ customer.zip_code }}<br />{{ customer.phone_number }}</p>\r\n<br /> \r\n<table border=\"0\">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<h3>Item</h3>\r\n</td>\r\n<td>\r\n<h3>Cost</h3>\r\n</td>\r\n<td>\r\n<h3>Quantity</h3>\r\n</td>\r\n<td>\r\n<h3>Discount</h3>\r\n</td>\r\n<td>\r\n<h3>Total</h3>\r\n</td>\r\n</tr>\r\n{% for entry in entries %}                         \r\n<tr>\r\n<td>{{ entry.item }}</td>\r\n<td>{{ entry.cost }}</td>\r\n<td>{{ entry.quantity }}</td>\r\n<td>{{ entry.discount }}</td>\r\n<td>{{ entry.total }}</td>\r\n</tr>\r\n{% endfor %}                         \r\n<tr>\r\n<td colspan=\"3\">&nbsp;</td>\r\n<td>&nbsp;</td>\r\n<td>&nbsp;</td>\r\n</tr>\r\n<tr>\r\n<td colspan=\"3\" rowspan=\"3\"><br /></td>\r\n<td>\r\n<p>Subtotal:</p>\r\n</td>\r\n<td>\r\n<p>{{ subtotal }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<p>Tax:</p>\r\n</td>\r\n<td>\r\n<p>{{ total_tax }}</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<h3>Grand Total:</h3>\r\n</td>\r\n<td>\r\n<h3>{{ grand_total }}</h3>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<h3>Terms &amp; Conditions</h3>\r\n{{ terms }}<br />{% endblock %}<br />"
         }
     },
     {
@@ -256,6 +256,14 @@
         "fields": {
             "name": "terms and conditions template",
             "value": "terms and conditions"
+        }
+    },
+    {
+        "pk": 22,
+        "model": "configuration.config",
+        "fields": {
+            "name": "list items per page (requires restart)",
+            "value": "50"
         }
     }
 ]

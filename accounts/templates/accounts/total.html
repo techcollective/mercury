@@ -1,1 +1,4 @@
-Total: {{ total }}
+{% if show_total %}
+<p class="paginator" style="float: right; font-size: 12px; font-weight: bold;">
+Total{% if multi_page %} across all pages{% endif %}: {{ total }}</p>
+{% endif %}

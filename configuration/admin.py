@@ -6,9 +6,10 @@ from mercury.configuration.models import (PaymentType,
                                           Template,
                                           Config,
                                          )
+from mercury.helpers import MercuryAdmin
 
 
-class ConfigAdmin(admin.ModelAdmin):
+class ConfigAdmin(MercuryAdmin):
     search_fields = ["name"]
 
 

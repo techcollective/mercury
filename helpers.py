@@ -2,8 +2,11 @@ import decimal
 
 from django.db.models import ForeignKey
 from django.core.urlresolvers import reverse
+from django.contrib.admin import ModelAdmin
 
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
+
+from ajax_select.admin import AjaxSelectAdmin
 
 
 get_setting = Config.settings.get_setting
@@ -152,3 +155,15 @@ def get_auto_invoice_status():
 
 def get_template_name(entity):
     return get_setting("%s template" % entity)
+
+
+def get_items_per_page():
+    return get_integer_setting("list items per page (requires restart)", default=50)
+
+
+class MercuryAdmin(ModelAdmin):
+    list_per_page = get_items_per_page()
+
+
+class MercuryAjaxAdmin(AjaxSelectAdmin):
+    list_per_page = get_items_per_page()
