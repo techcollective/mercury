@@ -2,11 +2,8 @@ import decimal
 
 from django.db.models import ForeignKey
 from django.core.urlresolvers import reverse
-from django.contrib.admin import ModelAdmin
 
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
-
-from ajax_select.admin import AjaxSelectAdmin
 
 
 get_setting = Config.settings.get_setting
