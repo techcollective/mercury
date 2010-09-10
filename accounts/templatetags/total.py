@@ -3,7 +3,9 @@ from django.db.models import Sum
 
 from mercury.helpers import get_currency_symbol
 
+
 register = template.Library()
+
 
 @register.inclusion_tag("accounts/total.html", takes_context=True)
 def total(context, field):

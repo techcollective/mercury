@@ -155,4 +155,5 @@ def get_template_name(entity):
 
 
 def get_items_per_page():
-    return get_integer_setting("list items per page (requires restart)", default=50)
+    return get_integer_setting("list items per page (requires restart)",
+                               default=50)
