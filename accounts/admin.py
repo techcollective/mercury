@@ -158,6 +158,7 @@ class PaymentAdmin(MercuryAdmin):
     list_filter = [DepositedFilterSpec, "payment_type"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
+    search_fields = ["invoice__customer__name", "amount"]
 
     def deposit(self, request, queryset):
         new_deposit = Deposit()
