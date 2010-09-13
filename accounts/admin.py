@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import admin
 from django.contrib.admin.filterspecs import FilterSpec
 from django.utils.datastructures import SortedDict
@@ -15,6 +17,7 @@ from mercury.accounts.models import (Customer,
                                      Deposit,
                                     )
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
+from mercury.helpers import get_or_create_paid_invoice_status
 
 
 # Custom inline classes
@@ -59,6 +62,63 @@ class DepositPaymentInline(admin.TabularInline):
     extra = 0
     max_num = 0
 
+# custom FilterSpecs (for list_filter)
+
+class CustomFilterSpec(FilterSpec):
+    def consumed_params(self):
+        return self.links.values()
+
+    def choices(self, cl):
+        selected = [v for v in self.links.values() if self.params.has_key(v)]
+        for title, key in self.links.items():
+            yield {'selected': self.params.has_key(key),
+                   'query_string': cl.get_query_string({key:1}, selected),
+                   'display': title}
+
+
+class PaidFilterSpec(CustomFilterSpec):
+    def __init__(self, request, params, model, model_admin):
+        super(PaidFilterSpec, self).__init__(request, params, model, model_admin)
+        self.links = SortedDict((
+            ('All', 'all'),
+            ('Unpaid', 'unpaid'),
+            ('Unpaid and Overdue', 'unpaid_overdue'),
+        ))
+
+    def get_query_set(self, cls, qs):
+        paid_status = get_or_create_paid_invoice_status()
+        if self.params.has_key('unpaid'):
+            return qs.exclude(status__exact=paid_status)
+        if self.params.has_key('unpaid_overdue'):
+            return qs.exclude(status__exact=paid_status).filter(
+                date_due__lte=datetime.date.today())
+        return qs
+
+    def title(self):
+        return u'unpaid status'
+
+
+class DepositedFilterSpec(CustomFilterSpec):
+    def __init__(self, request, params, model, model_admin):
+        super(DepositedFilterSpec, self).__init__(request, params, model, model_admin)
+        self.links = SortedDict((
+            ('All', 'all'),
+            ('Deposited', 'deposited'),
+            ('Undeposited', 'undeposited'),
+        ))
+
+    def get_query_set(self, cls, qs):
+        if self.params.has_key('deposited'):
+            return qs.filter(deposit__isnull=False).filter(
+                payment_type__manage_deposits__exact=True)
+        if self.params.has_key('undeposited'):
+            return qs.filter(deposit__isnull=True).filter(
+                payment_type__manage_deposits__exact=True)
+        return qs
+
+    def title(self):
+        return u'deposited status'
+
 
 # Admin classes
 
@@ -74,7 +134,7 @@ class InvoiceAdmin(MercuryAjaxAdmin):
     date_hierarchy = "date_created"
     list_display = ["get_number", "description", "customer", "status", "grand_total", "date_created", "date_due"]
     list_display_links = ["get_number", "description"]
-    list_filter = ["status"]
+    list_filter = [PaidFilterSpec, "status"]
 
     def post_save(self, instance):
         instance.update()
@@ -117,38 +177,6 @@ class DepositAdmin(MercuryAdmin):
 
     def merge_deposits(self, request, queryset):
         pass
-
-
-class DepositedFilterSpec(FilterSpec):
-    def __init__(self, request, params, model, model_admin):
-        super(DepositedFilterSpec, self).__init__(request, params, model, model_admin)
-        self.links = SortedDict((
-            ('All', 'all'),
-            ('Deposited', 'deposited'),
-            ('Undeposited', 'undeposited'),
-        ))
-
-    def consumed_params(self):
-        return self.links.values()
-
-    def choices(self, cl):
-        selected = [v for v in self.links.values() if self.params.has_key(v)]
-        for title, key in self.links.items():
-            yield {'selected': self.params.has_key(key),
-                   'query_string': cl.get_query_string({key:1}, selected),
-                   'display': title}
-
-    def get_query_set(self, cls, qs):
-        if self.params.has_key('deposited'):
-            return qs.filter(deposit__isnull=False).filter(
-                payment_type__manage_deposits__exact=True)
-        if self.params.has_key('undeposited'):
-            return qs.filter(deposit__isnull=True).filter(
-                payment_type__manage_deposits__exact=True)
-        return qs
-
-    def title(self):
-        return u'deposited status'
 
 
 class PaymentAdmin(MercuryAdmin):
