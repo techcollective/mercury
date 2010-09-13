@@ -203,8 +203,8 @@ class Invoice(QuoteInvoiceBase):
     def update_status(self):
         if get_auto_invoice_status():
             total_payments = self.payment_set.all().aggregate(
-                                                        models.Sum("amount"))
-            if total_payments["amount__sum"] >= self.grand_total:
+                                                    total=models.Sum("amount"))
+            if total_payments["total"] >= self.grand_total:
                 self.status = get_or_create_paid_invoice_status()
 
     def delete(self, *args, **kwargs):
@@ -292,9 +292,15 @@ class Deposit(models.Model):
     comment = models.CharField(max_length=200, blank=True)
 
     def save(self, *args, **kwargs):
-        total = self.payment_set.all().aggregate(models.Sum("amount"))
-        self.total = total["amount__sum"]
-        super(Deposit, self).save(*args, **kwargs)
+        # payment_set on new unsaved instances returns all payments with no
+        # deposit, so save first in this case
+        if not self.pk:
+            super(Deposit, self).save(*args, **kwargs)
+        total = self.payment_set.all().aggregate(
+                                         total=models.Sum("amount"))["total"]
+        if total:
+            self.total = total
+            super(Deposit, self).save(*args, **kwargs)
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
@@ -312,11 +318,8 @@ class Payment(models.Model):
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
-    depositable = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if self.payment_type.manage_deposits:
-            self.depositable = True
         super(Payment, self).save(*args, **kwargs)
         if self.deposit:
             # call save() on deposit to update total
@@ -325,7 +328,7 @@ class Payment(models.Model):
         self.invoice.save()
 
     def clean(self):
-        if not self.depositable and self.deposit:
+        if not self.payment_type.manage_deposits and self.deposit:
             message = "The payment type '%s' isn't " % str(self.payment_type)
             message += "depositable, so this payment can't belong to a deposit"
             raise ValidationError(message)
@@ -339,4 +342,4 @@ class Payment(models.Model):
                                              str(self.invoice))
 
     class Meta:
-        ordering = ["payment_type", "-date_received"]
+        ordering = ["-date_received"]

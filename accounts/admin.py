@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.admin.filterspecs import FilterSpec
+from django.utils.datastructures import SortedDict
 
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
@@ -48,13 +50,12 @@ class QuoteEntryInline(ProductOrServiceInline):
 class InvoicePaymentInline(admin.TabularInline):
     model = Payment
     extra = 0
-    exclude = ["deposit", "depositable"]
+    exclude = ["deposit"]
     show_last = True
 
 
 class DepositPaymentInline(admin.TabularInline):
     model = Payment
-    exclude = ["depositable"]
     extra = 0
     max_num = 0
 
@@ -118,20 +119,45 @@ class DepositAdmin(MercuryAdmin):
         pass
 
 
+class DepositedFilterSpec(FilterSpec):
+    def __init__(self, request, params, model, model_admin):
+        super(DepositedFilterSpec, self).__init__(request, params, model, model_admin)
+        self.links = SortedDict((
+            ('All', 'all'),
+            ('Deposited', 'deposited'),
+            ('Undeposited', 'undeposited'),
+        ))
+
+    def consumed_params(self):
+        return self.links.values()
+
+    def choices(self, cl):
+        selected = [v for v in self.links.values() if self.params.has_key(v)]
+        for title, key in self.links.items():
+            yield {'selected': self.params.has_key(key),
+                   'query_string': cl.get_query_string({key:1}, selected),
+                   'display': title}
+
+    def get_query_set(self, cls, qs):
+        if self.params.has_key('deposited'):
+            return qs.filter(deposit__isnull=False).filter(
+                payment_type__manage_deposits__exact=True)
+        if self.params.has_key('undeposited'):
+            return qs.filter(deposit__isnull=True).filter(
+                payment_type__manage_deposits__exact=True)
+        return qs
+
+    def title(self):
+        return u'deposited status'
+
+
 class PaymentAdmin(MercuryAdmin):
 #class PaymentAdmin(MercuryAjaxAdmin):
     #form = make_ajax_form(Payment, {"invoice": "invoice"})
-    list_display = ["__str__", "date_received", "deposited"]
-    list_filter = ["depositable"]
+    list_display = ["__str__", "amount", "date_received", "deposit"]
+    list_filter = [DepositedFilterSpec, "payment_type"]
     actions = ["deposit"]
-    exclude = ["depositable"]
     date_hierarchy = "date_received"
-
-    def deposited(self, instance):
-        return (instance.deposit is not None) or \
-               (instance.depositable == False)
-    deposited.boolean = True
-    deposited.admin_order_field = 'deposit'
 
     def deposit(self, request, queryset):
         new_deposit = Deposit()
