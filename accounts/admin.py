@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.admin.filterspecs import FilterSpec
 from django.utils.datastructures import SortedDict
 
@@ -14,8 +15,7 @@ from mercury.accounts.models import (Customer,
                                      InvoiceEntry,
                                      QuoteEntry,
                                      Payment,
-                                     Deposit,
-                                    )
+                                     Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import get_or_create_paid_invoice_status
 
@@ -189,19 +189,37 @@ class PaymentAdmin(MercuryAdmin):
     search_fields = ["invoice__customer__name", "amount"]
 
     def deposit(self, request, queryset):
-        new_deposit = Deposit()
-        # save() to create the deposit, otherwise it can't have
-        # payments assigned to it.
-        new_deposit.save()
-        rows_updated = queryset.update(deposit=new_deposit)
-        if rows_updated == 1:
-            message = "1 payment was"
+        already_deposited = queryset.filter(deposit__isnull=False)
+        count = already_deposited.count()
+        if count > 0:
+            messages.warning(request, "One or more already deposited payments "
+                                      "were left unchanged")
+            queryset = queryset.filter(deposit__isnull=True)
+        not_depositable = queryset.filter(payment_type__manage_deposits=False)
+        count = not_depositable.count()
+        if count > 0:
+            messages.warning(request, "One or more payments were ignored as "
+                                      "their type isn't depositable ")
+            queryset = queryset.exclude(payment_type__manage_deposits=False)
+        count = queryset.count()
+        if count > 0:
+            new_deposit = Deposit()
+            # save() to create the deposit, otherwise it can't have
+            # payments assigned to it.
+            new_deposit.save()
+
+            rows_updated = queryset.update(deposit=new_deposit)
+            if rows_updated == 1:
+                message = "1 payment was"
+            else:
+                message = "%s payments were" % rows_updated
+            message += " deposited successfully"
+            # save() again to update the deposit total field
+            new_deposit.save()
+            self.message_user(request, message)
         else:
-            message = "%s payments were" % rows_updated
-        message += " deposited successfully"
-        # save() again to update the deposit total field
-        new_deposit.save()
-        self.message_user(request, message)
+            messages.warning(request, "No deposit was created as none of the "
+                                      "selected payments were depositable")
     deposit.short_description = "Deposit selected payments"
 
     def get_actions(self, *args, **kwargs):

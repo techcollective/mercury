@@ -162,8 +162,11 @@ class QuoteInvoiceBase(models.Model):
         return grand_total.value_to_string(self)
 
     def __unicode__(self):
+        status = str(getattr(self, "status", ""))
+        if status:
+            status = " - %s" % status
         return (capfirst(self._meta.verbose_name) + " " +
-                str(self.get_number()) + " - " +
+                str(self.get_number()) + status + " - " +
                 self.description + " - " + self.get_formatted_total())
 
     class Meta:
