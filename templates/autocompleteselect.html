@@ -13,18 +13,23 @@ $("#{{ html_id }}").autocomplete({
    }
 );
 
+// Bind X to clear function. For some reason it doesn't bind to JS-created inline rows
+// unless I do it here. (i.e. $(".ajax-clearfield").click()) in ajax_select.js doesn't
+// have the desired effect.
+$("#{{ html_id }}_clear").click(function(){
+    input_id = this.id;
+    input_id = input_id.replace("_clear", "");
+    $("#" + input_id).val("");
+    $("#" + input_id + "_hidden").val("");
+    $("#" + this.id).hide();
+});
 
 
-
-
-
-
-
-
-//$("#{{ html_id }}").bind('didAddPopup', function(event, id, repr) {
-//    data = Array();
-//    data[0] = id;
-//    data[1] = repr;
-//    receiveResult(event, data);
-//});
+$("#{{ html_id }}").bind('didAddPopup', function(event, id, repr) {
+    data = Object();
+    data.item = Object();
+    data.item.pk = id;
+    data.item.value = repr;
+    handleResult(event, data);
+});
 </script>
