@@ -67,7 +67,7 @@ def get_lookup(channel):
     except (KeyError, AttributeError):
         raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS not configured correctly for %r" % channel)
 
-    if isinstance(lookup_label,dict):
+    if isinstance(lookup_label, dict):
         # 'channel' : dict(model='app.model', search_field='title' )
         # generate a simple channel dynamically
         return make_channel( lookup_label['model'], lookup_label['search_field'] )

@@ -1,48 +1,44 @@
+import json
 
-from ajax_select import get_lookup
 from django.contrib.admin import site
 from django.db import models
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
+from ajax_select import get_lookup
 
 @login_required
-def ajax_lookup(request,channel):
+def ajax_lookup(request, channel):
     """ this view supplies results for both foreign keys and many to many fields """
 
     # it should come in as GET unless global $.ajaxSetup({type:"POST"}) has been set
     # in which case we'll support POST
+    query_param = "term"
     if request.method == "GET":
         # we could also insist on an ajax request
-        if 'q' not in request.GET:
+        if query_param not in request.GET:
             return HttpResponse('')
-        query = request.GET['q']
-        extra_field = ""
-        if "extra" in request.GET:
-            extra_field = request.GET["extra"]
+        query = request.GET[query_param]
     else:
-        if 'q' not in request.POST:
-            return HttpResponse('') # suspicious
-        query = request.POST['q']
+        if query_param not in request.POST:
+            return HttpResponse('')
+        query = request.POST[query_param]
 
     lookup_channel = get_lookup(channel)
 
-    if query:
-        instances = lookup_channel.get_query(query,request)
-    else:
-        instances = []
+    instances = lookup_channel.get_query(query, request)
 
     results = []
     for item in instances:
         itemf = lookup_channel.format_item(item)
-        itemf = itemf.replace("\n","").replace("|","&brvbar;")
         resultf = lookup_channel.format_result(item)
-        resultf = resultf.replace("\n","").replace("|","&brvbar;")
-        result = "|".join((unicode(item.pk),itemf,resultf))
-        if extra_field:
-            result += "|%s" % str(getattr(item,extra_field))
+        result = {
+                  "pk": unicode(item.pk),
+                  "value": itemf,
+                  "label": resultf,
+                  }
         results.append(result)
-    return HttpResponse("\n".join(results))
+    return HttpResponse(json.dumps(results))
 
 
 @login_required

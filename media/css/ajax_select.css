@@ -4,7 +4,7 @@
 
 .ajax-clearfield div {
     float: left;
-    background: url("inline-delete.png");
+    background: url("../img/inline-delete.png");
     width: 15px;
     height: 15px;
     border: 0px none;
