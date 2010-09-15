@@ -11,16 +11,8 @@
 $("#{{ html_id }}").autocomplete({
     source: "{{ lookup_url }}",
     select: handleResult,
-    change: function(event, ui){
-        val_id = this.id + "_val";
-        hidden_id = this.id + "_hidden";
-        if($("#" + val_id).val() != $(this).val()){
-            $(this).val("");
-            $("#" + hidden_id).val("");
-        }
-    }
-   }
-);
+    change: handleChange
+});
 
 // Bind X to clear function. For some reason it doesn't bind to JS-created inline rows
 // unless I do it here. (i.e. $(".ajax-clearfield").click()) in ajax_select.js doesn't

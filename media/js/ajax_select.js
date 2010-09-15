@@ -15,6 +15,17 @@ function handleResult(event, ui){
     $("#" + input_id + "_clear").show();
 }
 
+function handleChange(event, ui){
+    val_id = this.id + "_val";
+    if($("#" + val_id).val() != $(this).val()){
+        hidden_id = this.id + "_hidden";
+        clear_id = this.id + "_clear";
+        $(this).val("");
+        $("#" + hidden_id).val("");
+        $("#" + clear_id).hide();
+    }
+}
+
 $(document).ready(function(){
     // Hide X's if the input box is empty
     $(".ajax-clearfield").each(function(){
