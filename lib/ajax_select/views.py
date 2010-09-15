@@ -32,8 +32,7 @@ def ajax_lookup(request, channel):
     for item in instances:
         itemf = lookup_channel.format_item(item)
         resultf = lookup_channel.format_result(item)
-        result = {
-                  "pk": unicode(item.pk),
+        result = {"pk": unicode(item.pk),
                   "value": itemf,
                   "label": resultf,
                   }
