@@ -11,6 +11,7 @@ function handleResult(event, ui){
     input_id = event.target.id;
     $("#" + input_id + "_hidden").val(ui.item.pk);
     $("#" + input_id).val(ui.item.value);
+    $("#" + input_id + "_val").val(ui.item.value);
     $("#" + input_id + "_clear").show();
 }
 

@@ -6,10 +6,19 @@
 {% endif %}
 {% block help %}{# {% if help_text %}<p class="help">{{help_text}}</p>{% endif %} #}{% endblock %}
 <input type="hidden" name="{{ name }}" id="{{html_id}}_hidden" value="{{current_id}}" />
+<input type="hidden" name="{{ name }}_val" id="{{html_id}}_val" value="{{ current_result }}" />
 <script type="text/javascript">
 $("#{{ html_id }}").autocomplete({
     source: "{{ lookup_url }}",
-    select: handleResult
+    select: handleResult,
+    change: function(event, ui){
+        val_id = this.id + "_val";
+        hidden_id = this.id + "_hidden";
+        if($("#" + val_id).val() != $(this).val()){
+            $(this).val("");
+            $("#" + hidden_id).val("");
+        }
+    }
    }
 );
 
@@ -23,7 +32,6 @@ $("#{{ html_id }}_clear").click(function(){
     $("#" + input_id + "_hidden").val("");
     $("#" + this.id).hide();
 });
-
 
 $("#{{ html_id }}").bind('didAddPopup', function(event, id, repr) {
     data = Object();
