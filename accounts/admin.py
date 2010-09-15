@@ -179,9 +179,9 @@ class DepositAdmin(MercuryAdmin):
         pass
 
 
-class PaymentAdmin(MercuryAdmin):
-#class PaymentAdmin(MercuryAjaxAdmin):
-    #form = make_ajax_form(Payment, {"invoice": "invoice"})
+#class PaymentAdmin(MercuryAdmin):
+class PaymentAdmin(MercuryAjaxAdmin):
+    form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["__str__", "amount", "date_received", "deposit"]
     list_filter = [DepositedFilterSpec, "payment_type"]
     actions = ["deposit"]

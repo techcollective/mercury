@@ -331,10 +331,11 @@ class Payment(models.Model):
         self.invoice.save()
 
     def clean(self):
-        if not self.payment_type.manage_deposits and self.deposit:
-            message = "The payment type '%s' isn't " % str(self.payment_type)
-            message += "depositable, so this payment can't belong to a deposit"
-            raise ValidationError(message)
+        if hasattr(self,"payment_type"): # it doesn't on an empty form
+            if not self.payment_type.manage_deposits and self.deposit:
+                message = "The payment type '%s' isn't " % str(self.payment_type)
+                message += "depositable, so this payment can't belong to a deposit"
+                raise ValidationError(message)
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
