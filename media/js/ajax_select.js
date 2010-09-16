@@ -1,6 +1,4 @@
-
 /* didAddPopup requires django's RelatedObjectLookups.js */
-
 function didAddPopup(win, newId, newRepr) {
     var name = windowname_to_id(win.name);
     $("#"+name).trigger('didAddPopup', [html_unescape(newId), html_unescape(newRepr)]);
@@ -36,6 +34,7 @@ $(document).ready(function(){
         $("#" + input_id + "_hidden").val("");
         $(this).hide();
     });
+    // so that new items from + popups end up in the input
     $("body").delegate(".ajax-input", "didAddPopup", function(event, id, repr) {
         data = Object();
         data.item = Object();

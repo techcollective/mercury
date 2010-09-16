@@ -206,9 +206,12 @@ class Invoice(QuoteInvoiceBase):
     def update_status(self):
         if get_auto_invoice_status():
             total_payments = self.payment_set.all().aggregate(
-                                                    total=models.Sum("amount"))
-            if total_payments["total"] >= self.grand_total:
-                self.status = get_or_create_paid_invoice_status()
+                                        total=models.Sum("amount"))["total"]
+            paid_status = get_or_create_paid_invoice_status()
+            if total_payments >= self.grand_total:
+                self.status = paid_status
+            elif (self.status == paid_status) and (total_payments < self.grand_total):
+                self.status = get_or_create_default_invoice_status()
 
     def delete(self, *args, **kwargs):
         for entry in self.get_entries():

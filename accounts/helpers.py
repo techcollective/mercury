@@ -59,7 +59,8 @@ class ProductNameAjaxChannel(AjaxChannel):
 
 class InvoiceAjaxChannel(AjaxChannel):
     def __init__(self):
-        pass
+        self.model = models.Invoice
+        self.field = "pk"
 
     def get_query(self, q, request):
         filter = Q()
