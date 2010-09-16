@@ -61,6 +61,9 @@ class DepositPaymentInline(admin.TabularInline):
     model = Payment
     extra = 0
     max_num = 0
+    readonly_fields = [field.name for field in Payment._meta.fields]
+    can_delete = False
+
 
 # custom FilterSpecs (for list_filter)
 

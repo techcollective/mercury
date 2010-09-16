@@ -111,14 +111,11 @@ if DEBUG:
     INSTALLED_APPS += ['django_extensions']
 
 mod = "mercury.accounts.helpers."
-
-# todo: refactor ajax_select code to accept instances instead of classes
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': mod + "CustomerNameAjaxChannel",
     'product_or_service_name': mod + "ProductNameAjaxChannel",
     'invoice': mod + "InvoiceAjaxChannel",
 }
-
 del mod
 
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
