@@ -5,8 +5,8 @@
     <a href="{{ add_link }}" class="add-another" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);"> <img src="{{ admin_media_prefix }}img/admin/icon_addlink.gif" width="10" height="10" alt="Add Another"></a>
 {% endif %}
 {% block help %}{# {% if help_text %}<p class="help">{{help_text}}</p>{% endif %} #}{% endblock %}
-<input type="hidden" name="{{ name }}" id="{{html_id}}_hidden" value="{{current_id}}" />
-<input type="hidden" name="{{ name }}_val" id="{{html_id}}_val" value="{{ current_result }}" />
+<input type="hidden" name="{{ name }}" id="{{ html_id }}_hidden" value="{{ current_id }}" />
+<input type="hidden" name="{{ name }}_val" id="{{ html_id }}_val" value="{{ current_result }}" />
 <script type="text/javascript">
 $("#{{ html_id }}").autocomplete({
     source: "{{ lookup_url }}",
@@ -17,13 +17,4 @@ $("#{{ html_id }}").autocomplete({
 $("#{{ html_id }}").bind("select.autocomplete", function(){
         alert("hello");
     });
-
-//$("#{{ html_id }}").bind('didAddPopup', function(event, id, repr) {
-//    data = Object();
-//    data.item = Object();
-//    data.item.pk = id;
-//    data.item.value = repr;
-//    handleResult(event, data);
-//    $(event.target).val(data.item.value);
-//});
 </script>

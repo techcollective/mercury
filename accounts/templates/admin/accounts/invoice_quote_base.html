@@ -80,9 +80,10 @@
 
 {% if add %}
 <script type="text/javascript">
-django.jQuery(document).ready(function() {
+// Using document.ready causes django to init the calendar widgets twice
+addEvent(window, 'load', function(){
      django.jQuery("a:contains('Add another Product Or Service')").click();
- });
+});
 </script>
 {% endif %}
 
