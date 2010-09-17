@@ -206,20 +206,12 @@
         "pk": 15,
         "model": "configuration.config",
         "fields": {
-            "name": "max number of invoices on customer detail page",
-            "value": "20"
-        }
-    },
-    {
-        "pk": 16,
-        "model": "configuration.config",
-        "fields": {
             "name": "status for paid invoices",
             "value": "Paid"
         }
     },
     {
-        "pk": 17,
+        "pk": 16,
         "model": "configuration.config",
         "fields": {
             "name": "number of decimal places for currency display",
@@ -227,7 +219,7 @@
         }
     },
     {
-        "pk": 18,
+        "pk": 17,
         "model": "configuration.config",
         "fields": {
             "name": "automatically fill in blank invoice description",
@@ -235,7 +227,7 @@
         }
     },
     {
-        "pk": 19,
+        "pk": 18,
         "model": "configuration.config",
         "fields": {
             "name": "allow negative stock counts",
@@ -243,7 +235,7 @@
         }
     },
     {
-        "pk": 20,
+        "pk": 19,
         "model": "configuration.config",
         "fields": {
             "name": "update invoice status when full payment is received",
@@ -251,7 +243,7 @@
         }
     },
     {
-        "pk": 21,
+        "pk": 20,
         "model": "configuration.config",
         "fields": {
             "name": "terms and conditions template",
@@ -259,7 +251,7 @@
         }
     },
     {
-        "pk": 22,
+        "pk": 21,
         "model": "configuration.config",
         "fields": {
             "name": "list items per page (requires restart)",

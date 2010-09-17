@@ -17,7 +17,8 @@ from mercury.accounts.models import (Customer,
                                      Payment,
                                      Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
-from mercury.helpers import get_or_create_paid_invoice_status
+from mercury.helpers import (get_or_create_paid_invoice_status,
+                             get_display_paid)
 
 
 # Custom inline classes
@@ -63,6 +64,26 @@ class DepositPaymentInline(admin.TabularInline):
     max_num = 0
     readonly_fields = [field.name for field in Payment._meta.fields]
     can_delete = False
+    link_readonly = "amount"
+
+
+class CustomerInvoiceInline(admin.TabularInline):
+    model = Invoice
+    extra = 0
+    max_num = 0
+    readonly_fields = [field.name for field in Invoice._meta.fields]
+    can_delete = False
+    link_readonly = "description"
+
+    def queryset(self, request):
+        qs = super(CustomerInvoiceInline, self).queryset(request)
+        display_paid = get_display_paid()
+        paid_status = get_or_create_paid_invoice_status()
+
+        if not display_paid:
+            qs = qs.exclude(status__status__exact=paid_status)
+        return qs
+
 
 
 # custom FilterSpecs (for list_filter)
@@ -94,7 +115,7 @@ class PaidFilterSpec(CustomFilterSpec):
             return qs.exclude(status__exact=paid_status)
         if self.params.has_key('unpaid_overdue'):
             return qs.exclude(status__exact=paid_status).filter(
-                date_due__lte=datetime.date.today())
+                date_due__lt=datetime.date.today())
         return qs
 
     def title(self):
@@ -167,12 +188,23 @@ class QuoteAdmin(MercuryAjaxAdmin):
 
 
 class CustomerAdmin(MercuryAdmin):
+    inlines = [CustomerInvoiceInline]
     search_fields = ["name"]
     fieldsets = [
         (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
+
+    def change_view(self, *args, **kwargs):
+        display_paid = get_display_paid()
+        if not display_paid:
+            inline_title = "Unpaid invoices"
+        else:
+            inline_title = "Invoices"
+        kwargs["extra_context"] = {"inline_title": inline_title}
+        return super(CustomerAdmin, self).change_view(*args, **kwargs)
+
 
 
 class DepositAdmin(MercuryAdmin):
@@ -182,7 +214,6 @@ class DepositAdmin(MercuryAdmin):
         pass
 
 
-#class PaymentAdmin(MercuryAdmin):
 class PaymentAdmin(MercuryAjaxAdmin):
     form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["__str__", "amount", "date_received", "deposit"]

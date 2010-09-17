@@ -83,11 +83,6 @@ def get_or_create_default_invoice_term():
     return desired_term
 
 
-def get_max_customer_invoices():
-    setting = "max number of invoices on customer detail page"
-    return get_integer_setting(setting, default=20)
-
-
 def get_or_create_paid_invoice_status():
     desired_status = get_setting("status for paid invoices", default="Paid")
     status, created = InvoiceStatus.objects.get_or_create(

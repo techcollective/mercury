@@ -16,14 +16,12 @@ from mercury.helpers import (model_to_dict,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
                              get_or_create_default_invoice_term,
-                             get_max_customer_invoices,
                              get_or_create_paid_invoice_status,
                              get_customer_taxable,
                              get_product_taxable,
                              get_manage_stock,
                              get_default_quantity,
                              get_invoice_padding,
-                             get_display_paid,
                              get_fill_description,
                              get_negative_stock,
                              get_auto_invoice_status)
@@ -43,47 +41,6 @@ class Customer(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def get_invoice_list(self):
-        """
-        This is used by the custom customer change template to show a
-        customer's invoice list. It should belong in a view, but it's
-        easier to do it here than create a custom admin view that would first
-        have to duplicate the current render_change_form functionality.
-        """
-        max_invoices = get_max_customer_invoices()
-        display_paid = get_display_paid()
-        paid_status = get_or_create_paid_invoice_status()
-
-        qs = self.invoice_set.all()
-        if not display_paid:
-            qs = qs.exclude(status__status__iexact=paid_status)
-        # the code below was written with the following in mind:
-        # 1) the most common scenario of len(invoices) < max_invoices is the
-        #    shortest fastest code path
-        # 2) there's no need to call .count() when we're retrieving the
-        #    objects anyway. i retrieve max_count+1 to avoid treating the
-        #    case of qs.count() == max_invoices the same way as when the
-        #    count has actually been exceeded.
-        invoices = qs[:max_invoices + 1]
-        if len(invoices) > max_invoices:
-            title = "%s most recent " % max_invoices
-            invoices = invoices[:max_invoices]
-        else:
-            title = ""
-        if not display_paid:
-            title += "unpaid "
-        title += "invoices"
-        if max_invoices == 1:
-            title = "most recent invoice"
-        title = capfirst(title)
-        invoice_list = []
-        for invoice in invoices:
-            data = model_to_dict(invoice)
-            data["number"] = invoice.get_number()
-            data["url"] = get_change_url(invoice)
-            invoice_list.append(data)
-        return {"title": title, "invoices": invoice_list}
 
 
 class ProductOrService(models.Model):
@@ -160,6 +117,9 @@ class QuoteInvoiceBase(models.Model):
         # currencyfield that i haven't thought of
         grand_total = self._meta.get_field_by_name("grand_total")[0]
         return grand_total.value_to_string(self)
+
+    def get_change_url(self):
+        return get_change_url(self)
 
     def __unicode__(self):
         status = str(getattr(self, "status", ""))
@@ -339,6 +299,9 @@ class Payment(models.Model):
                 message = "The payment type '%s' isn't " % str(self.payment_type)
                 message += "depositable, so this payment can't belong to a deposit"
                 raise ValidationError(message)
+
+    def get_change_url(self):
+        return get_change_url(self)
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()

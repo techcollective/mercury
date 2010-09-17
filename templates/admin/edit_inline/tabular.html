@@ -3,7 +3,7 @@
   <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
 {{ inline_admin_formset.formset.management_form }}
 <fieldset class="module">
-   <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+   <h2>{% if inline_title %}{{inline_title}}{% else %}{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}{% endif %}</h2>
    {{ inline_admin_formset.formset.non_form_errors }}
    <table>
      <thead><tr>
@@ -40,7 +40,13 @@
             {% for field in line %}
               <td class="{{ field.field.name }}">
               {% if field.is_readonly %}
+                {% if inline_admin_formset.opts.link_readonly == field.field.name %}
+                  <a href="{{ inline_admin_form.original.get_change_url }}">
+                {% endif %}
                   <p>{{ field.contents }}</p>
+                {% if inline_admin_formset.opts.link_readonly %}
+                  </a>
+                {% endif %}
               {% else %}
                   {{ field.field.errors.as_ul }}
                   {{ field.field }}
