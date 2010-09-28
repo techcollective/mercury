@@ -10,6 +10,18 @@ function handleResult(event, ui){
     $("#" + input_id + "_hidden").val(ui.item.pk);
     $("#" + input_id + "_val").val(ui.item.value);
     $("#" + input_id + "_clear").show();
+    if ($(ui.item).attr("autofill") != undefined) {
+        for (i in ui.item.autofill) {
+            for (field in ui.item.autofill[i]) {
+                replace = input_id;
+                replace = replace.split("-");
+                replace = replace.slice(0,-1);
+                replace.push(field);
+                replace = replace.join("-");
+                $("#" + replace).val(ui.item.autofill[i][field]);
+            }
+        }
+    }
 }
 
 function handleChange(event, ui){
