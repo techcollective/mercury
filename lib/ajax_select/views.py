@@ -35,6 +35,7 @@ def ajax_lookup(request, channel):
         result = {"pk": unicode(item.pk),
                   "value": itemf,
                   "label": resultf,
+                  "autofill": [{"cost": 100}, {"quantity": 3}],
                   }
         results.append(result)
     return HttpResponse(json.dumps(results))

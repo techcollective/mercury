@@ -36,10 +36,7 @@ class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
     verbose_name = "Product or service"
     verbose_name_plural = "Products or services"
-    form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"},
-                          autofill={"item": {"field": "cost",
-                                             "related_field": "price",
-                                             }})
+    form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"})
     exclude = ["total"]
 
 

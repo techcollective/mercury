@@ -19,12 +19,10 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
     def __init__(self,
                  channel,
                  help_text='',
-                 autofill=None,
                  *args, **kw):
         super(forms.widgets.TextInput, self).__init__(*args, **kw)
         self.channel = channel
         self.help_text = help_text
-        self.autofill = autofill or []
 
     def render(self, name, value, attrs=None):
 
@@ -49,7 +47,6 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 'func_slug': self.html_id.replace("-",""),
                 'add_link' : self.add_link,
                 'admin_media_prefix' : settings.ADMIN_MEDIA_PREFIX,
-                'autofill': self.autofill,
                 }
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
 
@@ -69,11 +66,11 @@ class AutoCompleteSelectField(forms.fields.CharField):
 
     channel = None
 
-    def __init__(self, channel, autofill=None, *args, **kwargs):
+    def __init__(self, channel, *args, **kwargs):
         self.channel = channel
         widget = kwargs.get("widget", False)
         if not widget or not isinstance(widget, AutoCompleteSelectWidget):
-            kwargs["widget"] = AutoCompleteSelectWidget(channel=channel,help_text=kwargs.get('help_text',_('Enter text to search.')), autofill=autofill)
+            kwargs["widget"] = AutoCompleteSelectWidget(channel=channel,help_text=kwargs.get('help_text',_('Enter text to search.')))
         super(AutoCompleteSelectField, self).__init__(max_length=255,*args, **kwargs)
 
     def clean(self, value):

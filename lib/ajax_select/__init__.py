@@ -8,7 +8,7 @@ from django.utils.text import capfirst
 from django.core.urlresolvers import get_callable
 
 
-def make_ajax_form(model,fieldlist,superclass=ModelForm, autofill=[]):
+def make_ajax_form(model,fieldlist,superclass=ModelForm):
     """ this will create a ModelForm subclass inserting
             AutoCompleteSelectMultipleField (many to many),
             AutoCompleteSelectField (foreign key)
@@ -40,14 +40,10 @@ def make_ajax_form(model,fieldlist,superclass=ModelForm, autofill=[]):
 
         field = model._meta.get_field(model_fieldname)
 
-        field_autofill = []
-        if model_fieldname in autofill:
-            field_autofill = autofill[model_fieldname]
-
         if isinstance(field,ManyToManyField):
             f = AutoCompleteSelectMultipleField(channel,required=not field.blank)
         elif isinstance(field,ForeignKey):
-            f = AutoCompleteSelectField(channel,required=not field.blank, label=capfirst(field.verbose_name), autofill=field_autofill)
+            f = AutoCompleteSelectField(channel,required=not field.blank, label=capfirst(field.verbose_name))
         else:
             f = AutoCompleteField(channel, required=not field.blank, label=capfirst(field.verbose_name))
 
