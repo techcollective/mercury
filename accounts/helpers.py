@@ -44,6 +44,12 @@ class AjaxChannel(object):
         """
         return self.model.objects.filter(pk__in=ids).order_by(self.field)
 
+    def get_autofill_fields(self):
+        """
+        Each key:value pair represents field_name_on_model:target_field_name
+        """
+        return {}
+
 
 class CustomerNameAjaxChannel(AjaxChannel):
     def __init__(self):
@@ -55,6 +61,9 @@ class ProductNameAjaxChannel(AjaxChannel):
     def __init__(self):
         self.model = models.ProductOrService
         self.field = "name"
+
+    def get_autofill_fields(self):
+        return {"price": "cost"}
 
 
 class InvoiceAjaxChannel(AjaxChannel):

@@ -1,9 +1,8 @@
-import json
-
 from django.contrib.admin import site
 from django.db import models
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
 
 from ajax_select import get_lookup
 
@@ -27,6 +26,7 @@ def ajax_lookup(request, channel):
     lookup_channel = get_lookup(channel)
 
     instances = lookup_channel.get_query(query, request)
+    autofill_fields = lookup_channel.get_autofill_fields()
 
     results = []
     for item in instances:
@@ -35,10 +35,16 @@ def ajax_lookup(request, channel):
         result = {"pk": unicode(item.pk),
                   "value": itemf,
                   "label": resultf,
-                  "autofill": [{"cost": 100}, {"quantity": 3}],
                   }
+        autofill  = {}
+        for model_field in autofill_fields:
+            autofill.update(
+                {autofill_fields[model_field]: getattr(item, model_field)},
+                )
+        if autofill:
+            result.update({"autofill": autofill})
         results.append(result)
-    return HttpResponse(json.dumps(results))
+    return HttpResponse(DjangoJSONEncoder().encode(results))
 
 
 @login_required
