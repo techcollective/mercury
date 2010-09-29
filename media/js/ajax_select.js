@@ -13,7 +13,7 @@ function handleResult(event, ui){
     if ($(ui.item).attr("autofill") != undefined) {
         for (field in ui.item.autofill) {
             // this is to work with id's in inlines, which look like
-            // id_invoiceentry_set-0-item, and the target field will
+            // id_invoiceentry_set-0-item, where the target field will
             // look like id_invoiceentry_set-0-cost.
             split = "-"
             replace = input_id.split(split);

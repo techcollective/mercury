@@ -101,3 +101,6 @@ class InvoiceAjaxChannel(AjaxChannel):
         paid_status = get_or_create_paid_invoice_status()
         return models.Invoice.objects.filter(filter).order_by(
             "date_created").exclude(status=paid_status)
+
+    def generate_autofill(self, model_instance):
+        return {"amount": model_instance.grand_total}
