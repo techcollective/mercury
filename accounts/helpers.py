@@ -3,6 +3,7 @@ Helper classes and functions for the accounts app
 """
 
 import decimal
+import datetime
 
 from django.db.models import Q
 
@@ -44,10 +45,7 @@ class AjaxChannel(object):
         """
         return self.model.objects.filter(pk__in=ids).order_by(self.field)
 
-    def get_autofill_fields(self):
-        """
-        Each key:value pair represents field_name_on_model:target_field_name
-        """
+    def generate_autofill(self, model_instance):
         return {}
 
 
@@ -56,14 +54,21 @@ class CustomerNameAjaxChannel(AjaxChannel):
         self.model = models.Customer
         self.field = "name"
 
+    def generate_autofill(self, model_instance):
+        now = datetime.date.today()
+        term = model_instance.default_payment_terms.days_until_invoice_due
+        term = datetime.timedelta(days=term)
+        date_due = now + term
+        return {"date_due": date_due}
+
 
 class ProductNameAjaxChannel(AjaxChannel):
     def __init__(self):
         self.model = models.ProductOrService
         self.field = "name"
 
-    def get_autofill_fields(self):
-        return {"price": "cost"}
+    def generate_autofill(self, model_instance):
+        return {"cost": model_instance.price}
 
 
 class InvoiceAjaxChannel(AjaxChannel):

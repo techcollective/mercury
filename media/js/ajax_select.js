@@ -12,11 +12,21 @@ function handleResult(event, ui){
     $("#" + input_id + "_clear").show();
     if ($(ui.item).attr("autofill") != undefined) {
         for (field in ui.item.autofill) {
-            replace = input_id;
-            replace = replace.split("-");
-            replace = replace.slice(0,-1);
-            replace.push(field);
-            replace = replace.join("-");
+            // this is to work with id's in inlines, which look like
+            // id_invoiceentry_set-0-item, and the target field will
+            // look like id_invoiceentry_set-0-cost.
+            split = "-"
+            replace = input_id.split(split);
+            if (replace.length == 1){
+                // this will deal with regular fields which look like
+                // id_customer
+                replace = "id_" + field
+            }
+            else {
+                replace = replace.slice(0,-1);
+                replace.push(field);
+                replace = replace.join(split);
+            }
             $("#" + replace).val(ui.item.autofill[field]);
         }
     }

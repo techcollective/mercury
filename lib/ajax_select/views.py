@@ -26,7 +26,6 @@ def ajax_lookup(request, channel):
     lookup_channel = get_lookup(channel)
 
     instances = lookup_channel.get_query(query, request)
-    autofill_fields = lookup_channel.get_autofill_fields()
 
     results = []
     for item in instances:
@@ -36,11 +35,7 @@ def ajax_lookup(request, channel):
                   "value": itemf,
                   "label": resultf,
                   }
-        autofill  = {}
-        for model_field in autofill_fields:
-            autofill.update(
-                {autofill_fields[model_field]: getattr(item, model_field)},
-                )
+        autofill  = lookup_channel.generate_autofill(item)
         if autofill:
             result.update({"autofill": autofill})
         results.append(result)
