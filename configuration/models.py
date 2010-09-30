@@ -3,6 +3,7 @@ from django.db import models
 from tinymce.models import HTMLField
 
 from mercury.configuration.exceptions import NoSuchSetting
+from mercury.helpers import get_changelist_url
 
 
 class PaymentType(models.Model):
@@ -15,6 +16,10 @@ class PaymentType(models.Model):
     def __unicode__(self):
         return self.name
 
+    def delete(self, *args, **kwargs):
+        num_payments = self.payment_set.exclude(deposit=None).count()
+        if num_payments != 0:
+            # fixme
 
 class InvoiceStatus(models.Model):
     status = models.CharField(max_length=50, unique=True)
