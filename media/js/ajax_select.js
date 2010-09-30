@@ -27,7 +27,14 @@ function handleResult(event, ui){
                 replace.push(field);
                 replace = replace.join(split);
             }
-            $("#" + replace).val(ui.item.autofill[field]);
+            replace = "#" + replace;
+            old_val = $(replace).val();
+            new_val = ui.item.autofill[field];
+            $(replace).val(new_val);
+            if (old_val != new_val){
+                $(replace).effect("highlight", {}, 1500);
+            }
+
         }
     }
 }
