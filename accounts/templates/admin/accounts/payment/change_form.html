@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+{{ block.super }}
+
+{% if add %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".form-row.deposit").remove();
+    });
+</script>
+{% endif %}
+{% endblock %}
