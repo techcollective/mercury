@@ -30,9 +30,9 @@ function handleResult(event, ui){
             replace = "#" + replace;
             old_val = $(replace).val();
             new_val = ui.item.autofill[field];
-            $(replace).val(new_val);
             if (old_val != new_val){
-                $(replace).effect("highlight", {}, 1500);
+                $(replace).val(new_val);
+                $(replace).effect("highlight", {}, 2000);
             }
 
         }
@@ -41,6 +41,8 @@ function handleResult(event, ui){
 
 function handleChange(event, ui){
     val_id = this.id + "_val";
+    // blank the input and hidden id fields if the value in the box
+    // is invalid (it should match the value it was originally set to)
     if($("#" + val_id).val() != $(this).val()){
         hidden_id = this.id + "_hidden";
         clear_id = this.id + "_clear";
