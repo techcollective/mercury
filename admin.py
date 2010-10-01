@@ -12,5 +12,5 @@ class MercuryAdmin(admin.ModelAdmin):
     list_per_page = get_items_per_page()
 
 
-class MercuryAjaxAdmin(AjaxSelectAdmin):
-    list_per_page = get_items_per_page()
+class MercuryAjaxAdmin(MercuryAdmin, AjaxSelectAdmin):
+    pass

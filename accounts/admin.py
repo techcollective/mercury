@@ -161,11 +161,6 @@ class InvoiceAdmin(MercuryAjaxAdmin):
         instance.update()
         instance.save()
 
-    def get_actions(self, *args, **kwargs):
-        actions = super(InvoiceAdmin, self).get_actions(*args, **kwargs)
-        actions['delete_selected'][0].short_description = "Delete selected invoices without re-adding items to stock"
-        return actions
-
 
 class QuoteAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
