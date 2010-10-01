@@ -5,9 +5,9 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 
-from mercury.configuration.models import (PaymentType,
-                                          InvoiceStatus,
-                                          InvoiceTerm)
+#from mercury.configuration.models import (PaymentType,
+#                                          InvoiceStatus,
+#                                          InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (model_to_dict,
                              refresh,
@@ -29,18 +29,17 @@ from mercury.helpers import (model_to_dict,
 from mercury.accounts.exceptions import DepositedPaymentsException
 
 
-def check_payments(obj, filter):
+def deposited_payments_error(obj, num_payments, query_string):
     """
-    Raises DepositedPaymentsException if any deposited payments match
-    the supplied filter. This is used by various models to restrict deletion
-    of instances with associated deposited payments. The filter should be
-    a dict with a single key:value pair.
+    Raises DepositedPaymentsException with the appropriate parameters.
     """
-    payments = Payment.objects.filter(**filter).exclude(deposit=None).count()
-    if payments != 0:
-        url = "=".join([str(x) for x in filter.items()[0]])
-        url = get_changelist_url(Payment) + "?" + url
-        #fixme
+    url = get_changelist_url(Payment) + "?" + query_string + "=%s" % obj.pk
+    message = "Can't delete: " + str(obj) + " is linked to"
+    if num_payments == 1:
+        message += " one deposited payment."
+    else:
+        message += " %s deposited payments." % num_payments
+    raise DepositedPaymentsException(message, url=url)
 
 
 class Customer(models.Model):
@@ -52,17 +51,20 @@ class Customer(models.Model):
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
     is_taxable = models.BooleanField(default=get_customer_taxable)
-    default_payment_terms = models.ForeignKey(InvoiceTerm,
+    default_payment_terms = models.ForeignKey("configuration.InvoiceTerm",
                                     default=get_or_create_default_invoice_term)
 
     def __unicode__(self):
         return self.name
 
     def delete(self, *args, **kwargs):
-        filter = {"invoice__customer__pk": self.pk}
-        # raise an exception if we have deposited payments
-        check_payments(self, filter)
-        super(Customer, self).delete(*args, **kwargs)
+        # prevent a delete that will cascade to deposited payments
+        payments = Payment.objects.filter(invoice__customer__pk=self.pk)
+        payments = payments.exclude(deposit=None).count()
+        if payments != 0:
+            deposited_payments_error(self, payments, "invoice__customer__pk")
+        else:
+            super(Customer, self).delete(*args, **kwargs)
 
 
 class ProductOrService(models.Model):
@@ -174,7 +176,7 @@ class Quote(QuoteInvoiceBase):
 
 
 class Invoice(QuoteInvoiceBase):
-    status = models.ForeignKey(InvoiceStatus,
+    status = models.ForeignKey("configuration.InvoiceStatus",
                                default=get_or_create_default_invoice_status)
     date_due = models.DateField(default=datetime.date.today)
 
@@ -196,14 +198,15 @@ class Invoice(QuoteInvoiceBase):
                 self.status = get_or_create_default_invoice_status()
 
     def delete(self, *args, **kwargs):
-        filter = {"invoice__pk": self.pk}
-        # raise an exception if we have deposited payments
-        check_payments(self, filter)
-
-        for entry in self.get_entries():
-            # this is done so that stock is updated
-            entry.delete()
-        super(Invoice, self).delete(*args, **kwargs)
+        # prevent a delete that will cascade to deposited payments
+        payments = self.payment_set.exclude(deposit=None).count()
+        if payments != 0:
+            deposited_payments_error(self, payments, "invoice__pk")
+        else:
+            for entry in self.get_entries():
+                # this is done so that stock is updated
+                entry.delete()
+            super(Invoice, self).delete(*args, **kwargs)
 
 
 class Entry(models.Model):
@@ -295,6 +298,7 @@ class Deposit(models.Model):
             super(Deposit, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        # don't delete associated payments, just set their deposit to None.
         self.payment_set.clear()
         super(Deposit, self).delete(*args, **kwargs)
 
@@ -310,7 +314,7 @@ class Deposit(models.Model):
 class Payment(models.Model):
     invoice = models.ForeignKey(Invoice)
     amount = CurrencyField()
-    payment_type = models.ForeignKey(PaymentType)
+    payment_type = models.ForeignKey("configuration.PaymentType")
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
@@ -328,7 +332,8 @@ class Payment(models.Model):
             message = "Can't delete: " + str(self) + " has been deposited."
             url = get_change_url(self)
             raise DepositedPaymentsException(message, url=url)
-        super(Payment, self).delete(*args, **kwargs)
+        else:
+            super(Payment, self).delete(*args, **kwargs)
 
     def clean(self):
         if hasattr(self,"payment_type"): # it doesn't on an empty form

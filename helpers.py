@@ -12,15 +12,6 @@ get_boolean_setting = Config.settings.get_boolean_setting
 get_integer_setting = Config.settings.get_integer_setting
 
 
-def deposited_payments_error(num_payments, obj, url):
-    message = "Can't delete: " + str(obj) + " is linked to"
-    if num_payments == 1:
-        message += " one deposited payment."
-    else:
-        message += " %s deposited payments." % num_payments
-    raise DepositedPaymentsException(message, url=url)
-
-
 def refresh(instance):
     """
     Returns the same model instance fresh from the DB.
