@@ -54,6 +54,12 @@ function handleChange(event, ui){
 }
 
 $(document).ready(function(){
+    // Mouseover effect for X
+    $(".ajax-clearfield img").hover(function(){
+        $(this).attr("src", "/media/img/deleteover.png");
+    }, function(){
+        $(this).attr("src", "/media/img/delete.png");
+    });
     // Clicking on X clears the input
     $("body").delegate(".ajax-clearfield", "click", function(){
         input_id = this.id;
