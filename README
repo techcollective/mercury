@@ -1,1 +1,1 @@
-You'll need to patch django 1.2.X with the django.diff file in the top level of the project.
+You'll need to patch django 1.2.X with the files in the patch directory.
