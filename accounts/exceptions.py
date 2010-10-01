@@ -21,7 +21,7 @@ class AccountsRedirect(AccountsException):
         try:
             self.url = kwargs["url"]
         except KeyError:
-            raise AccountsException("%s requires a URL" %
+            raise AccountsException("%s requires a URL keyword" %
                                     self.__class__.__name__)
         super(AccountsRedirect, self).__init__(*args)
 

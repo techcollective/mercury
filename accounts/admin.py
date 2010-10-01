@@ -220,17 +220,26 @@ class PaymentAdmin(MercuryAjaxAdmin):
     search_fields = ["invoice__customer__name", "amount"]
 
     def deposit(self, request, queryset):
-        already_deposited = queryset.filter(deposit__isnull=False)
+        already_deposited = queryset.exclude(deposit=None)
         count = already_deposited.count()
         if count > 0:
-            messages.warning(request, "One or more already deposited payments "
-                                      "were left unchanged")
-            queryset = queryset.filter(deposit__isnull=True)
+            if count == 1:
+                message = "One already deposited payment was left unchanged"
+            else:
+                message = ("%s already deposited payments were left "
+                           "unchanged" % count)
+            messages.warning(request, message)
+            queryset = queryset.filter(deposit=None)
         not_depositable = queryset.filter(payment_type__manage_deposits=False)
         count = not_depositable.count()
         if count > 0:
-            messages.warning(request, "One or more payments were ignored as "
-                                      "their type isn't depositable ")
+            if count == 1:
+                message = ("One payment was ignored as its type isn't "
+                          "depositable")
+            else:
+                message = ("%s payments were ignored as their types "
+                           "aren't depositable" % count)
+            messages.warning(request, message)
             queryset = queryset.exclude(payment_type__manage_deposits=False)
         count = queryset.count()
         if count > 0:
@@ -245,7 +254,8 @@ class PaymentAdmin(MercuryAjaxAdmin):
             else:
                 message = "%s payments were" % rows_updated
             message += " deposited successfully"
-            # save() again to update the deposit total field
+            # update the deposit total field
+            new_deposit.update_total()
             new_deposit.save()
             self.message_user(request, message)
         else:

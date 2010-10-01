@@ -26,7 +26,8 @@ from mercury.helpers import (model_to_dict,
                              get_fill_description,
                              get_negative_stock,
                              get_auto_invoice_status)
-from mercury.accounts.exceptions import DepositedPaymentsException
+from mercury.accounts.exceptions import (DepositedPaymentsException,
+                                         AccountsException)
 
 
 class Customer(models.Model):
@@ -146,11 +147,12 @@ class Quote(QuoteInvoiceBase):
         return self.quoteentry_set.all()
 
     def create_invoice(self):
+        from mercury.accounts.helpers import get_date_due
         new_invoice = Invoice()
         fields = [f.name for f in self._meta.fields if f.name != "id"]
         for field in fields:
             setattr(new_invoice, field, getattr(self, field))
-        # todo: date_due can be set based on customer terms
+        new_invoice.date_due = get_date_due(self.customer)
         new_invoice.save()
         entries = self.get_entries()
         for entry in entries:
@@ -266,16 +268,11 @@ class Deposit(models.Model):
     total = CurrencyField(default=0, read_only=True)
     comment = models.CharField(max_length=200, blank=True)
 
-    def save(self, *args, **kwargs):
-        # payment_set on new unsaved instances returns all payments with no
-        # deposit, so save first in this case
-        if not self.pk:
-            super(Deposit, self).save(*args, **kwargs)
+    def update_total(self):
         total = self.payment_set.all().aggregate(
                                          total=models.Sum("amount"))["total"]
         if total:
             self.total = total
-            super(Deposit, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         # don't delete associated payments, just set their deposit to None.
@@ -293,19 +290,21 @@ class Deposit(models.Model):
 
 class Payment(models.Model):
     invoice = models.ForeignKey(Invoice,
-                                help_text="Note that only unpaid invoices "
-                                "appear here.")
+                                help_text="Note that only unpaid invoices are "
+                                "searchable here.<br/>You can search by "
+                                "invoice number, total, and customer name.")
     amount = CurrencyField()
     payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
-    comment = models.CharField(max_length=200, blank=True, help_text="hello")
+    comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super(Payment, self).save(*args, **kwargs)
         if self.deposit:
-            # call save() on deposit to update total
+            # update deposit total
+            self.deposit.update_total()
             self.deposit.save()
         self.invoice.update_status()
         self.invoice.save()
@@ -343,8 +342,13 @@ class Payment(models.Model):
 def payment_presave(**kwargs):
     instance = kwargs["instance"]
     if instance.pk:
-        print "editing payment"
-    else:
-        print "new payment"
+        original = Payment.objects.get(pk=instance.pk)
+        if original.deposit:
+            if instance.deposit:
+                raise AccountsException("Deposited payments can't be edited.")
+            else:
+                deposit = original.deposit
+                deposit.total -= original.amount
+                deposit.save()
 
 models.signals.pre_save.connect(payment_presave, sender=Payment)

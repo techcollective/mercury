@@ -11,6 +11,14 @@ from mercury.accounts import models
 from mercury.helpers import get_or_create_paid_invoice_status
 
 
+def get_date_due(customer):
+    now = datetime.date.today()
+    term = customer.default_payment_terms.days_until_invoice_due
+    term = datetime.timedelta(days=term)
+    date_due = now + term
+    return date_due
+
+
 class AjaxChannel(object):
     def __init__(self, model, field):
         """
@@ -55,11 +63,7 @@ class CustomerNameAjaxChannel(AjaxChannel):
         self.field = "name"
 
     def generate_autofill(self, model_instance):
-        now = datetime.date.today()
-        term = model_instance.default_payment_terms.days_until_invoice_due
-        term = datetime.timedelta(days=term)
-        date_due = now + term
-        return {"date_due": date_due}
+        return {"date_due": get_date_due(model_instance)}
 
 
 class ProductNameAjaxChannel(AjaxChannel):
