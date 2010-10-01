@@ -11,8 +11,8 @@ from mercury.configuration.models import (PaymentType,
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (model_to_dict,
                              refresh,
+                             check_deposited_payments,
                              get_change_url,
-                             get_changelist_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
@@ -27,19 +27,6 @@ from mercury.helpers import (model_to_dict,
                              get_negative_stock,
                              get_auto_invoice_status)
 from mercury.accounts.exceptions import DepositedPaymentsException
-
-
-def deposited_payments_error(obj, num_payments, query_string):
-    """
-    Raises DepositedPaymentsException with the appropriate parameters.
-    """
-    url = get_changelist_url(Payment) + "?" + query_string + "=%s" % obj.pk
-    message = "Can't delete: " + str(obj) + " is linked to"
-    if num_payments == 1:
-        message += " one deposited payment."
-    else:
-        message += " %s deposited payments." % num_payments
-    raise DepositedPaymentsException(message, url=url)
 
 
 class Customer(models.Model):
@@ -59,12 +46,8 @@ class Customer(models.Model):
 
     def delete(self, *args, **kwargs):
         # prevent a delete that will cascade to deposited payments
-        payments = Payment.objects.filter(invoice__customer__pk=self.pk)
-        payments = payments.exclude(deposit=None).count()
-        if payments != 0:
-            deposited_payments_error(self, payments, "invoice__customer__pk")
-        else:
-            super(Customer, self).delete(*args, **kwargs)
+        check_deposited_payments(self, "invoice__customer__pk")
+        super(Customer, self).delete(*args, **kwargs)
 
 
 class ProductOrService(models.Model):
@@ -199,14 +182,11 @@ class Invoice(QuoteInvoiceBase):
 
     def delete(self, *args, **kwargs):
         # prevent a delete that will cascade to deposited payments
-        payments = self.payment_set.exclude(deposit=None).count()
-        if payments != 0:
-            deposited_payments_error(self, payments, "invoice__pk")
-        else:
-            for entry in self.get_entries():
-                # this is done so that stock is updated
-                entry.delete()
-            super(Invoice, self).delete(*args, **kwargs)
+        check_deposited_payments(self, "invoice__pk")
+        for entry in self.get_entries():
+            # this is done so that stock is updated
+            entry.delete()
+        super(Invoice, self).delete(*args, **kwargs)
 
 
 class Entry(models.Model):
@@ -312,11 +292,13 @@ class Deposit(models.Model):
 
 
 class Payment(models.Model):
-    invoice = models.ForeignKey(Invoice)
+    invoice = models.ForeignKey(Invoice,
+                                help_text="Note that only unpaid invoices "
+                                "appear here.")
     amount = CurrencyField()
     payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
-    comment = models.CharField(max_length=200, blank=True)
+    comment = models.CharField(max_length=200, blank=True, help_text="hello")
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -330,7 +312,7 @@ class Payment(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.deposit:
-            message = "Can't delete: " + str(self) + " has been deposited."
+            message = "Can't delete deposited payment " + str(self)
             url = get_change_url(self)
             raise DepositedPaymentsException(message, url=url)
         else:
@@ -356,3 +338,13 @@ class Payment(models.Model):
 
     class Meta:
         ordering = ["-date_received"]
+
+
+def payment_presave(**kwargs):
+    instance = kwargs["instance"]
+    if instance.pk:
+        print "editing payment"
+    else:
+        print "new payment"
+
+models.signals.pre_save.connect(payment_presave, sender=Payment)

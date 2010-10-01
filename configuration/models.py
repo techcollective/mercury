@@ -16,10 +16,9 @@ class PaymentType(models.Model):
         return self.name
 
     def delete(self, *args, **kwargs):
-        num_payments = self.payment_set.exclude(deposit=None).count()
-        if num_payments != 0:
-            from mercury.accounts.models import deposited_payments_error
-            deposited_payments_error(self, num_payments, "payment_type__pk")
+        from mercury.helpers import check_deposited_payments
+        check_deposited_payments(self, "payment_type__pk")
+        super(PaymentType, self).delete(*args, **kwargs)
 
 
 class InvoiceStatus(models.Model):
@@ -31,6 +30,11 @@ class InvoiceStatus(models.Model):
     def __unicode__(self):
         return self.status
 
+    def delete(self, *args, **kwargs):
+        from mercury.helpers import check_deposited_payments
+        check_deposited_payments(self, "invoice__status__pk")
+        super(InvoiceStatus, self).delete(*args, **kwargs)
+
 
 class InvoiceTerm(models.Model):
     days_until_invoice_due = models.PositiveIntegerField(default=0, unique=True)
@@ -41,6 +45,11 @@ class InvoiceTerm(models.Model):
         else:
             name = "Payment due on receipt"
         return name
+    def delete(self, *args, **kwargs):
+        from mercury.helpers import check_deposited_payments
+        check_deposited_payments(self,
+                                "invoice__customer__default_payment_terms__pk")
+        super(InvoiceTerm, self).delete(*args, **kwargs)
 
 
 class Template(models.Model):

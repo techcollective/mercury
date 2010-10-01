@@ -43,7 +43,7 @@ def make_ajax_form(model,fieldlist,superclass=ModelForm):
         if isinstance(field,ManyToManyField):
             f = AutoCompleteSelectMultipleField(channel,required=not field.blank)
         elif isinstance(field,ForeignKey):
-            f = AutoCompleteSelectField(channel,required=not field.blank, label=capfirst(field.verbose_name))
+            f = AutoCompleteSelectField(channel,required=not field.blank, label=capfirst(field.verbose_name), help_text=field.help_text)
         else:
             f = AutoCompleteField(channel, required=not field.blank, label=capfirst(field.verbose_name))
 

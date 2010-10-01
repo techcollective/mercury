@@ -12,6 +12,24 @@ get_boolean_setting = Config.settings.get_boolean_setting
 get_integer_setting = Config.settings.get_integer_setting
 
 
+def check_deposited_payments(obj, field_lookup):
+    """
+    Checks if applying field_lookup to the Payment model returns any deposited
+    payments. If so, it raises DepositedPaymentsException.
+    """
+    from mercury.accounts.models import Payment
+    filter = {field_lookup: obj.pk}
+    num_payments = Payment.filter(**filter).exclude(deposite=None).count()
+    if num_payments != 0:
+        url = get_changelist_url(Payment) + "?" + field_lookup + "=%s" % obj.pk
+        message = "Can't delete: " + str(obj) + " is linked to"
+        if num_payments == 1:
+            message += " one deposited payment."
+        else:
+            message += " %s deposited payments." % num_payments
+        raise DepositedPaymentsException(message, url=url)
+
+
 def refresh(instance):
     """
     Returns the same model instance fresh from the DB.
