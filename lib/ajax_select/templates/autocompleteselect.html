@@ -1,10 +1,9 @@
 {% load i18n %}
 <input class="ajax-input" type="text" name="{{ name }}_text" id="{{html_id}}" value="{{ current_result }}" {{ extra_attrs }} />
-<a id="{{ html_id }}_clear" href="javascript:void(0)" class="ajax-clearfield"><div><span>Clear</span></div></a>
+<a href="javascript:void(0)" class="ajax-clearfield"><img src="{{ media_url }}img/delete.png"></a>
 {% if add_link %}
     <a href="{{ add_link }}" class="add-another" id="add_{{ html_id }}" onclick="return showAddAnotherPopup(this);"> <img src="{{ admin_media_prefix }}img/admin/icon_addlink.gif" width="10" height="10" alt="Add Another"></a>
 {% endif %}
-{% block help %}{# {% if help_text %}<p class="help">{{help_text}}</p>{% endif %} #}{% endblock %}
 <input type="hidden" name="{{ name }}" id="{{ html_id }}_hidden" value="{{ current_id }}" />
 <input type="hidden" name="{{ name }}_val" id="{{ html_id }}_val" value="{{ current_result }}" />
 <script type="text/javascript">
