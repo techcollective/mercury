@@ -5,9 +5,9 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 
-#from mercury.configuration.models import (PaymentType,
-#                                          InvoiceStatus,
-#                                          InvoiceTerm)
+from mercury.configuration.models import (PaymentType,
+                                          InvoiceStatus,
+                                          InvoiceTerm)
 from mercury.accounts.fields import CurrencyField
 from mercury.helpers import (model_to_dict,
                              refresh,
@@ -51,7 +51,7 @@ class Customer(models.Model):
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
     is_taxable = models.BooleanField(default=get_customer_taxable)
-    default_payment_terms = models.ForeignKey("configuration.InvoiceTerm",
+    default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
 
     def __unicode__(self):
@@ -176,7 +176,7 @@ class Quote(QuoteInvoiceBase):
 
 
 class Invoice(QuoteInvoiceBase):
-    status = models.ForeignKey("configuration.InvoiceStatus",
+    status = models.ForeignKey(InvoiceStatus,
                                default=get_or_create_default_invoice_status)
     date_due = models.DateField(default=datetime.date.today)
 
@@ -314,12 +314,13 @@ class Deposit(models.Model):
 class Payment(models.Model):
     invoice = models.ForeignKey(Invoice)
     amount = CurrencyField()
-    payment_type = models.ForeignKey("configuration.PaymentType")
+    payment_type = models.ForeignKey(PaymentType)
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        self.full_clean()
         super(Payment, self).save(*args, **kwargs)
         if self.deposit:
             # call save() on deposit to update total
