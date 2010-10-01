@@ -263,11 +263,6 @@ class PaymentAdmin(MercuryAjaxAdmin):
                                       "selected payments were depositable")
     deposit.short_description = "Deposit selected payments"
 
-    def get_actions(self, *args, **kwargs):
-        actions = super(PaymentAdmin, self).get_actions(*args, **kwargs)
-        del actions['delete_selected']
-        return actions
-
 
 # Registration
 
