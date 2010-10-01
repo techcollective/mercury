@@ -2,6 +2,7 @@ import decimal
 
 from django.db.models import ForeignKey
 from django.core.urlresolvers import reverse
+from django.utils.text import capfirst
 
 from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
 from mercury.accounts.exceptions import DepositedPaymentsException
@@ -19,10 +20,12 @@ def check_deposited_payments(obj, field_lookup):
     """
     from mercury.accounts.models import Payment
     filter = {field_lookup: obj.pk}
-    num_payments = Payment.filter(**filter).exclude(deposite=None).count()
+    num_payments = Payment.objects.filter(**filter).exclude(
+                                                        deposit=None).count()
     if num_payments != 0:
         url = get_changelist_url(Payment) + "?" + field_lookup + "=%s" % obj.pk
-        message = "Can't delete: " + str(obj) + " is linked to"
+        message = ("Can't delete: " + capfirst(obj._meta.verbose_name) + " \""
+                   + str(obj) + "\" is linked to")
         if num_payments == 1:
             message += " one deposited payment."
         else:

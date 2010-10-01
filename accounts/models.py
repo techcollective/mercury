@@ -311,7 +311,7 @@ class Payment(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.deposit:
-            message = "Can't delete deposited payment " + str(self)
+            message = "Can't delete: " + str(self) + " has been deposited"
             url = get_change_url(self)
             raise DepositedPaymentsException(message, url=url)
         else:
@@ -320,8 +320,9 @@ class Payment(models.Model):
     def clean(self):
         if hasattr(self,"payment_type"): # it doesn't on an empty form
             if not self.payment_type.manage_deposits and self.deposit:
-                message = "The payment type '%s' isn't " % str(self.payment_type)
-                message += "depositable, so this payment can't belong to a deposit"
+                message = ("The payment type '%s' isn't depositable, so this "
+                           "payment can't belong to a deposit"
+                           % str(self.payment_type))
                 raise ValidationError(message)
 
     def get_change_url(self):
