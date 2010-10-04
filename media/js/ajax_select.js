@@ -49,6 +49,7 @@ function handleChange(event, ui){
         $(this).val("");
         $(this).change();
         $("#" + hidden_id).val("");
+        $("#" + val_id).val("");
         $("#" + clear_id).hide();
     }
 }
