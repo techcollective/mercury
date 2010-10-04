@@ -343,10 +343,13 @@ class Payment(models.Model):
 def payment_presave(**kwargs):
     instance = kwargs["instance"]
     if instance.pk:
+        # an existing payment is being edited
         original = Payment.objects.get(pk=instance.pk)
         if original.deposit:
             if instance.deposit:
-                raise AccountsException("Deposited payments can't be edited.")
+                raise AccountsException("Deposited payments can't be edited. "
+                                        "The deposit must be removed from "
+                                        "the payment to make it editable.")
             else:
                 deposit = original.deposit
                 deposit.total -= original.amount
