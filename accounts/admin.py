@@ -262,7 +262,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
 # Registration
 
 admin.site.register(Customer, CustomerAdmin)
-admin.site.register(ProductOrService)
+admin.site.register(ProductOrService, MercuryAdmin)
 admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(Quote, QuoteAdmin)
 admin.site.register(Payment, PaymentAdmin)

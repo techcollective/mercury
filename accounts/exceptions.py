@@ -2,7 +2,7 @@
 Exception classes for accounts app
 """
 
-from mercury.exceptions import MercuryException
+from mercury.exceptions import MercuryException, RedirectException
 
 
 class AccountsException(MercuryException):
@@ -12,18 +12,11 @@ class AccountsException(MercuryException):
     pass
 
 
-class AccountsRedirect(AccountsException):
+class AccountsRedirect(RedirectException, AccountsException):
     """
     An exception that contains a URL that the current request
     should be redirected to.
     """
-    def __init__(self, *args, **kwargs):
-        try:
-            self.url = kwargs["url"]
-        except KeyError:
-            raise AccountsException("%s requires a URL keyword" %
-                                    self.__class__.__name__)
-        super(AccountsRedirect, self).__init__(*args)
 
 
 class ObjectNotFound(AccountsException):

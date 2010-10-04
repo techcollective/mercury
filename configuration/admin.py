@@ -9,12 +9,16 @@ from mercury.configuration.models import (PaymentType,
 from mercury.admin import MercuryAdmin
 
 
+
+
 class ConfigAdmin(MercuryAdmin):
     search_fields = ["name"]
 
 
-admin.site.register(PaymentType)
-admin.site.register(InvoiceStatus)
-admin.site.register(InvoiceTerm)
-admin.site.register(Template)
+# All models must have MercuryAdmin (or subclasses) ModelAdmins
+# so that global list_per_page and other functionality works.
+admin.site.register(PaymentType, MercuryAdmin)
+admin.site.register(InvoiceStatus, MercuryAdmin)
+admin.site.register(InvoiceTerm, MercuryAdmin)
+admin.site.register(Template, MercuryAdmin)
 admin.site.register(Config, ConfigAdmin)
