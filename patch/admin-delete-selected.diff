@@ -1,0 +1,27 @@
+Index: django/contrib/admin/actions.py
+===================================================================
+--- django/contrib/admin/actions.py	(revision 13975)
++++ django/contrib/admin/actions.py	(working copy)
+@@ -41,10 +41,18 @@
+             raise PermissionDenied
+         n = queryset.count()
+         if n:
+-            for obj in queryset:
+-                obj_display = force_unicode(obj)
+-                modeladmin.log_deletion(request, obj, obj_display)
+-            queryset.delete()
++            qs_delete = getattr(modeladmin, "qs_delete", True)
++            if qs_delete:
++                for obj in queryset:
++                    obj_display = force_unicode(obj)
++                    modeladmin.log_deletion(request, obj.pk, obj_display)
++                queryset.delete()
++            else:
++                for obj in queryset:
++                    obj_display = force_unicode(obj)
++                    obj_pk = obj.pk
++                    obj.delete()
++                    modeladmin.log_deletion(request, obj_pk, obj_display)
+             modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
+                 "count": n, "items": model_ngettext(modeladmin.opts, n)
+             })

@@ -91,8 +91,11 @@ class CustomFilterSpec(FilterSpec):
 
     def choices(self, cl):
         selected = [v for v in self.links.values() if self.params.has_key(v)]
+        yield {'selected': selected == [],
+               'query_string': cl.get_query_string({}, selected),
+               'display': 'All'}
         for title, key in self.links.items():
-            yield {'selected': self.params.has_key(key),
+            yield {'selected':  self.params.has_key(key),
                    'query_string': cl.get_query_string({key:1}, selected),
                    'display': title}
 
@@ -101,7 +104,6 @@ class PaidFilterSpec(CustomFilterSpec):
     def __init__(self, request, params, model, model_admin):
         super(PaidFilterSpec, self).__init__(request, params, model, model_admin)
         self.links = SortedDict((
-            ('All', 'all'),
             ('Unpaid', 'unpaid'),
             ('Unpaid and Overdue', 'unpaid_overdue'),
         ))
@@ -123,7 +125,6 @@ class DepositedFilterSpec(CustomFilterSpec):
     def __init__(self, request, params, model, model_admin):
         super(DepositedFilterSpec, self).__init__(request, params, model, model_admin)
         self.links = SortedDict((
-            ('All', 'all'),
             ('Deposited', 'deposited'),
             ('Undeposited', 'undeposited'),
         ))

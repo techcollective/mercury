@@ -71,6 +71,8 @@ class ProductOrService(models.Model):
         verbose_name_plural = "Products and services"
 
 
+# todo: add help_text to description if autofill is enabled
+
 class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
