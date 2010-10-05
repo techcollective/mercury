@@ -35,17 +35,3 @@ Index: django/contrib/admin/options.py
 +            self.log_deletion(request, obj_pk, obj_display)
  
              self.message_user(request, _('The %(name)s "%(obj)s" was deleted successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj_display)})
- 
-Index: django/contrib/admin/actions.py
-===================================================================
---- django/contrib/admin/actions.py	(revision 13975)
-+++ django/contrib/admin/actions.py	(working copy)
-@@ -43,7 +43,7 @@
-         if n:
-             for obj in queryset:
-                 obj_display = force_unicode(obj)
--                modeladmin.log_deletion(request, obj, obj_display)
-+                modeladmin.log_deletion(request, obj.pk, obj_display)
-             queryset.delete()
-             modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
-                 "count": n, "items": model_ngettext(modeladmin.opts, n)
