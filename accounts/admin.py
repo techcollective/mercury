@@ -259,10 +259,14 @@ class PaymentAdmin(MercuryAjaxAdmin):
     deposit.short_description = "Deposit selected payments"
 
 
+class ProductOrServiceAdmin(MercuryAdmin):
+    list_display = ["name", "price", "number_in_stock", "manage_stock",
+                    "is_taxable"]
+
 # Registration
 
 admin.site.register(Customer, CustomerAdmin)
-admin.site.register(ProductOrService, MercuryAdmin)
+admin.site.register(ProductOrService, ProductOrServiceAdmin)
 admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(Quote, QuoteAdmin)
 admin.site.register(Payment, PaymentAdmin)

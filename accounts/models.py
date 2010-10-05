@@ -190,6 +190,8 @@ class Invoice(QuoteInvoiceBase):
             entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
 
+    #def format_delete_cascade()
+
 
 class Entry(models.Model):
     item = models.ForeignKey(ProductOrService)
