@@ -1,0 +1,32 @@
+Index: django/contrib/admin/util.py
+===================================================================
+--- django/contrib/admin/util.py	(revision 13984)
++++ django/contrib/admin/util.py	(working copy)
+@@ -184,16 +184,24 @@
+                 self.children.setdefault(parent_key, list()).append(key)
+                 self.parents.setdefault(key, parent_key)
+ 
+-    def _nested(self, key, format_callback=None, **kwargs):
++    def _nested(self, key, format_callback=None, ignore=None, **kwargs):
++        ignore = ignore or ()
++        model = key[0]
++        modeladmin = kwargs["admin_site"]._registry.get(model, None)
++        next_ignore = ()
++        if modeladmin:
++            next_ignore = tuple(getattr(modeladmin, "hide_delete_warning", []))
+         obj = self.seen[key]
+-        if format_callback:
++        if isinstance(obj, ignore):
++            ret = []
++        elif format_callback:
+             ret = [format_callback(obj, **kwargs)]
+         else:
+             ret = [obj]
+ 
+         children = []
+         for child in self.children.get(key, ()):
+-            children.extend(self._nested(child, format_callback, **kwargs))
++            children.extend(self._nested(child, format_callback, next_ignore, **kwargs))
+         if children:
+             ret.append(children)
+ 

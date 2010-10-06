@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
+from mercury.accounts.models import Entry
 
 from ajax_select.admin import AjaxSelectAdmin
 
@@ -27,7 +28,6 @@ def handle_exception(request, mercury_exception):
 class MercuryAdmin(admin.ModelAdmin):
     list_per_page = get_items_per_page()
     qs_delete = False
-
     actions = ["delete_selected_wrapper"]
 
     def delete_view(self, *args, **kwargs):

@@ -232,6 +232,11 @@ class InvoiceEntry(Entry):
             item.save()
         super(InvoiceEntry, self).delete(*args, **kwargs)
 
+    def __unicode__(self):
+        result = super(InvoiceEntry, self).__unicode__()
+        result += " (on %s)" % str(self.invoice)
+        return result
+
 
 def stock_callback(sender, **kwargs):
     new_instance = kwargs["instance"]
@@ -265,6 +270,11 @@ class QuoteEntry(Entry):
             setattr(new_invoice_entry, field, getattr(self, field))
         new_invoice_entry.invoice = invoice
         new_invoice_entry.save()
+
+    def __unicode__(self):
+        result = super(QuoteEntry, self).__unicode__()
+        result += " (on %s)" % str(self.quote)
+        return result
 
 
 class Deposit(models.Model):

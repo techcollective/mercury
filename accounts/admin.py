@@ -152,6 +152,7 @@ class InvoiceAdmin(MercuryAjaxAdmin):
                                     "status", "description"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
+    hide_delete_warning = (InvoiceEntry,)
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
     list_display = ["get_number", "description", "customer", "status", "grand_total", "date_created", "date_due"]
@@ -170,6 +171,7 @@ class QuoteAdmin(MercuryAjaxAdmin):
         ("Information", {"fields": ["customer", "date_created", "description"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
+    hide_delete_warning = (QuoteEntry,)
     inlines = [QuoteEntryInline]
     date_hierarchy = "date_created"
     list_display = ["get_number", "description", "customer", "grand_total", "date_created"]
@@ -199,12 +201,9 @@ class CustomerAdmin(MercuryAdmin):
         return super(CustomerAdmin, self).change_view(*args, **kwargs)
 
 
-
 class DepositAdmin(MercuryAdmin):
     inlines = [DepositPaymentInline]
-
-    def merge_deposits(self, request, queryset):
-        pass
+    hide_delete_warning = (Payment,)
 
 
 class PaymentAdmin(MercuryAjaxAdmin):
