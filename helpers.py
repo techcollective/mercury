@@ -16,7 +16,8 @@ get_integer_setting = Config.settings.get_integer_setting
 def check_deposited_payments(obj, field_lookup):
     """
     Checks if applying field_lookup to the Payment model returns any deposited
-    payments. If so, it raises DepositedPaymentsException.
+    payments. If so, it raises a DepositedPaymentsException that points to
+    a changelist page of the offending payments.
     """
     from mercury.accounts.models import Payment
     filter = {field_lookup: obj.pk}
