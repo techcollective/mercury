@@ -1,7 +1,6 @@
 import os
 import sys
 import site
-import django.core.handlers.wsgi
 
 # the deployment assumes the following directory structure:
 # virtualenv-directory (any name is OK)
@@ -25,4 +24,7 @@ site.addsitedir(os.path.abspath(
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mercury.settings_production'
 
+# The import has to be down here because the virtualenv path has to be added
+# before the import will work.
+import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
