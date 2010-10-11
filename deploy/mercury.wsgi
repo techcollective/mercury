@@ -15,7 +15,7 @@ import django.core.handlers.wsgi
 
 # add mercury to sys.path
 sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../")))
+    os.path.join(os.path.dirname(__file__), "../../")))
 
 # add mercury's virtualenv
 python_version = ".".join([str(x) for x in sys.version_info[0:2]])
