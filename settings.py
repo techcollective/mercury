@@ -26,8 +26,15 @@ DATABASES = {
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    },
+    'vtiger': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vtiger',
+        'USER': 'vtiger'
     }
 }
+
+DATABASE_ROUTERS = ['mercury.vtiger.router.VtigerRouter']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -105,6 +112,7 @@ INSTALLED_APPS = [
     'tinymce',
     'mercury.configuration',
     'mercury.accounts',
+    'mercury.vtiger',
 ]
 
 if DEBUG:
@@ -119,14 +127,16 @@ AJAX_LOOKUP_CHANNELS = {
 del mod
 
 TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
-                          "plugins": "table",
+                          "plugins": "table, fullpage",
                           "relative_urls": False,
                           "theme_advanced_toolbar_location": "top",
                           "theme_advanced_disable": "styleselect,help",
                           "theme_advanced_buttons1_add": "backcolor",
-                          "theme_advanced_buttons3_add": "tablecontrols",
+                          "theme_advanced_buttons3_add": "tablecontrols,fullpage",
                           "force_p_newlines": False,
                           "forced_root_block": "",
+                          "width": "700px",
+                          "height": "500px",
                           }
 
 LOGIN_URL = "/"

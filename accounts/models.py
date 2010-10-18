@@ -53,16 +53,24 @@ class Customer(models.Model):
 
 class ProductOrService(models.Model):
     name = models.CharField(max_length=50)
-    price = CurrencyField()
-    number_in_stock = models.IntegerField(default=0)
+    price = CurrencyField(null=True, blank=True)
+    number_in_stock = models.IntegerField(null=True, blank=True)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
 
     def save(self, *args, **kwargs):
-        allow_negative = get_negative_stock()
-        if not allow_negative and self.number_in_stock < 0:
-            self.number_in_stock = 0
+        self.full_clean()
+        if self.number_in_stock is not None:
+            allow_negative = get_negative_stock()
+            if not allow_negative and self.number_in_stock < 0:
+                self.number_in_stock = 0
         super(ProductOrService, self).save(*args, **kwargs)
+
+    def clean(self):
+        if self.manage_stock and (self.number_in_stock is None):
+            raise ValidationError("Number in stock must be set when managing "
+                                  "stock. Please enter a number or switch "
+                                  "stock management off for this item.")
 
     def __unicode__(self):
         return self.name
@@ -191,8 +199,6 @@ class Invoice(QuoteInvoiceBase):
             # this is done so that stock is updated
             entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
-
-    #def format_delete_cascade()
 
 
 class Entry(models.Model):

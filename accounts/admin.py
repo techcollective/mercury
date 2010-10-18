@@ -185,6 +185,7 @@ class QuoteAdmin(MercuryAjaxAdmin):
 class CustomerAdmin(MercuryAdmin):
     inlines = [CustomerInvoiceInline]
     search_fields = ["name", "phone_number"]
+    list_display = ["name", "phone_number", "email_address", "is_taxable"]
     fieldsets = [
         (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),

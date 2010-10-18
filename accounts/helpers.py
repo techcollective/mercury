@@ -8,7 +8,8 @@ import datetime
 from django.db.models import Q
 
 from mercury.accounts import models
-from mercury.helpers import get_or_create_paid_invoice_status
+from mercury.helpers import (get_or_create_paid_invoice_status,
+                             get_autocomplete_limit)
 
 
 def get_date_due(customer):
@@ -28,12 +29,16 @@ class AjaxChannel(object):
         self.model = model
         self.field = field
 
-    def get_query(self, q, request):
+    def _get_queryset(self, q, request):
         """
         Return a QuerySet searching for the query string q
         """
         kwargs = {"%s__icontains" % self.field: q}
         return self.model.objects.filter(**kwargs).order_by(self.field)
+
+    def get_query(self, q, request):
+        max_num = get_autocomplete_limit()
+        return self._get_queryset(q, request)[:max_num]
 
     def format_item(self, obj):
         """
@@ -80,7 +85,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         self.model = models.Invoice
         self.field = "pk"
 
-    def get_query(self, q, request):
+    def _get_queryset(self, q, request):
         filter = Q()
 
         # search for invoice number if q is an int

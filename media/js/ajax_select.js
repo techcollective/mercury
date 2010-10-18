@@ -30,11 +30,13 @@ function handleResult(event, ui){
             replace = "#" + replace;
             old_val = $(replace).val();
             new_val = ui.item.autofill[field];
+            if (new_val === null){
+                new_val = "";
+            }
             if (old_val != new_val){
                 $(replace).val(new_val);
                 $(replace).effect("highlight", {}, 2000);
             }
-
         }
     }
 }

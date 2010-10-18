@@ -20,7 +20,7 @@ from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
-                             get_template_name)
+                             get_template_name, get_pdf_as_attachment)
 
 
 class TemplateLoader(object):
@@ -101,12 +101,10 @@ def generate_response(request, render_class, args, mimetype=None):
         messages.error(request, str(e))
         response = HttpResponseRedirect(e.url)
     else:
-        if mimetype:
+        response = HttpResponse(result, mimetype=mimetype)
+        if get_pdf_as_attachment():
             header = 'attachment; filename="%s"' % renderer.filename
-            response = HttpResponse(result, mimetype=mimetype)
             response["Content-Disposition"] = header
-        else:
-            response = HttpResponse(result)
     return response
 
 

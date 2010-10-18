@@ -71,18 +71,13 @@ class ConfigManager(models.Manager):
         Raises NoSuchSetting if the setting is missing and the 'default' arg
         is not supplied.
         """
-        default = None
-        raise_exception = True
-        if "default" in kwargs:
-            default = kwargs["default"]
-            raise_exception = False
         try:
             value = self.get(name=setting_name).value
         except Config.DoesNotExist:
-            if raise_exception:
-                raise NoSuchSetting(setting_name)
+            if "default" in kwargs:
+                return kwargs["default"]
             else:
-                value = default
+                raise NoSuchSetting(setting_name)
         return value
 
     def get_boolean_setting(self, setting_name, **kwargs):
@@ -108,9 +103,8 @@ class ConfigManager(models.Manager):
         Raises NoSuchSetting if the setting is missing and 'default' arg
         is not supplied.
         """
-        value = self.get_setting(setting_name)
         try:
-            value = int(value)
+            value = int(self.get_setting(setting_name, **kwargs))
         except (ValueError, TypeError):
             if "default" in kwargs:
                 value = kwargs["default"]

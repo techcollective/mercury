@@ -257,5 +257,13 @@
             "name": "list items per page (requires restart)",
             "value": "50"
         }
+    },
+    {
+        "pk": 22,
+        "model": "configuration.config",
+        "fields": {
+            "name": "send pdf files as downloads",
+            "value": "false"
+        }
     }
 ]

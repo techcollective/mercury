@@ -175,3 +175,12 @@ def get_template_name(entity):
 def get_items_per_page():
     return get_integer_setting("list items per page (requires restart)",
                                default=50)
+
+
+def get_pdf_as_attachment():
+    return get_boolean_setting("send pdf files as downloads", default=False)
+
+
+def get_autocomplete_limit():
+    return get_integer_setting("maximum number of autocomplete"
+                               " matches to list", default=20)
