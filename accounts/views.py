@@ -22,7 +22,8 @@ from mercury.configuration.models import Config, Template
 from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
-                             get_template_name, get_pdf_as_attachment)
+                             get_template_name, get_pdf_as_attachment,
+                             get_invoice_rows)
 
 
 def fetch_resources(uri, rel):
@@ -89,7 +90,7 @@ class HtmlRenderer(object):
         data["terms"] = self.terms.render(Context())
         if hasattr(self.instance, "payment_set"):
             data["payments"] = self.instance.payment_set.all()
-        data["pad_rows"] = xrange(3)
+        data["pad_rows"] = xrange(get_invoice_rows() - len(data["entries"]))
         return Context(data)
 
 
@@ -134,7 +135,6 @@ def quote_to_html(request, quote_id):
     return response
 
 
-# todo: mimetype is a stupid way to decide if it should be an attachment
 def invoice_to_pdf(request, invoice_id):
     response = generate_response(request, PdfRenderer, [Invoice, invoice_id],
                                  mimetype="application/pdf")

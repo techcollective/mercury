@@ -184,3 +184,8 @@ def get_pdf_as_attachment():
 def get_autocomplete_limit():
     return get_integer_setting("maximum number of autocomplete"
                                " matches to list", default=20)
+
+
+def get_invoice_rows():
+    return get_integer_setting("minimum number of rows in quote or invoice "
+                               "PDF table", default=15)
