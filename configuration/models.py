@@ -1,7 +1,5 @@
 from django.db import models
 
-from tinymce.models import HTMLField
-
 from mercury.configuration.exceptions import NoSuchSetting
 
 
@@ -54,10 +52,10 @@ class InvoiceTerm(models.Model):
 
 class Template(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    template = HTMLField(help_text="The invoice template is " +
-                                   "processed using the django template " +
-                                   "language and should yield valid html.",
-                         blank=True)
+    template = models.TextField(help_text="The invoice template is processed "
+                                          "using the django template language "
+                                          "and should yield valid html.",
+                                blank=True)
 
     def __unicode__(self):
         return self.name

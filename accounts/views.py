@@ -3,9 +3,11 @@ Views module for mercury accounts
 """
 
 import StringIO
+import os
 
 import ho.pisa as pisa
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -21,6 +23,18 @@ from mercury.accounts.models import Invoice, Quote
 from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
 from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
                              get_template_name, get_pdf_as_attachment)
+
+
+def fetch_resources(uri, rel):
+    """
+    Callback to allow pisa/reportlab to retrieve media.
+    "uri" is the href attribute from the html link element.
+    "rel" gives a relative path, but it's not used here.
+
+    """
+    path = os.path.join(settings.MEDIA_ROOT,
+                        uri.replace(settings.MEDIA_URL, ""))
+    return path
 
 
 class TemplateLoader(object):
@@ -75,6 +89,7 @@ class HtmlRenderer(object):
         data["terms"] = self.terms.render(Context())
         if hasattr(self.instance, "payment_set"):
             data["payments"] = self.instance.payment_set.all()
+        data["pad_rows"] = xrange(3)
         return Context(data)
 
 
@@ -86,7 +101,8 @@ class PdfRenderer(HtmlRenderer):
 
     def render(self):
         buffer = StringIO.StringIO()
-        result = pisa.CreatePDF(super(PdfRenderer, self).render(), buffer)
+        result = pisa.CreatePDF(super(PdfRenderer, self).render(), buffer,
+                                link_callback=fetch_resources)
         return buffer.getvalue()
 
 

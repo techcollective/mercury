@@ -102,7 +102,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.admin',
     'ajax_select',
-    'tinymce',
     'mercury.configuration',
     'mercury.accounts',
 ]
@@ -117,18 +116,5 @@ AJAX_LOOKUP_CHANNELS = {
     'invoice': mod + "InvoiceAjaxChannel",
 }
 del mod
-
-TINYMCE_DEFAULT_CONFIG = {"theme": "advanced",
-                          "plugins": "table, fullpage",
-                          "relative_urls": False,
-                          "theme_advanced_toolbar_location": "top",
-                          "theme_advanced_disable": "styleselect,help",
-                          "theme_advanced_buttons1_add": "backcolor",
-                          "theme_advanced_buttons3_add": "tablecontrols,fullpage",
-                          "force_p_newlines": False,
-                          "forced_root_block": "",
-                          "width": "700px",
-                          "height": "500px",
-                          }
 
 LOGIN_URL = "/"

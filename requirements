@@ -1,4 +1,3 @@
-django-tinymce==1.5.1.dev100
 html5lib==0.90
 pisa==3.0.33
 reportlab==2.4
