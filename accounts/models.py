@@ -31,13 +31,13 @@ from mercury.accounts.exceptions import (DepositedPaymentsException,
 
 
 class Customer(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=50, blank=True)
     email_address = models.EmailField(blank=True)
-    address = models.CharField(max_length=50, blank=True)
-    city = models.CharField(max_length=50, blank=True)
-    state = models.CharField(max_length=2, blank=True)
-    zip_code = models.CharField(max_length=20, blank=True)
+    address = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    zip_code = models.CharField(max_length=50, blank=True)
     is_taxable = models.BooleanField(default=get_customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
@@ -52,7 +52,7 @@ class Customer(models.Model):
 
 
 class ProductOrService(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     price = CurrencyField(null=True, blank=True)
     number_in_stock = models.IntegerField(null=True, blank=True)
     manage_stock = models.BooleanField(default=get_manage_stock)
@@ -206,7 +206,7 @@ class Entry(models.Model):
     cost = CurrencyField()
     quantity = models.DecimalField(max_digits=14, decimal_places=2,
                                    default=get_default_quantity)
-    description = models.CharField(max_length=400, blank=True)
+    description = models.CharField(max_length=200, blank=True)
     discount = CurrencyField(default=0)
     total = CurrencyField()
 
