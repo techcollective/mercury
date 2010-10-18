@@ -43,11 +43,20 @@ class InvoiceTerm(models.Model):
         else:
             name = "Payment due on receipt"
         return name
+
     def delete(self, *args, **kwargs):
         from mercury.helpers import check_deposited_payments
         check_deposited_payments(self,
                                 "invoice__customer__default_payment_terms__pk")
         super(InvoiceTerm, self).delete(*args, **kwargs)
+
+
+class Image(models.Model):
+    image_name = models.CharField(max_length=50, unique=True)
+    path = models.ImageField(upload_to="images")
+
+    def __unicode__(self):
+        return self.image_name
 
 
 class Template(models.Model):
@@ -56,6 +65,8 @@ class Template(models.Model):
                                           "using the django template language "
                                           "and should yield valid html.",
                                 blank=True)
+    # not sure if this is the right approach
+    #image = models.ForeignKey(Image, null=True, blank=True)
 
     def __unicode__(self):
         return self.name

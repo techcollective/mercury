@@ -1,3 +1,4 @@
+PIL==1.1.7
 html5lib==0.90
 pisa==3.0.33
 reportlab==2.4

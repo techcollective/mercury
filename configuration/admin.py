@@ -5,6 +5,7 @@ from mercury.configuration.models import (PaymentType,
                                           InvoiceTerm,
                                           Template,
                                           Config,
+                                          Image,
                                          )
 from mercury.admin import MercuryAdmin
 
@@ -20,3 +21,4 @@ admin.site.register(InvoiceStatus, MercuryAdmin)
 admin.site.register(InvoiceTerm, MercuryAdmin)
 admin.site.register(Template, MercuryAdmin)
 admin.site.register(Config, ConfigAdmin)
+admin.site.register(Image, MercuryAdmin)
