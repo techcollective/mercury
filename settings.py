@@ -112,7 +112,6 @@ INSTALLED_APPS = [
     'tinymce',
     'mercury.configuration',
     'mercury.accounts',
-    'mercury.vtiger',
 ]
 
 if DEBUG:
