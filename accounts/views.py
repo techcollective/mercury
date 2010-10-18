@@ -90,7 +90,6 @@ class HtmlRenderer(object):
         if hasattr(self.instance, "payment_set"):
             data["payments"] = self.instance.payment_set.all()
         data["pad_rows"] = xrange(3)
-        data["image"] = self.template.image
         return Context(data)
 
 
