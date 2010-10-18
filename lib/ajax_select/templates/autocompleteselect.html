@@ -11,5 +11,7 @@ $("#{{ html_id }}").autocomplete({
     source: "{{ lookup_url }}",
     select: handleResult,
     change: handleChange
-});
+}).autoGrowInput({
+    comfortZone: 0
+});;
 </script>

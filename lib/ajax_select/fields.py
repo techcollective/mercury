@@ -32,7 +32,7 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
 
         lookup = get_lookup(self.channel)
         if value:
-            current_result = mark_safe(lookup.format_result( lookup.get_objects([value])[0] ))
+            current_result = lookup.format_result(lookup.get_objects([value])[0])
         else:
             current_result = ''
 
