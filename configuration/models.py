@@ -81,7 +81,7 @@ class ConfigManager(models.Manager):
         is not supplied.
         """
         try:
-            value = self.get(name=setting_name).value
+            value = self.get(name=setting_name.lower()).value
         except Config.DoesNotExist:
             if "default" in kwargs:
                 return kwargs["default"]

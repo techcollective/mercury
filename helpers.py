@@ -188,4 +188,4 @@ def get_autocomplete_limit():
 
 def get_invoice_rows():
     return get_integer_setting("minimum number of rows in quote or invoice "
-                               "PDF table", default=15)
+                               "pdf table", default=15)

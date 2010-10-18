@@ -265,5 +265,13 @@
             "name": "send pdf files as downloads",
             "value": "false"
         }
+    },
+    {
+        "pk": 23,
+        "model": "configuration.config",
+        "fields": {
+            "name": "minimum number of rows in quote or invoice pdf table",
+            "value": "13"
+        }
     }
 ]
