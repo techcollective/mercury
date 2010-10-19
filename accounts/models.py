@@ -90,7 +90,7 @@ class QuoteInvoiceBase(models.Model):
     grand_total = CurrencyField(default=0, read_only=True)
 
     def update_tax(self):
-        tax = 0
+        tax = decimal.Decimal(0)
         tax_percentage = get_tax_percentage()
         if self.customer.is_taxable:
             for entry in self.get_entries():
@@ -100,8 +100,8 @@ class QuoteInvoiceBase(models.Model):
 
     def update_totals(self):
         self.update_tax()
-        subtotal = 0
-        grand_total = 0
+        subtotal = decimal.Decimal(0)
+        grand_total = decimal.Decimal(0)
         for entry in self.get_entries():
             subtotal += entry.total
         self.subtotal = subtotal
@@ -121,7 +121,6 @@ class QuoteInvoiceBase(models.Model):
 
     def update(self):
         self.update_totals()
-        self.update_tax()
         self.update_description()
 
     def get_number(self):
@@ -178,20 +177,6 @@ class Invoice(QuoteInvoiceBase):
     def get_entries(self):
         return self.invoiceentry_set.all()
 
-    def update(self):
-        super(Invoice, self).update()
-        self.update_status()
-
-    def update_status(self):
-        if get_auto_invoice_status():
-            total_payments = self.payment_set.all().aggregate(
-                                        total=models.Sum("amount"))["total"]
-            paid_status = get_or_create_paid_invoice_status()
-            if total_payments >= self.grand_total:
-                self.status = paid_status
-            elif (self.status == paid_status) and (total_payments < self.grand_total):
-                self.status = get_or_create_default_invoice_status()
-
     def delete(self, *args, **kwargs):
         # prevent a delete that will cascade to deposited payments
         check_deposited_payments(self, "invoice__pk")
@@ -199,6 +184,31 @@ class Invoice(QuoteInvoiceBase):
             # this is done so that stock is updated
             entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
+
+
+def update_invoice_status(sender, **kwargs):
+    instance = kwargs["instance"]
+    # the refresh is important to get the rounded decimal value out of the
+    # DB. recalculating tax on save() can make the value in memory have
+    # more decimal places than are actually stored. this can result in
+    # a stored grand_total of e.g. 10.07 and a calculated grand_total of
+    # 10.073. Then total_payments != grand_total.
+    instance = refresh(instance)
+    if get_auto_invoice_status():
+        total_payments = instance.payment_set.all().aggregate(
+                                         total=models.Sum("amount"))["total"]
+        paid_status = get_or_create_paid_invoice_status()
+        new_status = instance.status
+        if total_payments >= instance.grand_total:
+            new_status = paid_status
+        elif (instance.status == paid_status) and \
+             (total_payments < instance.grand_total):
+            new_status = get_or_create_default_invoice_status()
+        if instance.status != new_status:
+            instance.status = new_status
+            instance.save()
+
+models.signals.post_save.connect(update_invoice_status, sender=Invoice)
 
 
 class Entry(models.Model):
@@ -326,7 +336,6 @@ class Payment(models.Model):
             # update deposit total
             self.deposit.update_total()
             self.deposit.save()
-        self.invoice.update_status()
         self.invoice.save()
 
     def delete(self, *args, **kwargs):
@@ -338,7 +347,7 @@ class Payment(models.Model):
             super(Payment, self).delete(*args, **kwargs)
 
     def clean(self):
-        if hasattr(self,"payment_type"): # it doesn't on an empty form
+        if hasattr(self, "payment_type"):  # it doesn't on an empty form
             if not self.payment_type.manage_deposits and self.deposit:
                 message = ("The payment type '%s' isn't depositable, so this "
                            "payment can't belong to a deposit"
@@ -360,7 +369,7 @@ class Payment(models.Model):
         ordering = ["-date_received"]
 
 
-def payment_presave(**kwargs):
+def payment_presave(sender, **kwargs):
     instance = kwargs["instance"]
     if instance.pk:
         # it might already exist in the DB
@@ -371,8 +380,8 @@ def payment_presave(**kwargs):
         if original.deposit:
             if instance.deposit:
                 raise AccountsException("Deposited payments can't be edited. "
-                                        "The deposit must be removed from "
-                                        "the payment to make it editable.")
+                                        "The deposit must first be deleted or "
+                                        "removed from the payment.")
             else:
                 deposit = original.deposit
                 deposit.total -= original.amount

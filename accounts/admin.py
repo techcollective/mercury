@@ -18,7 +18,7 @@ from mercury.accounts.models import (Customer,
                                      Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import (get_or_create_paid_invoice_status,
-                             get_display_paid)
+                             get_display_paid, refresh)
 
 
 # Custom inline classes
@@ -82,7 +82,6 @@ class CustomerInvoiceInline(admin.TabularInline):
         return qs
 
 
-
 # custom FilterSpecs (for list_filter)
 
 class CustomFilterSpec(FilterSpec):
@@ -90,19 +89,20 @@ class CustomFilterSpec(FilterSpec):
         return self.links.values()
 
     def choices(self, cl):
-        selected = [v for v in self.links.values() if self.params.has_key(v)]
+        selected = [v for v in self.links.values() if v in self.params]
         yield {'selected': selected == [],
                'query_string': cl.get_query_string({}, selected),
                'display': 'All'}
         for title, key in self.links.items():
-            yield {'selected':  self.params.has_key(key),
-                   'query_string': cl.get_query_string({key:1}, selected),
+            yield {'selected': key in self.params,
+                   'query_string': cl.get_query_string({key: 1}, selected),
                    'display': title}
 
 
 class PaidFilterSpec(CustomFilterSpec):
     def __init__(self, request, params, model, model_admin):
-        super(PaidFilterSpec, self).__init__(request, params, model, model_admin)
+        super(PaidFilterSpec, self).__init__(request, params, model,
+                                             model_admin)
         self.links = SortedDict((
             ('Unpaid', 'unpaid'),
             ('Unpaid and Overdue', 'unpaid_overdue'),
@@ -110,9 +110,9 @@ class PaidFilterSpec(CustomFilterSpec):
 
     def get_query_set(self, cls, qs):
         paid_status = get_or_create_paid_invoice_status()
-        if self.params.has_key('unpaid'):
+        if 'unpaid' in self.params:
             return qs.exclude(status__exact=paid_status)
-        if self.params.has_key('unpaid_overdue'):
+        if 'unpaid_overdue' in self.params:
             return qs.exclude(status__exact=paid_status).filter(
                 date_due__lt=datetime.date.today())
         return qs
@@ -123,17 +123,18 @@ class PaidFilterSpec(CustomFilterSpec):
 
 class DepositedFilterSpec(CustomFilterSpec):
     def __init__(self, request, params, model, model_admin):
-        super(DepositedFilterSpec, self).__init__(request, params, model, model_admin)
+        super(DepositedFilterSpec, self).__init__(request, params, model,
+                                                  model_admin)
         self.links = SortedDict((
             ('Deposited', 'deposited'),
             ('Undeposited', 'undeposited'),
         ))
 
     def get_query_set(self, cls, qs):
-        if self.params.has_key('deposited'):
+        if 'deposited'in self.params:
             return qs.filter(deposit__isnull=False).filter(
                 payment_type__manage_deposits__exact=True)
-        if self.params.has_key('undeposited'):
+        if 'undeposited'in self.params:
             return qs.filter(deposit__isnull=True).filter(
                 payment_type__manage_deposits__exact=True)
         return qs
@@ -155,11 +156,15 @@ class InvoiceAdmin(MercuryAjaxAdmin):
     hide_delete_warning = (InvoiceEntry,)
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
-    list_display = ["get_number", "description", "customer", "status", "grand_total", "date_created", "date_due"]
+    list_display = ["get_number", "description", "customer", "status",
+                    "grand_total", "date_created", "date_due"]
     list_display_links = ["get_number", "description"]
     list_filter = [PaidFilterSpec, "status"]
 
     def post_save(self, instance):
+        # get the most recent instance from the db. the post save hook may have
+        # made changes since the admin called save().
+        instance = refresh(instance)
         instance.update()
         instance.save()
 
@@ -168,16 +173,21 @@ class QuoteAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
-        ("Information", {"fields": ["customer", "date_created", "description"]}),
+        ("Information", {"fields": ["customer", "date_created",
+                                    "description"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     hide_delete_warning = (QuoteEntry,)
     inlines = [QuoteEntryInline]
     date_hierarchy = "date_created"
-    list_display = ["get_number", "description", "customer", "grand_total", "date_created"]
+    list_display = ["get_number", "description", "customer", "grand_total",
+                    "date_created"]
     list_display_links = ["get_number", "description"]
 
     def post_save(self, instance):
+        # get the most recent instance from the db. the post save hook may have
+        # made changes since the admin called save().
+        instance = refresh(instance)
         instance.update()
         instance.save()
 
@@ -261,6 +271,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
 
 
 class ProductOrServiceAdmin(MercuryAdmin):
+    search_fields = ["name"]
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
 
