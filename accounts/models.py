@@ -363,8 +363,11 @@ class Payment(models.Model):
 def payment_presave(**kwargs):
     instance = kwargs["instance"]
     if instance.pk:
-        # an existing payment is being edited
-        original = Payment.objects.get(pk=instance.pk)
+        # it might already exist in the DB
+        try:
+            original = Payment.objects.get(pk=instance.pk)
+        except:
+            return
         if original.deposit:
             if instance.deposit:
                 raise AccountsException("Deposited payments can't be edited. "
