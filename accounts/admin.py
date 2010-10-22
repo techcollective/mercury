@@ -18,7 +18,7 @@ from mercury.accounts.models import (Customer,
                                      Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import (get_or_create_paid_invoice_status,
-                             get_display_paid, refresh)
+                             get_display_paid, refresh, get_change_url)
 
 
 # Custom inline classes
@@ -219,11 +219,29 @@ class DepositAdmin(MercuryAdmin):
 
 class PaymentAdmin(MercuryAjaxAdmin):
     form = make_ajax_form(Payment, {"invoice": "invoice"})
-    list_display = ["__str__", "amount", "date_received", "deposit"]
+    list_display = ["amount", "payment_type", "get_invoice_link",
+                    "date_received", "comment", "get_deposit_link"]
     list_filter = [DepositedFilterSpec, "payment_type"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
     search_fields = ["invoice__customer__name", "amount"]
+
+    def get_invoice_link(self, instance):
+        invoice = instance.invoice
+        url = get_change_url(invoice)
+        return "<a href=\"%s\">%s</a>" % (url, str(invoice))
+    get_invoice_link.allow_tags = True
+    get_invoice_link.short_description = "Invoice"
+
+    def get_deposit_link(self, instance):
+        deposit = instance.deposit
+        if deposit is None:
+            return "None"
+        else:
+            url = get_change_url(deposit)
+            return "<a href=\"%s\">%s</a>" % (url, str(deposit))
+    get_deposit_link.allow_tags = True
+    get_deposit_link.short_description = "Deposit"
 
     def deposit(self, request, queryset):
         already_deposited = queryset.exclude(deposit=None)
