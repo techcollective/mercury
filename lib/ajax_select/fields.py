@@ -234,9 +234,6 @@ class AutoCompleteField(forms.CharField):
         super(AutoCompleteField, self).__init__(*args, **defaults)
 
 
-
-
-
 def _check_can_add(self,user,model):
     """ check if the user can add the model, deferring first to the channel if it implements can_add() \
         else using django's default perm check. \
@@ -249,6 +246,7 @@ def _check_can_add(self,user,model):
         can_add = user.has_perm("%s.add_%s" % (ctype.app_label,ctype.model))
     if can_add:
         self.widget.add_link = reverse('add_popup',kwargs={'app_label':model._meta.app_label,'model':model._meta.object_name.lower()})
+
 
 def autoselect_fields_check_can_add(form,model,user):
     """ check the form's fields for any autoselect fields and enable their widgets with + sign add links if permissions allow"""
