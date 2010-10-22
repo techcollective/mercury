@@ -44,7 +44,6 @@ class MercuryAdmin(admin.ModelAdmin):
             return handle_exception(request, e)
 
     def delete_selected_wrapper(self, request, queryset):
-        print "hello"
         try:
             return admin.actions.delete_selected(self, request, queryset)
         except MercuryException as e:
