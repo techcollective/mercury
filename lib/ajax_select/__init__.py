@@ -64,12 +64,10 @@ def get_lookup(channel):
         raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS not configured correctly for %r" % channel)
 
     if isinstance(lookup_label, dict):
-        print "using %s to create channel %s" % (lookup_label, channel)
         # 'channel' : dict(model='app.model', search_field='title' )
         # generate a simple channel dynamically
         return make_channel( lookup_label['model'], lookup_label['search_field'] )
     else:
-        print "\nusing class %s for channel %s" % (lookup_label, channel)
         # 'channel' : 'app.module.LookupClass'
         # from app.module load LookupClass and instantiate
         lookup = get_callable(lookup_label)

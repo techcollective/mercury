@@ -36,8 +36,6 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
         else:
             current_result = ''
 
-        print "widget add_link:", self.add_link
-
         context = {
                 'name': name,
                 'html_id' : "id_" + self.html_id,
@@ -236,25 +234,21 @@ class AutoCompleteField(forms.CharField):
         super(AutoCompleteField, self).__init__(*args, **defaults)
 
 
-def _check_can_add(self, user, model):
+
+
+
+def _check_can_add(self,user,model):
     """ check if the user can add the model, deferring first to the channel if it implements can_add() \
         else using django's default perm check. \
         if it can add, then enable the widget to show the + link """
     lookup = get_lookup(self.channel)
     try:
-        print "_check_can_add working with channel %s" % lookup
         can_add = lookup.can_add(user,model)
-        print "lookups can_add returned", can_add
     except AttributeError:
         ctype = ContentType.objects.get_for_model(model)
-        can_add = user.has_perm("%s.view_%s" % (ctype.app_label,ctype.model))
-        print "lookup doesn't have can_add, user.has_perm returned", can_add
-        print "(%s %s.view_%s)" % (user, ctype.app_label,ctype.model)
+        can_add = user.has_perm("%s.add_%s" % (ctype.app_label,ctype.model))
     if can_add:
-        link = reverse('add_popup',kwargs={'app_label':model._meta.app_label,'model':model._meta.object_name.lower()})
-        print "setting link to %s" % link
-        self.widget.add_link = link
-
+        self.widget.add_link = reverse('add_popup',kwargs={'app_label':model._meta.app_label,'model':model._meta.object_name.lower()})
 
 def autoselect_fields_check_can_add(form,model,user):
     """ check the form's fields for any autoselect fields and enable their widgets with + sign add links if permissions allow"""
