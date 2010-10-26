@@ -43,15 +43,13 @@ def ajax_lookup(request, channel):
 
 
 @login_required
-def add_popup(request,app_label,model):
+def add_popup(request, app_label,model):
     """ present an admin site add view, hijacking the result if its the dismissAddAnotherPopup js and returning didAddPopup """
     themodel = models.get_model(app_label, model)
     admin = site._registry[themodel]
 
-    admin.admin_site.root_path = "/ajax_select/" # warning: your URL should be configured here. I should be able to auto-figure this out but ...
-
-    response = admin.add_view(request,request.path)
+    response = admin.add_view(request, request.path)
     if request.method == 'POST':
         if response.content.startswith('<script type="text/javascript">opener.dismissAddAnotherPopup'):
-            return HttpResponse( response.content.replace('dismissAddAnotherPopup','didAddPopup' ) )
+            return HttpResponse(response.content.replace('dismissAddAnotherPopup','didAddPopup'))
     return response
