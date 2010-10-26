@@ -162,8 +162,8 @@ class InvoiceAdmin(MercuryAjaxAdmin):
     list_filter = [PaidFilterSpec, "status"]
 
     def post_save(self, instance):
-        # get the most recent instance from the db. the post save hook may have
-        # made changes since the admin called save().
+        # get the most recent instance from the db. the post save signal hook
+        # may have made changes since the admin called save().
         instance = refresh(instance)
         instance.update()
         instance.save()
