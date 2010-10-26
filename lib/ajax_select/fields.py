@@ -66,7 +66,6 @@ class AutoCompleteSelectField(forms.fields.CharField):
     """  form field to select a model for a ForeignKey db field """
 
     channel = None
-    calls = 0
 
     def __init__(self, channel, *args, **kwargs):
         self.channel = channel
@@ -249,11 +248,6 @@ def _check_can_add(self,user,model):
         self.widget.add_link = reverse('add_popup',kwargs={'app_label':model._meta.app_label,'model':model._meta.object_name.lower()})
     else:
         self.widget.add_link = None
-    self.calls += 1
-    if self.calls % 2 and user.username == "yochai":
-        import time
-        time.sleep(10)
-
 
 
 def autoselect_fields_check_can_add(form,model,user):
