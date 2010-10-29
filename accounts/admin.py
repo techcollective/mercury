@@ -156,7 +156,7 @@ class InvoiceAdmin(MercuryAjaxAdmin):
     hide_delete_warning = (InvoiceEntry,)
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
-    list_display = ["get_number", "description", "customer", "status",
+    list_display = ["get_number", "description", "get_customer_link", "status",
                     "grand_total", "date_created", "date_due"]
     list_display_links = ["get_number", "description"]
     list_filter = [PaidFilterSpec, "status"]
@@ -167,6 +167,12 @@ class InvoiceAdmin(MercuryAjaxAdmin):
         instance = refresh(instance)
         instance.update()
         instance.save()
+
+    def get_customer_link(self, instance):
+        url = get_change_url(instance.customer)
+        return "<a href=\"%s\">%s</a>" % (url, instance.customer.name)
+    get_customer_link.allow_tags = True
+    get_customer_link.short_description = "Customer"
 
 
 class QuoteAdmin(MercuryAjaxAdmin):
