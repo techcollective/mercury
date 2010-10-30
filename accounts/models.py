@@ -4,6 +4,7 @@ import decimal
 from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 from mercury.configuration.models import (PaymentType,
                                           InvoiceStatus,
@@ -88,6 +89,7 @@ class QuoteInvoiceBase(models.Model):
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
+    created_by = models.ForeignKey(User, blank=True, null=True)
 
     def update_tax(self):
         tax = decimal.Decimal(0)
@@ -297,6 +299,7 @@ class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
     total = CurrencyField(default=0, read_only=True)
     comment = models.CharField(max_length=200, blank=True)
+    made_by = models.ForeignKey(User, blank=True, null=True)
 
     def update_total(self):
         total = self.payment_set.all().aggregate(
@@ -328,6 +331,7 @@ class Payment(models.Model):
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
+    received_by = models.ForeignKey(User, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
