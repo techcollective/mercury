@@ -122,6 +122,24 @@ class PaidFilterSpec(CustomFilterSpec):
         return u'unpaid status'
 
 
+class StockStatusFilterSpec(CustomFilterSpec):
+    def __init__(self, *args, **kwargs):
+        super(StockStatusFilterSpec, self).__init__(*args, **kwargs)
+        self.links = SortedDict((
+            ("In Stock", "instock"),
+            ("Out of Stock", "nostock")
+        ))
+
+    def title(self):
+        return u"Stock Status"
+
+    def get_query_set(self, cls, qs):
+        if "instock" in self.params:
+            return qs.exclude(number_in_stock=0).filter(manage_stock=True)
+        if "nostock" in self.params:
+            return qs.filter(number_in_stock=0).filter(manage_stock=True)
+
+
 class DepositedFilterSpec(CustomFilterSpec):
     def __init__(self, request, params, model, model_admin):
         super(DepositedFilterSpec, self).__init__(request, params, model,
@@ -330,7 +348,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
-    list_filter = ["manage_stock", "is_taxable"]
+    list_filter = ["manage_stock", "is_taxable", StockStatusFilterSpec]
     list_editable = ["number_in_stock"]
 
 # Registration
