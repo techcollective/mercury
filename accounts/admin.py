@@ -221,6 +221,7 @@ class CustomerAdmin(MercuryAdmin):
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
+    list_filter = ["is_taxable"]
 
     def change_view(self, *args, **kwargs):
         display_paid = get_display_paid()
@@ -330,6 +331,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
     list_filter = ["manage_stock", "is_taxable"]
+    list_editable = ["number_in_stock"]
 
 # Registration
 
