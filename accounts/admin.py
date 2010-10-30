@@ -329,6 +329,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
+    list_filter = ["manage_stock", "is_taxable"]
 
 # Registration
 

@@ -105,7 +105,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.admin',
     'ajax_select',
-    'mercury.utils',
     'mercury.configuration',
     'mercury.accounts',
 ]
