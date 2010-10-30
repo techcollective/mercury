@@ -64,11 +64,6 @@ class DepositPaymentInline(admin.TabularInline):
     can_delete = False
     link_readonly = "amount"
 
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.received_by = request.user
-            obj.save()
-
 
 class CustomerInvoiceInline(admin.TabularInline):
     model = Invoice
@@ -151,27 +146,15 @@ class DepositedFilterSpec(CustomFilterSpec):
 
 # Admin classes
 
-class InvoiceAdmin(MercuryAjaxAdmin):
+class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
-    form = make_ajax_form(Invoice, {"customer": "customer_name"})
-    fieldsets = [
-        ("Information", {"fields": ["customer", "date_created", "date_due",
-                                    "status", "description", "created_by"]}),
-        ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
-    ]
-    hide_delete_warning = (InvoiceEntry,)
-    inlines = [InvoiceEntryInline, InvoicePaymentInline]
     date_hierarchy = "date_created"
-    list_display = ["get_number", "description", "get_customer_link", "status",
-                    "grand_total", "date_created", "date_due", "created_by"]
-    list_display_links = ["get_number", "description"]
-    list_filter = [PaidFilterSpec, "status", "created_by"]
     readonly_fields = ["created_by"]
 
     def save_model(self, request, obj, form, change):
         if not change:
             obj.created_by = request.user
-            obj.save()
+        obj.save()
 
     def post_save(self, instance):
         # get the most recent instance from the db. the post save signal hook
@@ -187,8 +170,34 @@ class InvoiceAdmin(MercuryAjaxAdmin):
     get_customer_link.short_description = "Customer"
 
 
-class QuoteAdmin(MercuryAjaxAdmin):
-    search_fields = ["customer__name", "description", "id"]
+class InvoiceAdmin(InvoiceQuoteBaseAdmin):
+    form = make_ajax_form(Invoice, {"customer": "customer_name"})
+    fieldsets = [
+        ("Information", {"fields": ["customer", "date_created", "date_due",
+                                    "status", "description", "created_by"]}),
+        ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
+    ]
+    hide_delete_warning = (InvoiceEntry,)
+    inlines = [InvoiceEntryInline, InvoicePaymentInline]
+    list_display = ["get_number", "description", "get_customer_link", "status",
+                    "grand_total", "date_created", "date_due", "created_by"]
+    list_display_links = ["get_number", "description"]
+    list_filter = [PaidFilterSpec, "status", "created_by"]
+
+    def save_formset(self, request, form, formset, change):
+        def set_user(instance):
+            instance.received_by = request.user
+            instance.save()
+
+        if formset.model == Payment:
+            instances = formset.save(commit=False)
+            map(set_user, instances)
+            formset.save_m2m()
+        else:
+            return formset.save()
+
+
+class QuoteAdmin(InvoiceQuoteBaseAdmin):
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created",
@@ -197,24 +206,10 @@ class QuoteAdmin(MercuryAjaxAdmin):
     ]
     hide_delete_warning = (QuoteEntry,)
     inlines = [QuoteEntryInline]
-    date_hierarchy = "date_created"
-    list_display = ["get_number", "description", "customer", "grand_total",
-                    "date_created"]
+    list_display = ["get_number", "description", "get_customer_link",
+                    "grand_total", "date_created", "created_by"]
+    list_filter = ["created_by"]
     list_display_links = ["get_number", "description"]
-    readonly_fields = ["created_by"]
-
-
-    def post_save(self, instance):
-        # get the most recent instance from the db. the post save hook may have
-        # made changes since the admin called save().
-        instance = refresh(instance)
-        instance.update()
-        instance.save()
-
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.created_by = request.user
-            obj.save()
 
 
 class CustomerAdmin(MercuryAdmin):
@@ -240,13 +235,23 @@ class CustomerAdmin(MercuryAdmin):
 class DepositAdmin(MercuryAdmin):
     inlines = [DepositPaymentInline]
     hide_delete_warning = (Payment,)
+    list_display = ["total", "date", "comment", "made_by"]
+    date_hierarchy = "date"
+    list_filter = ["made_by"]
+    readonly_fields = ["made_by"]
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.made_by = request.user
+        obj.save()
 
 
 class PaymentAdmin(MercuryAjaxAdmin):
     form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["amount", "payment_type", "get_invoice_link",
-                    "date_received", "comment", "get_deposit_link"]
-    list_filter = [DepositedFilterSpec, "payment_type"]
+                    "date_received", "comment", "get_deposit_link",
+                    "received_by"]
+    list_filter = [DepositedFilterSpec, "payment_type", "received_by"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
@@ -272,7 +277,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.received_by = request.user
-            obj.save()
+        obj.save()
 
     def deposit(self, request, queryset):
         already_deposited = queryset.exclude(deposit=None)
@@ -299,6 +304,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
         count = queryset.count()
         if count > 0:
             new_deposit = Deposit()
+            new_deposit.made_by = request.user
             # save() to create the deposit, otherwise it can't have
             # payments assigned to it.
             new_deposit.save()
