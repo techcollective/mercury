@@ -127,7 +127,7 @@ class StockStatusFilterSpec(CustomFilterSpec):
         super(StockStatusFilterSpec, self).__init__(*args, **kwargs)
         self.links = SortedDict((
             ("In Stock", "instock"),
-            ("Out of Stock", "nostock")
+            ("Out of Stock", "nostock"),
         ))
 
     def title(self):
@@ -232,14 +232,21 @@ class QuoteAdmin(InvoiceQuoteBaseAdmin):
 
 class CustomerAdmin(MercuryAdmin):
     inlines = [CustomerInvoiceInline]
-    search_fields = ["name", "phone_number"]
-    list_display = ["name", "phone_number", "email_address", "is_taxable"]
+    search_fields = ["name", "phone_number", "address", "city", "state",
+                     "zip_code"]
+    list_display = ["name", "phone_number", "email_address", "get_address",
+                    "is_taxable"]
     fieldsets = [
         (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
     list_filter = ["is_taxable"]
+
+    def get_address(self, instance):
+        address = [instance.address, instance.city, instance.state]
+        return ", ".join(filter(None, address))
+    get_address.short_description = "Address"
 
     def change_view(self, *args, **kwargs):
         display_paid = get_display_paid()
@@ -268,13 +275,19 @@ class DepositAdmin(MercuryAdmin):
 class PaymentAdmin(MercuryAjaxAdmin):
     form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["amount", "payment_type", "get_invoice_link",
-                    "date_received", "comment", "get_deposit_link",
-                    "received_by"]
+                    "get_customer_link", "date_received", "comment",
+                    "get_deposit_link", "received_by"]
     list_filter = [DepositedFilterSpec, "payment_type", "received_by"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
     readonly_fields = ["received_by"]
+
+    def get_customer_link(self, instance):
+        url = get_change_url(instance.invoice.customer)
+        return "<a href=\"%s\">%s</a>" % (url, instance.invoice.customer.name)
+    get_customer_link.allow_tags = True
+    get_customer_link.short_description = "Customer"
 
     def get_invoice_link(self, instance):
         invoice = instance.invoice
