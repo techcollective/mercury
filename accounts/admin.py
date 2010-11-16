@@ -275,9 +275,10 @@ class DepositAdmin(MercuryAdmin):
 
 class PaymentAdmin(MercuryAjaxAdmin):
     form = make_ajax_form(Payment, {"invoice": "invoice"})
-    list_display = ["amount", "payment_type", "get_invoice_link",
-                    "get_customer_link", "date_received", "comment",
-                    "get_deposit_link", "received_by"]
+    list_display = ["get_invoice_link", "get_customer_link", "date_received",
+                    "comment", "get_deposit_link", "received_by",
+                    "payment_type", "amount"]
+    list_display_links = ["amount"]
     list_filter = [DepositedFilterSpec, "payment_type", "received_by"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
