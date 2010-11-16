@@ -167,10 +167,9 @@ class DepositedFilterSpec(CustomFilterSpec):
 class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
     date_hierarchy = "date_created"
-    readonly_fields = ["created_by"]
 
     def save_model(self, request, obj, form, change):
-        if not change:
+        if not change and not obj.created_by:
             obj.created_by = request.user
         obj.save()
 

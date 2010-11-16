@@ -90,7 +90,9 @@ class QuoteInvoiceBase(models.Model):
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
     notes = models.CharField(max_length=200, blank=True)
-    created_by = models.ForeignKey(User, blank=True, null=True)
+    created_by = models.ForeignKey(User, blank=True, null=True,
+                                   help_text="This will be automatically set "
+                                   "to the current user if left blank.")
 
     def update_tax(self):
         tax = decimal.Decimal(0)
