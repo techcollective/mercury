@@ -192,13 +192,15 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
     form = make_ajax_form(Invoice, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created", "date_due",
-                                    "status", "description", "created_by"]}),
+                                    "status", "description", "notes",
+                                    "created_by"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     hide_delete_warning = (InvoiceEntry,)
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
-    list_display = ["get_number", "description", "get_customer_link", "status",
-                    "grand_total", "date_created", "date_due", "created_by"]
+    list_display = ["get_number", "description", "notes", "get_customer_link",
+                    "status", "grand_total", "date_created", "date_due",
+                    "created_by"]
     list_display_links = ["get_number", "description"]
     list_filter = [PaidFilterSpec, "status", "created_by"]
 
@@ -219,12 +221,12 @@ class QuoteAdmin(InvoiceQuoteBaseAdmin):
     form = make_ajax_form(Quote, {"customer": "customer_name"})
     fieldsets = [
         ("Information", {"fields": ["customer", "date_created",
-                                    "description", "created_by"]}),
+                                    "description", "notes", "created_by"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
     hide_delete_warning = (QuoteEntry,)
     inlines = [QuoteEntryInline]
-    list_display = ["get_number", "description", "get_customer_link",
+    list_display = ["get_number", "description", "notes", "get_customer_link",
                     "grand_total", "date_created", "created_by"]
     list_filter = ["created_by"]
     list_display_links = ["get_number", "description"]

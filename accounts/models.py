@@ -89,6 +89,7 @@ class QuoteInvoiceBase(models.Model):
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)
     grand_total = CurrencyField(default=0, read_only=True)
+    notes = models.CharField(max_length=200, blank=True)
     created_by = models.ForeignKey(User, blank=True, null=True)
 
     def update_tax(self):
