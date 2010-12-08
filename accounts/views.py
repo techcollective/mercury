@@ -108,7 +108,10 @@ class PdfRenderer(HtmlRenderer):
 
 
 @login_required
-def generate_response(request, render_class, args, mimetype=None):
+def generate_response(request, render_class, args, pdf=False):
+    kwargs = {}
+    if pdf:
+        kwargs = {"mimetype": "application/pdf"}
     try:
         renderer = render_class(*args)
         result = renderer.render()
@@ -118,8 +121,8 @@ def generate_response(request, render_class, args, mimetype=None):
         messages.error(request, str(e))
         response = HttpResponseRedirect(e.url)
     else:
-        response = HttpResponse(result, mimetype=mimetype)
-        if get_pdf_as_attachment():
+        response = HttpResponse(result, **kwargs)
+        if pdf and get_pdf_as_attachment():
             header = 'attachment; filename="%s"' % renderer.filename
             response["Content-Disposition"] = header
     return response
@@ -137,13 +140,13 @@ def quote_to_html(request, quote_id):
 
 def invoice_to_pdf(request, invoice_id):
     response = generate_response(request, PdfRenderer, [Invoice, invoice_id],
-                                 mimetype="application/pdf")
+                                 pdf=True)
     return response
 
 
 def quote_to_pdf(request, quote_id):
     response = generate_response(request, PdfRenderer, [Quote, quote_id],
-                                 mimetype="application/pdf")
+                                 pdf=True)
     return response
 
 
