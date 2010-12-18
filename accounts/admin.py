@@ -169,7 +169,7 @@ class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
     date_hierarchy = "date_created"
 
     def save_model(self, request, obj, form, change):
-        if not change and not obj.created_by:
+        if not obj.created_by:
             obj.created_by = request.user
         obj.save()
 
@@ -267,7 +267,7 @@ class DepositAdmin(MercuryAdmin):
     list_filter = ["made_by"]
 
     def save_model(self, request, obj, form, change):
-        if not change and not obj.made_by:
+        if not obj.made_by:
             obj.made_by = request.user
         obj.save()
 
@@ -282,7 +282,6 @@ class PaymentAdmin(MercuryAjaxAdmin):
     actions = ["deposit"]
     date_hierarchy = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
-    readonly_fields = ["received_by"]
 
     def get_customer_link(self, instance):
         url = get_change_url(instance.invoice.customer)
@@ -308,7 +307,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
     get_deposit_link.short_description = "Deposit"
 
     def save_model(self, request, obj, form, change):
-        if not change:
+        if not obj.received_by:
             obj.received_by = request.user
         obj.save()
 

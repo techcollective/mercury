@@ -91,7 +91,7 @@ class QuoteInvoiceBase(models.Model):
     grand_total = CurrencyField(default=0, read_only=True)
     notes = models.CharField(max_length=200, blank=True)
     created_by = models.ForeignKey(User, blank=True, null=True,
-                                   help_text="This will be automatically set "
+                                   help_text="This will automatically be set "
                                    "to the current user if left blank.")
 
     def update_tax(self):
@@ -303,7 +303,7 @@ class Deposit(models.Model):
     total = CurrencyField(default=0, read_only=True)
     comment = models.CharField(max_length=200, blank=True)
     made_by = models.ForeignKey(User, blank=True, null=True, help_text="This "
-                                "will be automatically set to the current "
+                                "will automatically be set to the current "
                                 "user if left blank.")
 
     def update_total(self):
@@ -336,7 +336,9 @@ class Payment(models.Model):
     date_received = models.DateField(default=datetime.date.today)
     comment = models.CharField(max_length=200, blank=True)
     deposit = models.ForeignKey(Deposit, blank=True, null=True)
-    received_by = models.ForeignKey(User, blank=True, null=True)
+    received_by = models.ForeignKey(User, blank=True, null=True,
+                                    help_text="This will automatically be "
+                                    "set to the current user if left blank.")
 
     def save(self, *args, **kwargs):
         self.full_clean()
