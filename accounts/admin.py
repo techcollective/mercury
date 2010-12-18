@@ -265,10 +265,9 @@ class DepositAdmin(MercuryAdmin):
     list_display = ["total", "date", "comment", "made_by"]
     date_hierarchy = "date"
     list_filter = ["made_by"]
-    readonly_fields = ["made_by"]
 
     def save_model(self, request, obj, form, change):
-        if not change:
+        if not change and not obj.made_by:
             obj.made_by = request.user
         obj.save()
 

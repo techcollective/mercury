@@ -302,7 +302,9 @@ class Deposit(models.Model):
     date = models.DateField(default=datetime.date.today)
     total = CurrencyField(default=0, read_only=True)
     comment = models.CharField(max_length=200, blank=True)
-    made_by = models.ForeignKey(User, blank=True, null=True)
+    made_by = models.ForeignKey(User, blank=True, null=True, help_text="This "
+                                "will be automatically set to the current "
+                                "user if left blank.")
 
     def update_total(self):
         total = self.payment_set.all().aggregate(
