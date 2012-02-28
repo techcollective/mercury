@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# mercury       Starts the mercury gunicorn app server
+# chkconfig: 2345 95 20
+# description: mercury gunicorn app server
 
 # Source function library.
 . /etc/init.d/functions
