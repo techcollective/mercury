@@ -15,6 +15,7 @@ start() {
     echo -n $"Starting $service_name: "
     daemon --user $mercury_user --pidfile "$pid_file" "$gunicorn_django" --daemon --pid="$pid_file" --workers=4 "$django_settings"
     retval=$?
+    echo
     return $retval
 }
 
@@ -22,6 +23,7 @@ stop() {
     echo -n $"Stopping $service_name: "
     killproc -p "$pid_file" django_gunicorn
     retval=$?
+    echo
     return $retval
 }
 
@@ -33,6 +35,9 @@ restart() {
 reload() {
     echo -n $"Reloading $service_name: "
     killproc -p "$pid_file" django_gunicorn -HUP
+    retval=$?
+    echo
+    return $retval
 }
 
 force_reload() {
