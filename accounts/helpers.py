@@ -7,7 +7,7 @@ import datetime
 
 from django.db.models import Q
 
-from mercury.accounts import models
+from accounts import models
 from mercury.helpers import (get_or_create_paid_invoice_status,
                              get_autocomplete_limit)
 

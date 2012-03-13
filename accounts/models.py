@@ -6,10 +6,10 @@ from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
-from mercury.configuration.models import (PaymentType,
+from configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm)
-from mercury.accounts.fields import CurrencyField
+from accounts.fields import CurrencyField
 from mercury.helpers import (model_to_dict,
                              refresh,
                              check_deposited_payments,
@@ -27,7 +27,7 @@ from mercury.helpers import (model_to_dict,
                              get_fill_description,
                              get_negative_stock,
                              get_auto_invoice_status)
-from mercury.accounts.exceptions import (DepositedPaymentsException,
+from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
 
@@ -161,7 +161,7 @@ class Quote(QuoteInvoiceBase):
         return self.quoteentry_set.all()
 
     def create_invoice(self):
-        from mercury.accounts.helpers import get_date_due
+        from accounts.helpers import get_date_due
         new_invoice = Invoice()
         fields = [f.name for f in self._meta.fields if f.name != "id"]
         for field in fields:

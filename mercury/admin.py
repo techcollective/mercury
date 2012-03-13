@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
-from mercury.accounts.models import Entry
+from accounts.models import Entry
 
 from ajax_select.admin import AjaxSelectAdmin
 

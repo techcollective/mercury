@@ -8,7 +8,7 @@ from django.utils.datastructures import SortedDict
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
 
-from mercury.accounts.models import (Customer,
+from accounts.models import (Customer,
                                      ProductOrService,
                                      Invoice,
                                      Quote,

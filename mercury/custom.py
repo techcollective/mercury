@@ -3,7 +3,7 @@
 from django.template import TemplateDoesNotExist
 from django.template.loader import BaseLoader
 
-from mercury.configuration.models import Template
+from configuration.models import Template
 
 
 class TemplateLoader(BaseLoader):

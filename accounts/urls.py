@@ -5,7 +5,7 @@ URLs for accounts app
 from django.conf.urls.defaults import patterns, url
 
 
-urlpatterns = patterns('mercury.accounts.views',
+urlpatterns = patterns('accounts.views',
     url(r'^invoice/(\d+)/pdf/$', "invoice_to_pdf",
         name="invoice_to_pdf"),
     url(r'^quote/(\d+)/pdf/$', "quote_to_pdf", name="quote_to_pdf"),

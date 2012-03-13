@@ -4,8 +4,8 @@ from django.db.models import ForeignKey
 from django.core.urlresolvers import reverse
 from django.utils.text import capfirst
 
-from mercury.configuration.models import Config, InvoiceStatus, InvoiceTerm
-from mercury.accounts.exceptions import DepositedPaymentsException
+from configuration.models import Config, InvoiceStatus, InvoiceTerm
+from accounts.exceptions import DepositedPaymentsException
 
 
 get_setting = Config.settings.get_setting
@@ -19,7 +19,7 @@ def check_deposited_payments(obj, field_lookup):
     payments. If so, it raises a DepositedPaymentsException that points to
     a changelist page of the offending payments.
     """
-    from mercury.accounts.models import Payment
+    from accounts.models import Payment
     filter = {field_lookup: obj.pk}
     num_payments = Payment.objects.filter(**filter).exclude(
                                                         deposit=None).count()

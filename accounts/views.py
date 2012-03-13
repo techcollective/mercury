@@ -17,10 +17,10 @@ from django.template import (loader, Context, TemplateDoesNotExist,
                              TemplateSyntaxError)
 from django.utils.text import capfirst
 
-from mercury.configuration.exceptions import NoSuchSetting
-from mercury.configuration.models import Config, Template
-from mercury.accounts.models import Invoice, Quote
-from mercury.accounts.exceptions import ObjectNotFound, AccountsRedirect
+from configuration.exceptions import NoSuchSetting
+from configuration.models import Config, Template
+from accounts.models import Invoice, Quote
+from accounts.exceptions import ObjectNotFound, AccountsRedirect
 from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
                              get_template_name, get_pdf_as_attachment,
                              get_invoice_rows)

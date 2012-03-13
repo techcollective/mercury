@@ -105,14 +105,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.admin',
     'ajax_select',
-    'mercury.configuration',
-    'mercury.accounts',
+    'configuration',
+    'accounts',
 ]
 
 if DEBUG:
     INSTALLED_APPS += ['django_extensions']
 
-mod = "mercury.accounts.helpers."
+mod = "accounts.helpers."
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': mod + "CustomerNameAjaxChannel",
     'product_or_service_name': mod + "ProductNameAjaxChannel",

@@ -9,7 +9,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^ajax_select/', include('ajax_select.urls')),
-    (r'^accounts/', include('mercury.accounts.urls')),
+    (r'^accounts/', include('accounts.urls')),
     (r'', include(admin.site.urls)),
 )
 

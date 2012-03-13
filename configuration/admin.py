@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from mercury.configuration.models import (PaymentType,
+from configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm,
                                           Template,

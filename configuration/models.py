@@ -1,6 +1,6 @@
 from django.db import models
 
-from mercury.configuration.exceptions import NoSuchSetting
+from configuration.exceptions import NoSuchSetting
 
 
 class PaymentType(models.Model):
