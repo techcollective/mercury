@@ -5,9 +5,6 @@ import os
 
 
 this_dir = os.path.abspath(os.path.dirname(__file__))
-lib_path = os.path.join(this_dir, "lib")
-if not lib_path in sys.path:
-    sys.path.append(lib_path)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
