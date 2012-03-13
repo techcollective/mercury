@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib import admin
 from django.contrib import messages
-from django.contrib.admin.filterspecs import FilterSpec
+from django.contrib.admin import SimpleListFilter
 from django.utils.datastructures import SortedDict
 
 from ajax_select import make_ajax_form
@@ -79,87 +79,70 @@ class CustomerInvoiceInline(admin.TabularInline):
         paid_status = get_or_create_paid_invoice_status()
 
         if not display_paid:
-            qs = qs.exclude(status__status__exact=paid_status)
+            qs = qs.exclude(status__status=paid_status)
         return qs
 
 
-# custom FilterSpecs (for list_filter)
-
-class CustomFilterSpec(FilterSpec):
-    def consumed_params(self):
-        return self.links.values()
-
-    def choices(self, cl):
-        selected = [v for v in self.links.values() if v in self.params]
-        yield {'selected': selected == [],
-               'query_string': cl.get_query_string({}, selected),
-               'display': 'All'}
-        for title, key in self.links.items():
-            yield {'selected': key in self.params,
-                   'query_string': cl.get_query_string({key: 1}, selected),
-                   'display': title}
+# custom filters (for list_filter)
 
 
-class PaidFilterSpec(CustomFilterSpec):
-    def __init__(self, request, params, model, model_admin):
-        super(PaidFilterSpec, self).__init__(request, params, model,
-                                             model_admin)
-        self.links = SortedDict((
-            ('Unpaid', 'unpaid'),
-            ('Unpaid and Overdue', 'unpaid_overdue'),
-        ))
+class UnpaidStatusListFilter(SimpleListFilter):
+    title = "unpaid status"
+    parameter_name = "unpaid_status"
 
-    def get_query_set(self, cls, qs):
+    def lookups(self, request, model_admin):
+        return (
+            ("unpaid", "Unpaid"),
+            ("unpaid_overdue", "Unpaid and Overdue"),
+        )
+
+    def queryset(self, request, queryset):
         paid_status = get_or_create_paid_invoice_status()
-        if 'unpaid' in self.params:
-            return qs.exclude(status__exact=paid_status)
-        if 'unpaid_overdue' in self.params:
-            return qs.exclude(status__exact=paid_status).filter(
+        if self.value() == "unpaid":
+            return queryset.exclude(status=paid_status)
+        if self.value() == "unpaid_overdue":
+            return queryset.exclude(status=paid_status).filter(
                 date_due__lt=datetime.date.today())
-        return qs
-
-    def title(self):
-        return u'unpaid status'
 
 
-class StockStatusFilterSpec(CustomFilterSpec):
-    def __init__(self, *args, **kwargs):
-        super(StockStatusFilterSpec, self).__init__(*args, **kwargs)
-        self.links = SortedDict((
-            ("In Stock", "instock"),
-            ("Out of Stock", "nostock"),
-        ))
+class StockStatusListFilter(SimpleListFilter):
+    title = "stock status"
+    parameter_name = "stock_status"
 
-    def title(self):
-        return u"Stock Status"
+    def lookups(self, request, model_admin):
+        return (
+            ("instock", "In Stock"),
+            ("nostock", "Out of Stock"),
+        )
 
-    def get_query_set(self, cls, qs):
-        if "instock" in self.params:
-            return qs.exclude(number_in_stock=0).filter(manage_stock=True)
-        if "nostock" in self.params:
-            return qs.filter(number_in_stock=0).filter(manage_stock=True)
+    def queryset(self, request, queryset):
+        paid_status = get_or_create_paid_invoice_status()
+        if self.value() == "instock":
+            return queryset.exclude(number_in_stock__lte=0).filter(
+                manage_stock=True)
+        if self.value() == "nostock":
+            return queryset.filter(number_in_stock__lte=0).filter(
+                manage_stock=True)
 
 
-class DepositedFilterSpec(CustomFilterSpec):
-    def __init__(self, request, params, model, model_admin):
-        super(DepositedFilterSpec, self).__init__(request, params, model,
-                                                  model_admin)
-        self.links = SortedDict((
-            ('Deposited', 'deposited'),
-            ('Undeposited', 'undeposited'),
-        ))
+class DepositedStatusListFilter(SimpleListFilter):
+    title = "deposited status"
+    parameter_name = "deposited_status"
 
-    def get_query_set(self, cls, qs):
-        if 'deposited'in self.params:
-            return qs.filter(deposit__isnull=False).filter(
-                payment_type__manage_deposits__exact=True)
-        if 'undeposited'in self.params:
-            return qs.filter(deposit__isnull=True).filter(
-                payment_type__manage_deposits__exact=True)
-        return qs
+    def lookups(self, request, model_admin):
+        return (
+            ("deposited", "Deposited"),
+            ("undeposited", "Undeposited"),
+        )
 
-    def title(self):
-        return u'deposited status'
+    def queryset(self, request, queryset):
+        paid_status = get_or_create_paid_invoice_status()
+        if self.value() == "deposited":
+            return queryset.filter(deposit__isnull=False).filter(
+                payment_type__manage_deposits=True)
+        if self.value() == "undeposited":
+            return queryset.filter(deposit__isnull=True).filter(
+                payment_type__manage_deposits=True)
 
 
 # Admin classes
@@ -201,7 +184,7 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
                     "status", "grand_total", "date_created", "date_due",
                     "created_by"]
     list_display_links = ["get_number", "description"]
-    list_filter = [PaidFilterSpec, "status", "created_by"]
+    list_filter = [UnpaidStatusListFilter, "status", "created_by"]
 
     def save_formset(self, request, form, formset, change):
         def set_user(instance):
@@ -278,7 +261,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
                     "comment", "get_deposit_link", "received_by",
                     "payment_type", "amount"]
     list_display_links = ["amount"]
-    list_filter = [DepositedFilterSpec, "payment_type", "received_by"]
+    list_filter = [DepositedStatusListFilter, "payment_type", "received_by"]
     actions = ["deposit"]
     date_hierarchy = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
@@ -361,7 +344,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
-    list_filter = ["manage_stock", "is_taxable", StockStatusFilterSpec]
+    list_filter = ["manage_stock", "is_taxable", StockStatusListFilter]
     list_editable = ["number_in_stock"]
 
 # Registration
