@@ -10,8 +10,7 @@ from configuration.models import (PaymentType,
                                           InvoiceStatus,
                                           InvoiceTerm)
 from accounts.fields import CurrencyField
-from mercury.helpers import (model_to_dict,
-                             refresh,
+from mercury.helpers import (refresh,
                              check_deposited_payments,
                              get_change_url,
                              get_currency_symbol,

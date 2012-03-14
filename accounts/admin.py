@@ -22,15 +22,13 @@ from mercury.helpers import (get_or_create_paid_invoice_status,
 
 
 # Custom inline classes
+
 class AjaxTabularInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(AjaxTabularInline, self).get_formset(request, obj,
                                                             **kwargs)
         autoselect_fields_check_can_add(formset.form, self.model, request.user)
         return formset
-
-
-# Inlines
 
 class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
