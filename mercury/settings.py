@@ -3,8 +3,29 @@
 import sys
 import os
 
+from django.utils.crypto import get_random_string
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+from mercury.exceptions import MercuryException
+
+
+this_dir = os.path.abspath(os.path.dirname(__file__))
+project_root = os.path.abspath(os.path.join(this_dir, ".."))
+
+def generate_secret_key(file):
+    """
+    Used to generate a file containing a random SECRET_KEY setting.
+    """
+    if os.path.lexists(file):
+        raise MercuryException("Refusing to overwite existing secret key file "
+                               "%s. Please check its contents and fix or "
+                               "or delete it to continue." % file)
+    else:
+        #this is copied from django/core/management/commands/startproject.py
+        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+        secret_key = get_random_string(50, chars)
+        file = open(file, "w")
+        file.write("SECRET_KEY = \"%s\"" % secret_key)
+        file.close()
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -89,8 +110,11 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '7%hdis&vi#rv&z#6jpu-_g3s(0$+b(*!f9f-5iko*h%rc=t0d+'
+try:
+    from secret_key import SECRET_KEY
+except:
+    generate_secret_key(os.path.join(this_dir, "secret_key.py"))
+    from secret_key import SECRET_KEY
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
