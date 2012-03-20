@@ -16,6 +16,7 @@ def generate_secret_key(file):
     Used to generate a file containing a random SECRET_KEY setting.
     """
     if os.path.lexists(file):
+        # SECRET_KEY was not importable, but secret_key.py exists
         raise MercuryException("Refusing to overwite existing secret key file "
                                "%s. Please check its contents and fix or "
                                "or delete it to continue." % file)
