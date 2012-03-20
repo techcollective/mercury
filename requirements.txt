@@ -3,4 +3,4 @@ html5lib==0.90
 pisa==3.0.33
 reportlab==2.4
 gunicorn==0.13.4
-setproctitle==1.1.4b1
+setproctitle==1.1.4
