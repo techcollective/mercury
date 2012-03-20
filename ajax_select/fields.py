@@ -46,7 +46,7 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 'attrs': mark_safe(flatatt(final_attrs)),
                 #'func_slug': self.html_id.replace("-",""),
                 'add_link' : self.add_link,
-                'admin_media_prefix' : settings.ADMIN_MEDIA_PREFIX,
+                'admin_media_prefix' : settings.STATIC_URL + "admin/",
                 'media_url': settings.MEDIA_URL,
                 }
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
@@ -149,7 +149,7 @@ class AutoCompleteSelectMultipleWidget(forms.widgets.SelectMultiple):
             'extra_attrs': mark_safe(flatatt(final_attrs)),
             'func_slug': self.html_id.replace("-",""),
             'add_link' : self.add_link,
-            'admin_media_prefix' : settings.ADMIN_MEDIA_PREFIX
+            'admin_media_prefix' : settings.STATIC_URL + "admin/"
         }
         return mark_safe(render_to_string(('autocompleteselectmultiple_%s.html' % self.channel, 'autocompleteselectmultiple.html'),context))
 
