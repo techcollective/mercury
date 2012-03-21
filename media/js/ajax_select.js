@@ -1,3 +1,5 @@
+(function($){
+
 /* didAddPopup requires django's RelatedObjectLookups.js */
 function didAddPopup(win, newId, newRepr) {
     var name = windowname_to_id(win.name);
@@ -5,7 +7,7 @@ function didAddPopup(win, newId, newRepr) {
     win.close();
 }
 
-function handleResult(event, ui){
+$.handleResult = function (event, ui){
     input_id = event.target.id;
     $("#" + input_id + "_hidden").val(ui.item.pk);
     $("#" + input_id + "_val").val(ui.item.value);
@@ -41,7 +43,7 @@ function handleResult(event, ui){
     }
 }
 
-function handleChange(event, ui){
+$.handleChange = function (event, ui){
     val_id = this.id + "_val";
     // blank the input and hidden id fields if the value in the box
     // is invalid (it should match the value it was originally set to)
@@ -90,3 +92,4 @@ $(document).ready(function(){
         }
     });
 });
+})(django.jQuery);

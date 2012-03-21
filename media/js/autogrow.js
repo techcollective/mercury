@@ -56,8 +56,9 @@
 
     };
 
-})(jQuery);
+})(django.jQuery);
 
+(function($){
 $(document).ready(function(){
         $("input").autoGrowInput({
             comfortZone: 0
@@ -65,3 +66,4 @@ $(document).ready(function(){
         // trigger resize for pre-filled fields
         $("input").trigger("blur");
     });
+})(django.jQuery);
