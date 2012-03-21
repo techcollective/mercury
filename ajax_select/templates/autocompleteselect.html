@@ -7,7 +7,7 @@
 <input type="hidden" name="{{ name }}" id="{{ html_id }}_hidden" value="{{ current_id }}" />
 <input type="hidden" name="{{ name }}_val" id="{{ html_id }}_val" value="{{ current_result }}" />
 <script type="text/javascript">
-$("#{{ html_id }}").autocomplete({
+django.jQuery("#{{ html_id }}").autocomplete({
     source: "{{ lookup_url }}",
     select: handleResult,
     change: handleChange
