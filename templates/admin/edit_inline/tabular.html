@@ -112,6 +112,9 @@
                 }
             });
         }
+        var setAutocomplete = function(row) {
+          alert("added");
+        };
         $(rows).formset({
             prefix: "{{ inline_admin_formset.formset.prefix }}",
             addText: "{% blocktrans with verbose_name=inline_admin_formset.opts.verbose_name|title %}Add another {{ verbose_name }}{% endblocktrans %}",
@@ -125,6 +128,7 @@
                 reinitDateTimeShortCuts();
                 updateSelectFilter();
                 alternatingRows(row);
+                setAutocomplete(row);
             })
         });
     });
