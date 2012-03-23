@@ -113,7 +113,26 @@
             });
         }
         var setAutocomplete = function(row) {
-          alert("added");
+          // at this point, we know that a new row has been created. we need to
+          // check all of its children and see if autocomplete options exist for
+          // any of them. if so, we activate autocomplete with the found options.
+          // see ajax_select/templates/autocompleteselect.html
+          split = "-"
+          var base_name = "id_" + $(row).attr("id"); // base_name = id_invoiceentry_set-1
+          base_name = base_name.split(split); // base_name = [id_invoiceentry_set, 1]
+          base_name.pop(); // base_name = [id_invoiceentry_set]
+          var option_name = base_name.slice(0); // option_name = [id_invoiceentry_set]
+          option_name.push("__prefix__"); // option_name = [id_invoiceentry_set, __prefix__]
+          var search_for = '[id^="' + base_name.join(split) + '"]'; // search_for = 'id^="id_invoiceentry_set"'
+          $(row).find(search_for).each(function() { // will find all <input> elements in the row
+            var field = $(this).attr("id").split(split).pop(); // field = item (id_invoiceentry_set-1-item -> item)
+            option_name.push(field); // option_name = [id_invoiceentry_set, __prefix__, item]
+            var option_id = option_name.join(split);
+            if (autocomplete_options[option_id]) {
+              jQuery(this).autocomplete(autocomplete_options[option_id]).autoGrowInput(autogrow_options);
+            }
+            option_name.pop();
+          });
         };
         $(rows).formset({
             prefix: "{{ inline_admin_formset.formset.prefix }}",

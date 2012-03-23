@@ -7,11 +7,24 @@
 <input type="hidden" name="{{ name }}" id="{{ html_id }}_hidden" value="{{ current_id }}" />
 <input type="hidden" name="{{ name }}_val" id="{{ html_id }}_val" value="{{ current_result }}" />
 <script type="text/javascript">
-$("#{{ html_id }}").autocomplete({
+// keep a record of the autocomplete options used for each field. we might be
+// creating an invisible "template" widget that is cloned when adding new inlines
+// dynamically (by clicking on the "add another" button). in this case, the newly
+// created widget needs to have .autocomplete() called on it. the code that looks
+// up the options and activates autocomplete on the new widget is in
+// /templates/admin/edit_inline/tabular.html
+if (typeof autocomplete_options == "undefined") {
+    // initialize the dict if it doesn't exist
+    var autocomplete_options = {}
+}
+if (typeof autogrow_options == "undefined") {
+    // initialize the dict if it doesn't exist
+    var autogrow_options = { comfortZone: 0 };
+}
+autocomplete_options["{{ html_id }}"] = {
     source: "{{ lookup_url }}",
     select: handleResult,
     change: handleChange
-}).autoGrowInput({
-    comfortZone: 0
-});
+};
+$("#{{ html_id }}").autocomplete(autocomplete_options["{{ html_id }}"]).autoGrowInput(autogrow_options);
 </script>
