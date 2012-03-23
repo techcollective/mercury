@@ -101,8 +101,8 @@ def get_or_create_default_invoice_term():
     setting = "default invoice term in days for new customers"
     desired_term = get_integer_setting(setting, default=None)
     if desired_term is not None:
-            desired_term, created = InvoiceTerm.objects.get_or_create(
-                                           days_until_invoice_due=desired_term)
+        desired_term, created = InvoiceTerm.objects.get_or_create(
+                                        days_until_invoice_due=desired_term)
     return desired_term
 
 

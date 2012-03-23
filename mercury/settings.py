@@ -112,10 +112,10 @@ STATICFILES_FINDERS = (
 )
 
 try:
-    from secret_key import SECRET_KEY
+    from mercury.secret_key import SECRET_KEY
 except:
     generate_secret_key(os.path.join(this_dir, "secret_key.py"))
-    from secret_key import SECRET_KEY
+    from mercury.secret_key import SECRET_KEY
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

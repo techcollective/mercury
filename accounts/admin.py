@@ -3,7 +3,6 @@ import datetime
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import SimpleListFilter
-from django.utils.datastructures import SortedDict
 
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
@@ -72,13 +71,13 @@ class CustomerInvoiceInline(admin.TabularInline):
     link_readonly = "description"
 
     def queryset(self, request):
-        qs = super(CustomerInvoiceInline, self).queryset(request)
+        query_set = super(CustomerInvoiceInline, self).queryset(request)
         display_paid = get_display_paid()
         paid_status = get_or_create_paid_invoice_status()
 
         if not display_paid:
-            qs = qs.exclude(status__status=paid_status)
-        return qs
+            query_set = query_set.exclude(status__status=paid_status)
+        return query_set
 
 
 # custom filters (for list_filter)
@@ -114,7 +113,6 @@ class StockStatusListFilter(SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        paid_status = get_or_create_paid_invoice_status()
         if self.value() == "instock":
             return queryset.exclude(number_in_stock__lte=0).filter(
                 manage_stock=True)
@@ -134,7 +132,6 @@ class DepositedStatusListFilter(SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        paid_status = get_or_create_paid_invoice_status()
         if self.value() == "deposited":
             return queryset.filter(deposit__isnull=False).filter(
                 payment_type__manage_deposits=True)
