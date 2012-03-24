@@ -151,18 +151,18 @@ class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
             obj.created_by = request.user
         obj.save()
 
-    def post_save(self, instance):
-        # get the most recent instance from the db. the post save signal hook
-        # may have made changes since the admin called save().
-        instance = refresh(instance)
-        instance.update()
-        instance.save()
-
     def get_customer_link(self, instance):
         url = get_change_url(instance.customer)
         return "<a href=\"%s\">%s</a>" % (url, instance.customer.name)
     get_customer_link.allow_tags = True
     get_customer_link.short_description = "Customer"
+
+    def save_related(self, request, form, formsets, change):
+        super(InvoiceQuoteBaseAdmin, self).save_related(request, form,
+                                                        formsets, change)
+        instance = form.instance
+        instance = instance.update(instance)
+        instance.save()
 
 
 class InvoiceAdmin(InvoiceQuoteBaseAdmin):
@@ -182,16 +182,17 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
     list_filter = [UnpaidStatusListFilter, "status", "created_by"]
 
     def save_formset(self, request, form, formset, change):
-        def set_user(instance):
-            instance.received_by = request.user
-            instance.save()
-
+        # if adding inline payments to an invoice, set the creator of
+        # the payments.
         if formset.model == Payment:
             instances = formset.save(commit=False)
-            map(set_user, instances)
+            for instance in instances:
+                instance.received_by = request.user
+                instance.save()
             formset.save_m2m()
         else:
-            return formset.save()
+            super(InvoiceAdmin, self).save_formset(request, form, formset,
+                                                   change)
 
 
 class QuoteAdmin(InvoiceQuoteBaseAdmin):

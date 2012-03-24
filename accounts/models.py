@@ -93,39 +93,47 @@ class QuoteInvoiceBase(models.Model):
                                    help_text="This will automatically be set "
                                    "to the current user if left blank.")
 
-    def update_tax(self):
+    @staticmethod
+    def update_tax(invoice):
         tax = decimal.Decimal(0)
         tax_percentage = get_tax_percentage()
-        if self.customer.is_taxable:
-            for entry in self.get_entries():
+        if invoice.customer.is_taxable:
+            for entry in invoice.get_entries():
                 if entry.item.is_taxable:
                     tax += entry.total * tax_percentage / 100
-        self.total_tax = tax
+        invoice.total_tax = tax
+        return invoice
 
-    def update_totals(self):
-        self.update_tax()
+    @staticmethod
+    def update_totals(invoice):
+        invoice = QuoteInvoiceBase.update_tax(invoice)
         subtotal = decimal.Decimal(0)
         grand_total = decimal.Decimal(0)
-        for entry in self.get_entries():
+        for entry in invoice.get_entries():
             subtotal += entry.total
-        self.subtotal = subtotal
-        self.grand_total = subtotal + self.total_tax
+        invoice.subtotal = subtotal
+        invoice.grand_total = subtotal + invoice.total_tax
+        return invoice
 
-    def update_description(self):
+    @staticmethod
+    def update_description(invoice):
         update = get_fill_description()
-        if update and not self.description:
-            entries = self.get_entries()
+        if update and not invoice.description:
+            entries = invoice.get_entries()
             entries = [(entry.description or str(entry.item))
                        for entry in entries]
             entries = ", ".join(entries)
-            description = "%s - %s" % (str(self.customer), entries)
+            description = "%s - %s" % (str(invoice.customer), entries)
             if len(description) > 200:  # field length limit
                 description = description[:197] + "..."
-            self.description = description
+            invoice.description = description
+        return invoice
 
-    def update(self):
-        self.update_totals()
-        self.update_description()
+    @staticmethod
+    def update(invoice):
+        invoice = QuoteInvoiceBase.update_totals(invoice)
+        invoice = QuoteInvoiceBase.update_description(invoice)
+        return invoice
 
     def get_number(self):
         num_zeros = get_invoice_padding()
@@ -189,30 +197,33 @@ class Invoice(QuoteInvoiceBase):
             entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
 
+    @staticmethod
+    def update(invoice):
+        invoice = QuoteInvoiceBase.update(invoice)
+        return Invoice.update_status(invoice)
 
-def update_invoice_status(sender, **kwargs):
-    instance = kwargs["instance"]
-    # the refresh is important to get the rounded decimal value out of the
-    # DB. recalculating tax on save() can make the value in memory have
-    # more decimal places than are actually stored. this can result in
-    # a stored grand_total of e.g. 10.07 and a calculated grand_total of
-    # 10.073. Then total_payments != grand_total.
-    instance = refresh(instance)
-    if get_auto_invoice_status():
-        total_payments = instance.payment_set.all().aggregate(
-                                         total=models.Sum("amount"))["total"]
-        paid_status = get_or_create_paid_invoice_status()
-        new_status = instance.status
-        if total_payments >= instance.grand_total:
-            new_status = paid_status
-        elif (instance.status == paid_status) and \
-             (total_payments < instance.grand_total):
-            new_status = get_or_create_default_invoice_status()
-        if instance.status != new_status:
-            instance.status = new_status
-            instance.save()
-
-models.signals.post_save.connect(update_invoice_status, sender=Invoice)
+    @staticmethod
+    def update_status(invoice):
+        # the save/refresh is important to get the rounded decimal value out of
+        # the DB. recalculating tax on save() can make the value in memory have
+        # more decimal places than are actually stored. this can result in
+        # a stored grand_total of e.g. 10.07 and a calculated grand_total of
+        # 10.073. Then total_payments != grand_total.
+        invoice.save()
+        invoice = refresh(invoice)
+        if get_auto_invoice_status():
+            total_payments = invoice.payment_set.all().aggregate(
+                                             total=models.Sum("amount"))["total"]
+            paid_status = get_or_create_paid_invoice_status()
+            new_status = invoice.status
+            if total_payments >= invoice.grand_total:
+                new_status = paid_status
+            elif (invoice.status == paid_status) and \
+                 (total_payments < invoice.grand_total):
+                new_status = get_or_create_default_invoice_status()
+            if invoice.status != new_status:
+                invoice.status = new_status
+        return invoice
 
 
 class Entry(models.Model):
