@@ -204,19 +204,22 @@ class Invoice(QuoteInvoiceBase):
 
     @staticmethod
     def update_status(invoice):
-        # the save/refresh is important to get the rounded decimal value out of
-        # the DB. recalculating tax on save() can make the value in memory have
-        # more decimal places than are actually stored. this can result in
-        # a stored grand_total of e.g. 10.07 and a calculated grand_total of
-        # 10.073. Then total_payments != grand_total.
-        invoice.save()
-        invoice = refresh(invoice)
         if get_auto_invoice_status():
+            # first, round the just-calculated grand_total in the same way as
+            # it will be rounded in the DB. total_payments can appear to !=
+            # grand_total if for e.g. grand_total appears as 10.07 to the user
+            # but the calculated value is 10.073.
+            # rounding copied from django.db.backends.utils.format_number
+            context = decimal.getcontext().copy()
+            field = Invoice._meta.get_field_by_name("grand_total")[0]
+            context.prec = field.max_digits
+            grand_total = invoice.grand_total.quantize(
+                decimal.Decimal(".1") ** field.decimal_places, context=context)
             total_payments = invoice.payment_set.all().aggregate(
                                              total=models.Sum("amount"))["total"]
             paid_status = get_or_create_paid_invoice_status()
             new_status = invoice.status
-            if total_payments >= invoice.grand_total:
+            if total_payments >= grand_total:
                 new_status = paid_status
             elif (invoice.status == paid_status) and \
                  (total_payments < invoice.grand_total):
