@@ -11,6 +11,7 @@ from mercury.exceptions import MercuryException
 this_dir = os.path.abspath(os.path.dirname(__file__))
 project_root = os.path.abspath(os.path.join(this_dir, ".."))
 
+
 def generate_secret_key(file):
     """
     Used to generate a file containing a random SECRET_KEY setting.
@@ -25,7 +26,7 @@ def generate_secret_key(file):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         secret_key = get_random_string(50, chars)
         file = open(file, "w")
-        file.write("SECRET_KEY = \"%s\"" % secret_key)
+        file.write("SECRET_KEY = \"%s\"\n" % secret_key)
         file.close()
 
 DEBUG = True
@@ -41,7 +42,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mercury',
-        'USER': 'mercury',                      # Not used with sqlite3.
+        'USER': 'mercury',               # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
@@ -140,8 +141,6 @@ WSGI_APPLICATION = 'mercury.wsgi.application'
 
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(project_root, "templates"),
 )

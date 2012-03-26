@@ -35,7 +35,8 @@ class InvoiceStatus(models.Model):
 
 
 class InvoiceTerm(models.Model):
-    days_until_invoice_due = models.PositiveIntegerField(default=0, unique=True)
+    days_until_invoice_due = models.PositiveIntegerField(default=0,
+                                                         unique=True)
 
     def __unicode__(self):
         if self.days_until_invoice_due > 0:

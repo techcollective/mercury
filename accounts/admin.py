@@ -29,6 +29,7 @@ class AjaxTabularInline(admin.TabularInline):
         autoselect_fields_check_can_add(formset.form, self.model, request.user)
         return formset
 
+
 class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
     verbose_name = "Product or service"

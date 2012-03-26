@@ -210,13 +210,13 @@ class Invoice(QuoteInvoiceBase):
             self.grand_total = self.grand_total.quantize(
                 decimal.Decimal(".1") ** field.decimal_places, context=context)
             total_payments = self.payment_set.all().aggregate(
-                                             total=models.Sum("amount"))["total"]
+                                           total=models.Sum("amount"))["total"]
             paid_status = get_or_create_paid_invoice_status()
             if total_payments >= self.grand_total:
                 self.status = paid_status
             elif (self.status == paid_status) and \
                  (total_payments < self.grand_total):
-                self.status= get_or_create_default_invoice_status()
+                self.status = get_or_create_default_invoice_status()
 
 
 class Entry(models.Model):
