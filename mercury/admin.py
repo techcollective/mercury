@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy
+from django.conf import settings
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
@@ -9,6 +10,11 @@ from accounts.models import Entry
 
 from ajax_select.admin import AjaxSelectAdmin
 
+
+# served minified JS in production
+MINI = ".min"
+if settings.DEBUG:
+    MINI = ""
 
 # This is disabled so that the custom method that calls it can catch any
 # MecuryExceptions raised during deletion. Also note that the delete_selected
@@ -27,8 +33,9 @@ def handle_exception(request, mercury_exception):
 
 class MercuryAdmin(admin.ModelAdmin):
     class Media:
-        js = ("ajax_select/js/jquery-1.4.2.min.js",
-              "ajax_select/js/autogrow.js",)
+        js = ("ajax_select/js/jquery-1.7.2%s.js" % MINI,
+              "ajax_select/js/autogrow%s.js" % MINI,
+              )
     list_per_page = get_items_per_page()
     qs_delete = False
     actions = ["delete_selected_wrapper"]
@@ -60,6 +67,6 @@ class MercuryAjaxAdmin(MercuryAdmin, AjaxSelectAdmin):
         css = {
             "all": ("ajax_select/css/base/jquery.ui.all.css",)
         }
-        js = ("ajax_select/js/jquery-ui-1.8.5.custom.min.js",
-              "ajax_select/js/ajax_select.js",
+        js = ("ajax_select/js/jquery-ui-1.8.18.custom%s.js" % MINI,
+              "ajax_select/js/ajax_select%s.js" % MINI,
               )
