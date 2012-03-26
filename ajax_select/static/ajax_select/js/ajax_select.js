@@ -59,10 +59,10 @@ function handleChange(event, ui){
 $(document).ready(function(){
     // Mouseover effect for X
     $("body").delegate(".ajax-clearfield img", "mouseenter", function(){
-        $(this).attr("src", "/media/img/deleteover.png");
+        $(this).attr("src", STATIC_URL + "ajax_select/img/deleteover.png");
     });
     $("body").delegate(".ajax-clearfield img", "mouseleave", function(){
-        $(this).attr("src", "/media/img/delete.png");
+        $(this).attr("src", STATIC_URL + "ajax_select/img/delete.png");
     });
     // Clicking on X clears the input
     $("body").delegate(".ajax-clearfield", "click", function(){

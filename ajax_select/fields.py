@@ -47,7 +47,7 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 #'func_slug': self.html_id.replace("-",""),
                 'add_link' : self.add_link,
                 'admin_media_prefix' : settings.STATIC_URL + "admin/",
-                'media_url': settings.MEDIA_URL,
+                'media_url': settings.STATIC_URL + "ajax_select/",
                 }
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
 
