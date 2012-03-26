@@ -1,2 +1,3 @@
 *.pyc
 mercury/secret_key.py
+static/
