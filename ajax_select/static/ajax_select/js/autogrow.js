@@ -11,43 +11,43 @@
         this.filter('input:text').each(function(){
 
             var minWidth = o.minWidth || $(this).width(),
-                val = '',
-                input = $(this),
-                testSubject = $('<tester/>').css({
-                    position: 'absolute',
-                    top: -9999,
-                    left: -9999,
-                    width: 'auto',
-                    fontSize: input.css('fontSize'),
-                    fontFamily: input.css('fontFamily'),
-                    fontWeight: input.css('fontWeight'),
-                    letterSpacing: input.css('letterSpacing'),
-                    whiteSpace: 'nowrap'
-                }),
-                check = function() {
+            val = '',
+            input = $(this),
+            testSubject = $('<tester/>').css({
+                position: 'absolute',
+                top: -9999,
+                left: -9999,
+                width: 'auto',
+                fontSize: input.css('fontSize'),
+                fontFamily: input.css('fontFamily'),
+                fontWeight: input.css('fontWeight'),
+                letterSpacing: input.css('letterSpacing'),
+                whiteSpace: 'nowrap'
+            }),
+            check = function() {
 
-                    if (val === (val = input.val())) {return;}
+                if (val === (val = input.val())) {return;}
 
-                    // Enter new content into testSubject
-                    var escaped = val.replace(/&/g, '&amp;').replace(/\s/g,'&nbsp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                    testSubject.html(escaped);
+                // Enter new content into testSubject
+                var escaped = val.replace(/&/g, '&amp;').replace(/\s/g,'&nbsp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                testSubject.html(escaped);
 
-                    // Calculate new width + whether to change
-                    var testerWidth = testSubject.width(),
-                        newWidth = (testerWidth + o.comfortZone) >= minWidth ? testerWidth + o.comfortZone : minWidth,
-                        currentWidth = input.width(),
-                        isValidWidthChange = (newWidth < currentWidth && newWidth >= minWidth)
-                                             || (newWidth > minWidth && newWidth < o.maxWidth);
+                // Calculate new width + whether to change
+                var testerWidth = testSubject.width(),
+                    newWidth = (testerWidth + o.comfortZone) >= minWidth ? testerWidth + o.comfortZone : minWidth,
+                    currentWidth = input.width(),
+                    isValidWidthChange = (newWidth < currentWidth && newWidth >= minWidth)
+                                         || (newWidth > minWidth && newWidth < o.maxWidth);
 
-                    // Animate width
-                    if (isValidWidthChange) {
-                        input.width(newWidth);
-                    }
+                // Animate width
+                if (isValidWidthChange) {
+                    input.width(newWidth);
+                }
 
-                };
+            };
 
             testSubject.insertAfter(input);
-
+            check();
             $(this).bind('keyup keydown blur change', check);
 
         });
@@ -58,10 +58,8 @@
 
 })(jQuery);
 
+var AUTOGROW_OPTIONS = { comfortZone: 0 };
+
 $(document).ready(function(){
-        $("input").autoGrowInput({
-            comfortZone: 0
-        });
-        // trigger resize for pre-filled fields
-        $("input").trigger("blur");
-    });
+    $("input").autoGrowInput(AUTOGROW_OPTIONS);
+});

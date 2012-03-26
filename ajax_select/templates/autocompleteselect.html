@@ -12,19 +12,14 @@
 // dynamically (by clicking on the "add another" button). in this case, the newly
 // created widget needs to have .autocomplete() called on it. the code that looks
 // up the options and activates autocomplete on the new widget is in
-// /templates/admin/edit_inline/tabular.html
-if (typeof autocomplete_options == "undefined") {
-    // initialize the dict if it doesn't exist
-    var autocomplete_options = {}
-}
-if (typeof autogrow_options == "undefined") {
-    // initialize the dict if it doesn't exist
-    var autogrow_options = { comfortZone: 0 };
-}
-autocomplete_options["{{ html_id }}"] = {
+// templates/admin/edit_inline/tabular.html
+// global vars AUTOCOMPLETE_OPTIONS and AUTOGROW_OPTIONS declared in
+// ajax_select/static/ajax_select/js/{ajax_select.js, autogrow.js}
+
+AUTOCOMPLETE_OPTIONS["{{ html_id }}"] = {
     source: "{{ lookup_url }}",
     select: handleResult,
     change: handleChange
 };
-$("#{{ html_id }}").autocomplete(autocomplete_options["{{ html_id }}"]).autoGrowInput(autogrow_options);
+$("#{{ html_id }}").autocomplete(AUTOCOMPLETE_OPTIONS["{{ html_id }}"]).autoGrowInput(AUTOGROW_OPTIONS);
 </script>

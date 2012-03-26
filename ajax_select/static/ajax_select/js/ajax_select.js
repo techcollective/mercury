@@ -56,6 +56,8 @@ function handleChange(event, ui){
     }
 }
 
+var AUTOCOMPLETE_OPTIONS = {};
+
 $(document).ready(function(){
     // Mouseover effect for X
     $("body").delegate(".ajax-clearfield img", "mouseenter", function(){
