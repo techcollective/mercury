@@ -26,6 +26,9 @@ def handle_exception(request, mercury_exception):
 
 
 class MercuryAdmin(admin.ModelAdmin):
+    class Media:
+        js = ("ajax_select/js/jquery-1.4.2.min.js",
+              "ajax_select/js/autogrow.js",)
     list_per_page = get_items_per_page()
     qs_delete = False
     actions = ["delete_selected_wrapper"]
@@ -57,8 +60,6 @@ class MercuryAjaxAdmin(MercuryAdmin, AjaxSelectAdmin):
         css = {
             "all": ("ajax_select/css/base/jquery.ui.all.css",)
         }
-        js = ("ajax_select/js/jquery-1.4.2.min.js",
-              "ajax_select/js/jquery-ui-1.8.5.custom.min.js",
+        js = ("ajax_select/js/jquery-ui-1.8.5.custom.min.js",
               "ajax_select/js/ajax_select.js",
-              "ajax_select/js/autogrow.js",
               )
