@@ -93,47 +93,39 @@ class QuoteInvoiceBase(models.Model):
                                    help_text="This will automatically be set "
                                    "to the current user if left blank.")
 
-    @staticmethod
-    def update_tax(invoice):
+    def update_tax(self):
         tax = decimal.Decimal(0)
         tax_percentage = get_tax_percentage()
-        if invoice.customer.is_taxable:
-            for entry in invoice.get_entries():
+        if self.customer.is_taxable:
+            for entry in self.get_entries():
                 if entry.item.is_taxable:
                     tax += entry.total * tax_percentage / 100
-        invoice.total_tax = tax
-        return invoice
+        self.total_tax = tax
 
-    @staticmethod
-    def update_totals(invoice):
-        invoice = QuoteInvoiceBase.update_tax(invoice)
+    def update_totals(self):
+        self.update_tax()
         subtotal = decimal.Decimal(0)
         grand_total = decimal.Decimal(0)
-        for entry in invoice.get_entries():
+        for entry in self.get_entries():
             subtotal += entry.total
-        invoice.subtotal = subtotal
-        invoice.grand_total = subtotal + invoice.total_tax
-        return invoice
+        self.subtotal = subtotal
+        self.grand_total = subtotal + self.total_tax
 
-    @staticmethod
-    def update_description(invoice):
+    def update_description(self):
         update = get_fill_description()
-        if update and not invoice.description:
-            entries = invoice.get_entries()
+        if update and not self.description:
+            entries = self.get_entries()
             entries = [(entry.description or str(entry.item))
                        for entry in entries]
             entries = ", ".join(entries)
-            description = "%s - %s" % (str(invoice.customer), entries)
+            description = "%s - %s" % (str(self.customer), entries)
             if len(description) > 200:  # field length limit
                 description = description[:197] + "..."
-            invoice.description = description
-        return invoice
+            self.description = description
 
-    @staticmethod
-    def update(invoice):
-        invoice = QuoteInvoiceBase.update_totals(invoice)
-        invoice = QuoteInvoiceBase.update_description(invoice)
-        return invoice
+    def update(self):
+        self.update_totals()
+        self.update_description()
 
     def get_number(self):
         num_zeros = get_invoice_padding()
@@ -197,36 +189,34 @@ class Invoice(QuoteInvoiceBase):
             entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
 
-    @staticmethod
-    def update(invoice):
-        invoice = QuoteInvoiceBase.update(invoice)
-        return Invoice.update_status(invoice)
+    def update(self):
+        super(Invoice, self).update()
+        self.update_status()
 
-    @staticmethod
-    def update_status(invoice):
+    def update_status(self):
         if get_auto_invoice_status():
-            # first, round the just-calculated grand_total in the same way as
-            # it will be rounded in the DB. total_payments can appear to !=
-            # grand_total if for e.g. grand_total appears as 10.07 to the user
-            # but the calculated value is 10.073.
+            # this method is usually called right after self.update_totals(),
+            # so grand_total has been calculated but not yet stored in the DB.
+            # if the calculated total has extra decimal places, it will appear
+            # that the payment entered by the user isn't enough to mark the
+            # invoice as paid. e.g. grand_total could be calculated to be
+            # 10.073, which != the payment of 10.07. the solution here is we
+            # first round the just-calculated grand_total in the same way as it
+            # will be rounded in the DB.
             # rounding copied from django.db.backends.utils.format_number
             context = decimal.getcontext().copy()
             field = Invoice._meta.get_field_by_name("grand_total")[0]
             context.prec = field.max_digits
-            grand_total = invoice.grand_total.quantize(
+            self.grand_total = self.grand_total.quantize(
                 decimal.Decimal(".1") ** field.decimal_places, context=context)
-            total_payments = invoice.payment_set.all().aggregate(
+            total_payments = self.payment_set.all().aggregate(
                                              total=models.Sum("amount"))["total"]
             paid_status = get_or_create_paid_invoice_status()
-            new_status = invoice.status
-            if total_payments >= grand_total:
-                new_status = paid_status
-            elif (invoice.status == paid_status) and \
-                 (total_payments < invoice.grand_total):
-                new_status = get_or_create_default_invoice_status()
-            if invoice.status != new_status:
-                invoice.status = new_status
-        return invoice
+            if total_payments >= self.grand_total:
+                self.status = paid_status
+            elif (self.status == paid_status) and \
+                 (total_payments < self.grand_total):
+                self.status= get_or_create_default_invoice_status()
 
 
 class Entry(models.Model):

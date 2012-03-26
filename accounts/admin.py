@@ -161,7 +161,7 @@ class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
         super(InvoiceQuoteBaseAdmin, self).save_related(request, form,
                                                         formsets, change)
         instance = form.instance
-        instance = instance.update(instance)
+        instance.update()
         instance.save()
 
 
