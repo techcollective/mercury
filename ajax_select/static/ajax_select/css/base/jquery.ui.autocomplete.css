@@ -1,19 +1,19 @@
 /*
- * jQuery UI Autocomplete @VERSION
+ * jQuery UI Autocomplete 1.8.18
  *
- * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
+ * Copyright 2011, AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  *
  * http://docs.jquery.com/UI/Autocomplete#theming
  */
-.ui-autocomplete { position: absolute; cursor: default; }
+.ui-autocomplete { position: absolute; cursor: default; }	
 
 /* workarounds */
 * html .ui-autocomplete { width:1px; } /* without this, the menu expands to 100% in IE6 */
 
 /*
- * jQuery UI Menu @VERSION
+ * jQuery UI Menu 1.8.18
  *
  * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -50,8 +50,4 @@
 .ui-menu .ui-menu-item a.ui-state-active {
 	font-weight: normal;
 	margin: -1px;
-}
-
-.ui-autocomplete li {
-	list-style-type: none;
 }
