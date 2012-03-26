@@ -289,6 +289,8 @@ class PaymentAdmin(MercuryAjaxAdmin):
         if not obj.received_by:
             obj.received_by = request.user
         obj.save()
+        obj.invoice.update_status()
+        obj.invoice.save()
 
     def deposit(self, request, queryset):
         already_deposited = queryset.exclude(deposit=None)

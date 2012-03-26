@@ -350,7 +350,6 @@ class Payment(models.Model):
             # update deposit total
             self.deposit.update_total()
             self.deposit.save()
-        self.invoice.save()
 
     def delete(self, *args, **kwargs):
         if self.deposit:
