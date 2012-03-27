@@ -1,0 +1,7 @@
+pisa==3.0.33
+gunicorn==0.14.2
+setproctitle==1.1.5
+## The following requirements were added by pip --freeze:
+PIL==1.1.7
+html5lib==0.95
+reportlab==2.5
