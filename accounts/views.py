@@ -5,7 +5,7 @@ Views module for mercury accounts
 import StringIO
 import os
 
-import ho.pisa as pisa
+from xhtml2pdf import pisa
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -28,7 +28,7 @@ from mercury.helpers import (model_to_dict, get_changelist_url, get_change_url,
 
 def fetch_resources(uri, rel):
     """
-    Callback to allow pisa/reportlab to retrieve media.
+    Callback to allow xhtml2pdf to retrieve media.
     "uri" is the href attribute from the html link element.
     "rel" gives a relative path, but it's not used here.
 

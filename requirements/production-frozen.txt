@@ -1,7 +1,8 @@
-pisa==3.0.33
+xhtml2pdf==0.0.3
 gunicorn==0.14.2
 setproctitle==1.1.5
 ## The following requirements were added by pip --freeze:
 PIL==1.1.7
 html5lib==0.95
+pyPdf==1.13
 reportlab==2.5

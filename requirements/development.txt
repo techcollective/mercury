@@ -1,2 +1,2 @@
--r production.txt
+xhtml2pdf
 django-extensions
