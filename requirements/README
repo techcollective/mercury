@@ -1,0 +1,13 @@
+This directory contains files listing third party dependencies for mercury.
+
+To install the dependencies required for a normal mercury installation, run
+pip install -r production-frozen.txt
+
+To install the dependencies needed to run the mercury development server
+(./manage.py runserver), run
+pip install -r development-frozen.txt
+
+The production.txt and development.txt files contain lists of the relevant
+dependencies without known-good version information. They are used to
+upgrade (e.g. pip install -U -r production.txt) and to generate the frozen
+files (e.g. pip freeze -r production.txt > production-frozen.txt)
