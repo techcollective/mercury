@@ -293,6 +293,11 @@ class PaymentAdmin(MercuryAjaxAdmin):
         obj.invoice.update_status()
         obj.invoice.save()
 
+    def delete_model(self, request, obj):
+        super(PaymentAdmin, self).delete_model(request, obj)
+        obj.invoice.update_status()
+        obj.invoice.save()
+
     def deposit(self, request, queryset):
         already_deposited = queryset.exclude(deposit=None)
         count = already_deposited.count()
