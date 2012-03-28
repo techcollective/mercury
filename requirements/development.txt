@@ -1,3 +1,4 @@
+psycopg2
 xhtml2pdf
 django-extensions
 Fabric
