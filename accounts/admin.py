@@ -253,6 +253,16 @@ class DepositAdmin(MercuryAdmin):
 
 
 class PaymentAdmin(MercuryAjaxAdmin):
+    # these allow the custom querystring lookups used to show the user
+    # which deposited payments are preventing the deletion of a particular
+    # model instance. this will at some point be replaced with a different
+    # system. see https://github.com/techcollective/mercury/issues/153
+    allowed_lookups = ["invoice__customer__pk",  # customer
+                       "invoice__pk",  # invoice
+                       "payment_type__pk",  # payment type
+                       "invoice__status__pk",  # invoice status
+                       "invoice__customer__default_payment_terms__pk",  # terms
+                       ]
     form = make_ajax_form(Payment, {"invoice": "invoice"})
     list_display = ["get_invoice_link", "get_customer_link", "date_received",
                     "comment", "get_deposit_link", "received_by",

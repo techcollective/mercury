@@ -32,6 +32,14 @@ def handle_exception(request, mercury_exception):
 
 
 class MercuryAdmin(admin.ModelAdmin):
+    allowed_lookups = []
+
+    def lookup_allowed(self, lookup, value):
+        if lookup in self.allowed_lookups:
+            return True
+        else:
+            return super(MercuryAdmin, self).lookup_allowed(lookup, value)
+
     class Media:
         js = ("ajax_select/js/jquery-1.7.2%s.js" % MINI,
               "ajax_select/js/autogrow%s.js" % MINI,
