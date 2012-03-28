@@ -1,7 +1,10 @@
 xhtml2pdf==0.0.3
 django-extensions==0.8
+Fabric==1.4.0
 ## The following requirements were added by pip --freeze:
 PIL==1.1.7
 html5lib==0.95
 pyPdf==1.13
+pycrypto==2.5
 reportlab==2.5
+ssh==1.7.13
