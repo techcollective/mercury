@@ -13,7 +13,7 @@ env.mercury_git = "git://github.com/techcollective/mercury.git"
 require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 
 
-# todo: add init to prompt for hosts?
+# todo: add init to setup host.py?
 
 @task(default=True)
 def usage():
@@ -21,7 +21,7 @@ def usage():
     Prints this usage information
     """
     puts("usage: fab host.HOST TASK[:OPTIONS]")
-    puts("See the command list below for available host.HOST and TASK choices.")
+    puts("See the list below for available host.HOST and TASK choices.")
     puts("Use fab -d TASK for a list of that task's available options.")
     puts("\n".join(list_commands("", "normal")))
 
@@ -37,7 +37,7 @@ def install_src(branch="master"):
         run("git clone %(mercury_git)s %(mercury_src)s" % env)
         run("git checkout %s" % branch)
     else:
-        puts("Path %(mercury_src)s already exists. Try using update_src." % env)
+        puts("%(mercury_src)s already exists. Try using update_src." % env)
 
 
 @task
@@ -48,10 +48,10 @@ def install_virtualenv():
     """
     require("mercury_virtualenv", "python", **require_hosts)
     if not exists(env.mercury_virtualenv):
-        run("virtualenv --no-site-packages -p %(python)s %(mercury_virtualenv)s"
-            % env)
+        run("virtualenv --no-site-packages -p %(python)s"
+            " %(mercury_virtualenv)s" % env)
     else:
-        puts("Path %(mercury_virtualenv)s exists. "
+        puts("%(mercury_virtualenv)s exists. "
              "Try using install_dependencies" % env)
 
 
@@ -81,13 +81,15 @@ def install(branch="master"):
     install_src(branch)
     install_virtualenv()
     install_dependencies(branch)
-    # TODO: add local settings. prompt?
+    # TODO: add local settings. prompt for values? (after #161)
+
 
 @task
 def install_centos(branch="master"):
     """
     Installs and adds gunicorn and nginx initscripts
     """
+    # TODO
     pass
 
 
