@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     'ajax_select',
     'configuration',
     'accounts',
+    'reports',
 ]
 
 if DEBUG:
