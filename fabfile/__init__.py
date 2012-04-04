@@ -55,7 +55,7 @@ def install_virtualenv():
              "Try using install_dependencies" % env)
 
 
-def virtualenv(command):
+def virtualenv_run(command):
     activate = os.path.join(env.mercury_virtualenv, "bin/activate")
     run("source %s" % activate + " && " + command)
 
@@ -68,7 +68,7 @@ def install_dependencies(deps="production"):
     """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     reqs = os.path.join(env.mercury_src, "requirements/%s-frozen.txt" % deps)
-    virtualenv("pip install -r %s" % reqs)
+    virtualenv_run("pip install -r %s" % reqs)
 
 
 @task
@@ -81,7 +81,7 @@ def install(branch="master"):
     install_src(branch)
     install_virtualenv()
     install_dependencies(branch)
-    # TODO: add local settings. prompt for values? (after #161)
+    # TODO: add local settings. prompt for values? (after #161) Syncdb etc
 
 
 @task
@@ -114,7 +114,7 @@ def deploy(branch="master"):
     update_src(branch)
     install_dependencies()
     manage = os.path.join("%(mercury_src)s" % env, "manage.py")
-    run(manage + " collectstatic --noinput")
+    virtualenv_run(manage + " collectstatic --noinput")
 
 
 @task
