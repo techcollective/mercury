@@ -113,8 +113,8 @@ def deploy(branch="master"):
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     update_src(branch)
     install_dependencies()
-    manage = os.path.join("%(mercury_src)s ", manage.py)
-    run(manage + "collectstatic --noinput")
+    manage = os.path.join("%(mercury_src)s" % env, "manage.py")
+    run(manage + " collectstatic --noinput")
 
 
 @task
