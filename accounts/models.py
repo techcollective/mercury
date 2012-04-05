@@ -247,6 +247,15 @@ class Entry(models.Model):
 class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
 
+    class Meta:
+        # The nastiness below is because the list of invoice entries
+        # serves as a sales report, which I want to appear under the 'reports'
+        # app. db_table is there in order to continue using the table that was
+        # created prior to this functionality being added.
+        app_label = "reports"
+        db_table = "accounts_invoiceentry"
+        verbose_name = "Sale"
+
     def delete(self, *args, **kwargs):
         if self.item.manage_stock:
             # refresh is called because if multiple items are deleted, they
