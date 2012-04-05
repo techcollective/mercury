@@ -105,6 +105,8 @@ def update_src(branch="master"):
         run("git pull")
 
 
+# add task: delete *.pyc files
+
 @task
 def deploy(branch="master"):
     """
@@ -114,7 +116,8 @@ def deploy(branch="master"):
     update_src(branch)
     install_dependencies()
     manage = os.path.join("%(mercury_src)s" % env, "manage.py")
-    virtualenv_run(manage + " collectstatic --noinput")
+    virtualenv_run(manage + " collectstatic --noinput "
+                   "--settings=mercury.settings_production")
 
 
 @task

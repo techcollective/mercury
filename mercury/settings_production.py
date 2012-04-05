@@ -9,7 +9,7 @@ INSTALLED_APPS.remove("django_extensions")
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mercury',
         'USER': 'mercury',                       # Not used with sqlite3.
         'PASSWORD': 'PRODUCTION_PASSWORD_HERE',  # Not used with sqlite3.
