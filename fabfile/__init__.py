@@ -13,7 +13,7 @@ env.mercury_git = "git://github.com/techcollective/mercury.git"
 require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 
 
-# todo
+# TODO
 
 # add init task to setup host.py?
 
@@ -29,6 +29,8 @@ require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 # add install_centos task that will add gunicorn initscript and nginx config
 
 # update calls to install_dependencies to allow setting deps arg
+
+# add tasks to start/stop/reload gunicorn (maybe look at supervisord)
 
 
 @task(default=True)
@@ -122,12 +124,3 @@ def deploy(branch="master"):
     manage = os.path.join("%(mercury_src)s" % env, "manage.py")
     virtualenv_run(manage + " collectstatic --noinput "
                    "--settings=mercury.settings_production")
-
-
-@task
-def deploy_centos(branch="master"):
-    """
-    Deploys and uses initscript to restart gunicorn
-    """
-    deploy(branch)
-    sudo("service gunicorn restart")
