@@ -148,7 +148,7 @@ class QuoteInvoiceBase(models.Model):
             status = " - %s" % status
         return (capfirst(self._meta.verbose_name) + " " +
                 str(self.get_number()) + status + " - " +
-                self.description + " - " + self.get_formatted_total())
+                str(self.customer) + " - " + self.get_formatted_total())
 
     class Meta:
         abstract = True
