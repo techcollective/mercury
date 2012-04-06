@@ -31,6 +31,8 @@ from accounts.exceptions import (DepositedPaymentsException,
 
 
 class Customer(models.Model):
+    class Meta:
+        ordering = ["name"]
     name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=50, blank=True)
     email_address = models.EmailField(blank=True)
@@ -174,6 +176,8 @@ class Quote(QuoteInvoiceBase):
 
 
 class Invoice(QuoteInvoiceBase):
+    class Meta:
+        ordering = ["-date_created"]
     status = models.ForeignKey(InvoiceStatus,
                                default=get_or_create_default_invoice_status)
     date_due = models.DateField(default=datetime.date.today)

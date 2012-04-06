@@ -157,6 +157,7 @@ class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
         return "<a href=\"%s\">%s</a>" % (url, instance.customer.name)
     get_customer_link.allow_tags = True
     get_customer_link.short_description = "Customer"
+    get_customer_link.admin_order_field = "customer"
 
     def save_related(self, request, form, formsets, change):
         super(InvoiceQuoteBaseAdmin, self).save_related(request, form,
