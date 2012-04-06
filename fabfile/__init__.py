@@ -109,14 +109,16 @@ def update_src(branch="master"):
     """
     require("mercury_src", **require_hosts)
     with cd("%(mercury_src)s" % env):
+        run("git fetch")
         run("git checkout %s" % branch)
-        run("git pull")
+        run("git merge origin")
 
 
 @task
 def deploy(branch="master"):
     """
     Update source and install latest dependencies
+    Options: branch=BRANCH_NAME (default: master)
     """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     update_src(branch)
