@@ -6,5 +6,5 @@
 {% else %}
     <th scope="row">{{ model.name }}</th>
 {% endif %}
-    <td>&nbsp;</td>
+    <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'View' %}</a></td>
 </tr>
