@@ -111,7 +111,7 @@ def update_src(branch="master"):
     with cd("%(mercury_src)s" % env):
         run("git fetch")
         run("git checkout %s" % branch)
-        run("git merge origin")
+        run("git merge origin/%s" % branch)
 
 
 @task
