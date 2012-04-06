@@ -1,0 +1,28 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style type="text/css">
+        .disabled-link {
+            font-size: 11px;
+            font-weight: 400;
+            color: #333333 !important;
+            cursor: text;
+        }
+    </style>
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function($) {
+                $("th.nowrap a").click(function(){
+                        return false;
+                    }).addClass("disabled-link");
+            });
+        })(django.jQuery);
+    </script>
+{% endblock %}
+
+{% load total %}
+{% block result_list %}
+    {{ block.super }}
+    {% total "total" %}
+{% endblock %}
