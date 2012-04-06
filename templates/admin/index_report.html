@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<tr>
+{% if model.admin_url %}
+    <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+{% else %}
+    <th scope="row">{{ model.name }}</th>
+{% endif %}
+    <td>&nbsp;</td>
+</tr>
