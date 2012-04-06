@@ -245,6 +245,9 @@ class Entry(models.Model):
 
 
 class InvoiceEntry(Entry):
+    class Meta:
+        verbose_name = "invoice item"
+
     invoice = models.ForeignKey(Invoice)
 
     class Meta:
@@ -264,11 +267,6 @@ class InvoiceEntry(Entry):
             item.number_in_stock += self.quantity
             item.save()
         super(InvoiceEntry, self).delete(*args, **kwargs)
-
-    def __unicode__(self):
-        result = super(InvoiceEntry, self).__unicode__()
-        result += " (on %s)" % str(self.invoice)
-        return result
 
 
 def stock_callback(sender, **kwargs):
@@ -293,6 +291,9 @@ models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
 
 
 class QuoteEntry(Entry):
+    class Meta:
+        verbose_name = "quote item"
+
     quote = models.ForeignKey(Quote)
 
     def copy_to_invoice(self, invoice):
@@ -303,11 +304,6 @@ class QuoteEntry(Entry):
             setattr(new_invoice_entry, field, getattr(self, field))
         new_invoice_entry.invoice = invoice
         new_invoice_entry.save()
-
-    def __unicode__(self):
-        result = super(QuoteEntry, self).__unicode__()
-        result += " (on %s)" % str(self.quote)
-        return result
 
 
 class Deposit(models.Model):

@@ -8,7 +8,7 @@
 
 mercury_user=mercury
 gunicorn_django="/srv/mercury/virtualenv/bin/gunicorn_django"
-django_settings="/srv/mercury/src/mercury/settings_production.py"
+django_settings="/srv/mercury/src/mercury/mercury/settings_production.py"
 pid_file="/srv/mercury/gunicorn.pid"
 service_name="mercury gunicorn"
 
