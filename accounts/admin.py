@@ -279,6 +279,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
         return "<a href=\"%s\">%s</a>" % (url, instance.invoice.customer.name)
     get_customer_link.allow_tags = True
     get_customer_link.short_description = "Customer"
+    get_customer_link.admin_order_field = "invoice__customer"
 
     def get_invoice_link(self, instance):
         invoice = instance.invoice
@@ -286,6 +287,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
         return "<a href=\"%s\">%s</a>" % (url, str(invoice))
     get_invoice_link.allow_tags = True
     get_invoice_link.short_description = "Invoice"
+    get_invoice_link.admin_order_field = "invoice"
 
     def get_deposit_link(self, instance):
         deposit = instance.deposit
@@ -296,6 +298,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
             return "<a href=\"%s\">%s</a>" % (url, str(deposit))
     get_deposit_link.allow_tags = True
     get_deposit_link.short_description = "Deposit"
+    get_deposit_link.admin_order_field = "deposit"
 
     def save_model(self, request, obj, form, change):
         if not obj.received_by:
