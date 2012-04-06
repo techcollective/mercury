@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 
 from mercury.admin import MercuryAdmin
-from mercury.helpers import get_or_create_paid_invoice_status
+from mercury.helpers import (get_or_create_paid_invoice_status,
+                             get_change_url)
 from accounts.models import InvoiceEntry
 
 
@@ -29,8 +30,16 @@ class UnpaidStatusListFilter(SimpleListFilter):
 
 class SalesReportAdmin(MercuryAdmin):
     list_display = ["item", "cost", "quantity", "description", "discount",
-                    "total", "invoice"]
+                    "total", "get_invoice_link"]
     list_filter = ["invoice__status", UnpaidStatusListFilter,
                    "item__is_taxable", "invoice__created_by"]
+
+    def get_invoice_link(self, instance):
+        invoice = instance.invoice
+        url = get_change_url(invoice)
+        return "<a href=\"%s\">%s</a>" % (url, str(invoice))
+    get_invoice_link.allow_tags = True
+    get_invoice_link.short_description = "Invoice"
+
 
 admin.site.register(InvoiceEntry, SalesReportAdmin)
