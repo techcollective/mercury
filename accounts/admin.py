@@ -189,8 +189,9 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
         if formset.model == Payment:
             instances = formset.save(commit=False)
             for instance in instances:
-                instance.received_by = request.user
-                instance.save()
+                if not instance.received_by:
+                    instance.received_by = request.user
+                    instance.save()
             formset.save_m2m()
         else:
             super(InvoiceAdmin, self).save_formset(request, form, formset,
