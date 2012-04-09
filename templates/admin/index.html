@@ -18,15 +18,43 @@
         <table summary="{% blocktrans with name=app.name %}Models available in the {{ name }} application.{% endblocktrans %}">
         <caption><a href="{{ app.app_url }}" class="section">{% blocktrans with name=app.name %}{{ name }}{% endblocktrans %}</a></caption>
         {% for model in app.models %}
-            {% if app.name == "Reports" %}
-                {% include "admin/index_report.html" %}
+        {% if model.name != "Invoice items" %}
+            <tr>
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
             {% else %}
-                {% include "admin/index_model.html" %}
+                <th scope="row">{{ model.name }}</th>
             {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.admin_url %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endif %}
         {% endfor %}
         </table>
         </div>
     {% endfor %}
+        {# gigantic hack to make a "reports app" appear in the index #}
+        {% if app_list|length != 1%}
+        <div class="module">
+        <table summary="{% blocktrans %}Reports available in the reports application.{% endblocktrans %}">
+        <caption>{% blocktrans %} Reports {% endblocktrans %}</caption>
+            <tr>
+                <th scope="row"><a href="/accounts/invoiceentry">Sales</a></th>
+                <td><a href="/accounts/invoiceentry" class="changelink">{% trans 'View' %}</a></td>
+            </tr>
+        </table>
+        </div>
+        {% endif %}
 {% else %}
     <p>{% trans "You don't have permission to edit anything." %}</p>
 {% endif %}
