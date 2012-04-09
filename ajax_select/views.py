@@ -50,6 +50,6 @@ def add_popup(request, app_label,model):
 
     response = admin.add_view(request, request.path)
     if request.method == 'POST':
-        if response.content.startswith('<script type="text/javascript">opener.dismissAddAnotherPopup'):
+        if 'dismissAddAnotherPopup' in response.content:
             return HttpResponse(response.content.replace('dismissAddAnotherPopup','didAddPopup'))
     return response
