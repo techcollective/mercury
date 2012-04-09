@@ -363,6 +363,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
 
 
 class SalesReportAdmin(MercuryAdmin):
+    actions = None
     list_display = ["item", "cost", "quantity", "description", "discount",
                     "total", "get_invoice_link"]
     # todo: custom default filter that shows only paid stuff? after all
