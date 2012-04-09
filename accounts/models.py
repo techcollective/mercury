@@ -247,6 +247,7 @@ class Entry(models.Model):
 class InvoiceEntry(Entry):
     class Meta:
         verbose_name = "invoice item"
+        ordering = ["invoice"]
 
     invoice = models.ForeignKey(Invoice)
 
