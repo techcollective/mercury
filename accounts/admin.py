@@ -366,6 +366,27 @@ class ProductOrServiceAdmin(MercuryAdmin):
     list_filter = ["manage_stock", "is_taxable", StockStatusListFilter]
     list_editable = ["number_in_stock"]
 
+
+class SalesReportAdmin(MercuryAdmin):
+    actions = None
+    date_range = "invoice__date_created"
+    list_display = ["item", "cost", "quantity", "description", "discount",
+                    "total", "get_invoice_link"]
+    # todo: custom default filter that shows only paid stuff? after all
+    # this is a *sales* report
+    list_filter = ["invoice__status", "item__is_taxable",
+                   "invoice__created_by"]
+    allowed_lookups = ["invoice__date_created__gte",
+                       "invoice__date_created__lte"]
+
+    def get_invoice_link(self, instance):
+        invoice = instance.invoice
+        url = get_change_url(invoice)
+        return "<a href=\"%s\">%s</a>" % (url, str(invoice))
+    get_invoice_link.allow_tags = True
+    get_invoice_link.short_description = "Invoice"
+
+
 # Registration
 
 admin.site.register(Customer, CustomerAdmin)
@@ -374,3 +395,4 @@ admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(Quote, QuoteAdmin)
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Deposit, DepositAdmin)
+admin.site.register(InvoiceEntry, SalesReportAdmin)
