@@ -1,6 +1,7 @@
+{% if show %}
 {{ form.media }}
 <div class="form-row actions">
-<form action="" method="get">
+<form id="date-range-form" action="" method="get">
 {{ form.non_field_errors }}
 {% for field in form %}
     <div style="display: inline; margin-right: 1em">
@@ -11,3 +12,26 @@
 <button class="button" type="submit" />Go</button>
 </form>
 </div>
+{% comment %}
+The admin doesn't like empty params for valid lookups and throws everything away,
+so the JS below prevents GET params from being added to the URL if an input
+field is empty. Blanking the name works better than .remove() because in the
+latter case you see the input disappear as you hit the submit button.
+{% endcomment %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        $("#date-range-form").submit(function(){
+                var $t = $(this);
+                $t.find("input").each(function(){
+                        var $t = $(this);
+                        if ($t.val() == "") {
+                            $t.attr("name", "");
+                        }
+                    });
+            });
+    });
+})(django.jQuery);
+</script>
+
+{% endif %}
