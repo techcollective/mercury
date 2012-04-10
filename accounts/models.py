@@ -149,8 +149,8 @@ class QuoteInvoiceBase(models.Model):
         if status:
             status = " - %s" % status
         return (capfirst(self._meta.verbose_name) + " " +
-                str(self.get_number()) + status + " - " +
-                str(self.customer) + " - " + self.get_formatted_total())
+                unicode(self.get_number()) + status + " - " +
+                unicode(self.customer) + " - " + self.get_formatted_total())
 
     class Meta:
         abstract = True
@@ -245,7 +245,7 @@ class Entry(models.Model):
             add = " (%s)" % self.quantity
         else:
             add = ""
-        return "%s%s" % (str(self.item), add)
+        return u"%s%s" % (str(self.item), add)
 
 
 class InvoiceEntry(Entry):
@@ -323,8 +323,8 @@ class Deposit(models.Model):
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
-        return "Deposit of %s%s%s on %s" % (prefix, self.total, suffix,
-                                            self.date)
+        return u"Deposit of %s%s%s on %s" % (prefix, self.total, suffix,
+                                             self.date)
 
     class Meta:
         ordering = ["-date"]
@@ -373,11 +373,11 @@ class Payment(models.Model):
 
     def __unicode__(self):
         prefix, suffix = get_currency_symbol()
-        return "%s%s%s %s payment for %s" % (prefix,
-                                             self.amount,
-                                             suffix,
-                                             self.payment_type,
-                                             str(self.invoice))
+        return u"%s%s%s %s payment for %s" % (prefix,
+                                              self.amount,
+                                              suffix,
+                                              self.payment_type,
+                                              str(self.invoice))
 
     class Meta:
         ordering = ["-date_received"]
