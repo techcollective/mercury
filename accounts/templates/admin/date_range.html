@@ -1,4 +1,13 @@
 {{ form.media }}
-<form>
-    {{ form.as_p }}
+<div class="form-row actions">
+<form action="" method="get">
+{{ form.non_field_errors }}
+{% for field in form %}
+    <div style="display: inline; margin-right: 1em">
+        {{ field.errors }}
+        {{ field.label_tag }}: {{ field }}
+    </div>
+{% endfor %}
+<button class="button" type="submit" />Go</button>
 </form>
+</div>

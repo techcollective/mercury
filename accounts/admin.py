@@ -371,6 +371,8 @@ class SalesReportAdmin(MercuryAdmin):
     # this is a *sales* report
     list_filter = ["invoice__status", "item__is_taxable",
                    "invoice__created_by"]
+    allowed_lookups = ["invoice__date_created__gte",
+                       "invoice__date_created__lte"]
 
     def get_invoice_link(self, instance):
         invoice = instance.invoice

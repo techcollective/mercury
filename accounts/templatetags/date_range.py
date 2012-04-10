@@ -6,8 +6,10 @@ register = Library()
 
 
 class DateRangeForm(forms.Form):
-    start_date = forms.DateField(widget=AdminDateWidget)
-    end_date = forms.DateField(widget=AdminDateWidget)
+    invoice__date_created__gte = forms.DateField(widget=AdminDateWidget,
+                                                 label="Start date")
+    invoice__date_created__lte = forms.DateField(widget=AdminDateWidget,
+                                                 label="End date")
 
 @register.inclusion_tag('admin/date_range.html')
 def date_range(cl):
