@@ -73,3 +73,7 @@ class CurrencyField(models.DecimalField):
         sub = "%" + "0.%sf" % get_currency_decimal_places()
         value = sub % value
         return "%s%s%s" % (prefix, value, suffix)
+
+
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^accounts\.fields\.CurrencyField"])
