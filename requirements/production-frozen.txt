@@ -1,5 +1,6 @@
 psycopg2==2.4.4
 xhtml2pdf==0.0.3
+South==0.7.4
 gunicorn==0.13.4
 setproctitle==1.1.5
 https://github.com/techcollective/django/tarball/29bf2c28f1ea688a3bd3db6643e85de68576564f#egg=Django

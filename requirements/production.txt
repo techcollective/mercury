@@ -1,5 +1,6 @@
 psycopg2
 xhtml2pdf
+South
 gunicorn
 setproctitle
 https://github.com/techcollective/django/tarball/29bf2c28f1ea688a3bd3db6643e85de68576564f#egg=Django
