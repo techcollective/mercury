@@ -231,6 +231,7 @@ class Entry(models.Model):
     description = models.CharField(max_length=200, blank=True)
     discount = CurrencyField(default=0)
     total = CurrencyField()
+    is_taxable = models.BooleanField()
 
     class Meta:
         abstract = True
