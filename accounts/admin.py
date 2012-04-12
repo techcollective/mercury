@@ -371,7 +371,7 @@ class SalesReportAdmin(MercuryAdmin):
     actions = None
     date_range = "invoice__date_created"
     list_display = ["item", "description", "cost", "quantity", "discount",
-                    "total", "get_invoice_link"]
+                    "total", "is_taxable", "get_invoice_link"]
     # todo: custom default filter that shows only paid stuff? after all
     # this is a *sales* report
     list_filter = ["invoice__status", "is_taxable",
