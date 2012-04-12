@@ -77,7 +77,7 @@ class ProductNameAjaxChannel(AjaxChannel):
         self.field = "name"
 
     def generate_autofill(self, model_instance):
-        return {"cost": model_instance.price}
+        return {"cost": model_instance.price, "is_taxable": model_instance.is_taxable}
 
 
 class InvoiceAjaxChannel(AjaxChannel):

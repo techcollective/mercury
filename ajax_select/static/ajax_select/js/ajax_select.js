@@ -5,6 +5,22 @@ function didAddPopup(win, newId, newRepr) {
     win.close();
 }
 
+function checkCheckBox(checkbox){
+    $(checkbox).attr("checked", "checked");
+}
+
+function uncheckCheckBox(checkbox){
+    $(checkbox).removeAttr("checked");
+}
+
+function isChecked(checkbox){
+    return $(checkbox).is(":checked");
+}
+
+function highlightElement($element){
+    $element.parent().effect("highlight", {}, 2000);
+}
+
 function handleResult(event, ui){
     input_id = event.target.id;
     $("#" + input_id + "_hidden").val(ui.item.pk);
@@ -28,14 +44,27 @@ function handleResult(event, ui){
                 replace = replace.join(split);
             }
             replace = "#" + replace;
-            old_val = $(replace).val();
             new_val = ui.item.autofill[field];
-            if (new_val === null){
-                new_val = "";
+            if ($(replace).attr("type") == "checkbox"){
+                checked = isChecked(replace);
+                if (checked != new_val){
+                    if (new_val == false) {
+                        uncheckCheckBox(replace);
+                        }
+                    else {
+                        checkCheckBox(replace);
+                    }
+                    highlightElement($(replace));
+                }
             }
-            if (old_val != new_val){
-                $(replace).val(new_val);
-                $(replace).effect("highlight", {}, 2000);
+            else {
+                old_val = $(replace).val();
+                if (new_val === null){
+                    new_val = "";
+                }
+                if (old_val != new_val){
+                    highlightElement($(replace).val(new_val));
+                }
             }
         }
     }
