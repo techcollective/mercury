@@ -382,9 +382,10 @@ class SalesReportAdmin(MercuryAdmin):
     def get_invoice_link(self, instance):
         invoice = instance.invoice
         url = get_change_url(invoice)
-        return "<a href=\"%s\">%s</a>" % (url, str(invoice))
+        return "<a href=\"%s\">%s - %s</a>" % (url, invoice, invoice.date_created)
     get_invoice_link.allow_tags = True
     get_invoice_link.short_description = "Invoice"
+    get_invoice_link.admin_order_field = "invoice"
 
 
 # Registration
