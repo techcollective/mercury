@@ -32,6 +32,9 @@ require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 
 # add tasks to start/stop/reload gunicorn (maybe look at supervisord)
 
+# success message from install saying "now run deploy if this is a production
+# server"? because it doesn't do collectstatic.
+
 
 @task(default=True)
 def usage():
@@ -53,9 +56,10 @@ def install_src(branch="master"):
     require("mercury_src", **require_hosts)
     if not exists(env.mercury_src):
         run("git clone %(mercury_git)s %(mercury_src)s" % env)
-        run("git checkout %s" % branch)
+        with cd("%(mercury_src)s" % env):
+            run("git checkout %s" % branch)
     else:
-        puts("%(mercury_src)s already exists. Try using update_src." % env)
+        abort("%(mercury_src)s already exists. Try using update_src." % env)
 
 
 @task
