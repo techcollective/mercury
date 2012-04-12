@@ -1,3 +1,6 @@
+import datetime
+import calendar
+
 from django.template import Library
 from django.contrib.admin.widgets import AdminDateWidget
 from django import forms
@@ -32,4 +35,24 @@ def date_range(cl):
         # preserve other filter settings
         other_params = [(key, cl.params[key]) for key in cl.params
                         if (key != end_field and key != start_field)]
-        return {"show": True, "form": form, "other_params": other_params}
+        # figure out start and end dates of last quarter for the shortcut link
+        today = datetime.date.today()
+        # lq = last quarter number (1-4)
+        lq = ((today.month - 1) // 3)
+        if lq == 0:
+            lq_year = today.year - 1
+            lq = 4
+        else:
+            lq_year = today.year
+        lq_end_month = lq * 3
+        lq_start_month = lq_end_month - 2
+        # find out many days are in lq_end_month
+        lq_end_day = calendar.monthrange(lq_year, lq_end_month)[1]
+        last_quarter_start = datetime.date(lq_year, lq_start_month, 1)
+        last_quarter_end = datetime.date(lq_year, lq_end_month, lq_end_day)
+        return {"show": True, "form": form, "other_params": other_params,
+                "start_field": "id_" + start_field,
+                "end_field": "id_" + end_field,
+                "last_quarter_start": last_quarter_start,
+                "last_quarter_end": last_quarter_end,
+                }

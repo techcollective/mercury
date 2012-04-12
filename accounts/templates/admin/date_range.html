@@ -1,7 +1,7 @@
 {% if show %}
 {{ form.media }}
 <div class="form-row actions">
-<form id="date-range-form" action="" method="get">
+<form id="date_range_form" action="" method="get">
 {% for name, value in other_params %}
     <input type="hidden" name="{{ name }}" value="{{ value }}" />
 {% endfor %}
@@ -13,6 +13,7 @@
     </div>
 {% endfor %}
 <button class="button" type="submit" />Go</button>
+<span style="margin-left: 1em">Shortcut: <a href="javascript: void(0)" id="last_quarter_shortcut">Last quarter</a></span>
 </form>
 </div>
 {% comment %}
@@ -24,7 +25,7 @@ latter case you see the input disappear as you hit the submit button.
 <script type="text/javascript">
 (function($) {
     $(document).ready(function($) {
-        $("#date-range-form").submit(function(){
+        $("#date_range_form").submit(function(){
                 var $t = $(this);
                 $t.find("input").each(function(){
                         var $t = $(this);
@@ -32,6 +33,11 @@ latter case you see the input disappear as you hit the submit button.
                             $t.attr("name", "");
                         }
                     });
+            });
+        $("#last_quarter_shortcut").click(function(){
+                $("#{{ start_field }}").val("{{ last_quarter_start|date:"Y-m-d" }}");
+                $("#{{ end_field }}").val("{{ last_quarter_end|date:"Y-m-d" }}");
+                $("#date_range_form").submit();
             });
     });
 })(django.jQuery);
