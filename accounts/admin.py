@@ -374,7 +374,7 @@ class SalesReportAdmin(MercuryAdmin):
                     "total", "get_invoice_link"]
     # todo: custom default filter that shows only paid stuff? after all
     # this is a *sales* report
-    list_filter = ["invoice__status", "item__is_taxable",
+    list_filter = ["invoice__status", "is_taxable",
                    "invoice__created_by"]
     allowed_lookups = ["invoice__date_created__gte",
                        "invoice__date_created__lte"]

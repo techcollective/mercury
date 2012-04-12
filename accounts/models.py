@@ -100,7 +100,7 @@ class QuoteInvoiceBase(models.Model):
         tax_percentage = get_tax_percentage()
         if self.customer.is_taxable:
             for entry in self.get_entries():
-                if entry.item.is_taxable:
+                if entry.is_taxable:
                     tax += entry.total * tax_percentage / 100
         self.total_tax = tax
 
@@ -252,7 +252,7 @@ class Entry(models.Model):
 class InvoiceEntry(Entry):
     class Meta:
         verbose_name = "sale"
-        ordering = ["invoice"]
+        ordering = ["invoice", "pk"]
 
     invoice = models.ForeignKey(Invoice)
 
