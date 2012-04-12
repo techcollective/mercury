@@ -29,4 +29,7 @@ def date_range(cl):
         form = DateRangeForm({start_field: start_value,
                               end_field: end_value}, start_field=start_field,
                               end_field=end_field)
-        return {"show": True, "form": form}
+        # preserve other filter settings
+        other_params = [(key, cl.params[key]) for key in cl.params
+                        if (key != end_field and key != start_field)]
+        return {"show": True, "form": form, "other_params": other_params}

@@ -2,6 +2,9 @@
 {{ form.media }}
 <div class="form-row actions">
 <form id="date-range-form" action="" method="get">
+{% for name, value in other_params %}
+    <input type="hidden" name="{{ name }}" value="{{ value }}" />
+{% endfor %}
 {{ form.non_field_errors }}
 {% for field in form %}
     <div style="display: inline; margin-right: 1em">
