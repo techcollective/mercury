@@ -14,7 +14,7 @@ class DateRangeForm(forms.Form):
                                                    label="Start date",
                                                    required=False)
         self.fields[end_field] = forms.DateField(widget=AdminDateWidget,
-                                                   label="Start date",
+                                                   label="End date",
                                                    required=False)
 
 
