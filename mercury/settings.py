@@ -162,13 +162,11 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS += ['django_extensions']
 
-mod = "accounts.helpers."
 AJAX_LOOKUP_CHANNELS = {
-    'customer_name': mod + "CustomerNameAjaxChannel",
-    'product_or_service_name': mod + "ProductNameAjaxChannel",
-    'invoice': mod + "InvoiceAjaxChannel",
+    'customer_name': "accounts.helpers.CustomerNameAjaxChannel",
+    'product_or_service_name': "accounts.helpers.ProductNameAjaxChannel",
+    'invoice': "accounts.helpers.InvoiceAjaxChannel",
 }
-del mod
 
 LOGIN_URL = "/"
 
