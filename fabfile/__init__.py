@@ -141,11 +141,17 @@ def deploy(branch="master"):
 
 @task
 def syncdb():
+    """
+    Run syncdb
+    """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     virtualenv_run(manage() + " syncdb --settings=mercury.settings_production")
 
 
 @task
 def migrate():
+    """
+    Run South migrations
+    """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     virtualenv_run(manage() + " migrate --settings=mercury.settings_production")
