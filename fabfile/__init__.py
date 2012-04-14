@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import task, run, env, cd, require
+from fabric.api import task, run, env, cd, require, local
 from fabric.utils import puts, abort
 from fabric.main import list_commands
 from fabric.contrib.files import exists
@@ -23,8 +23,9 @@ require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 # that postgresql headers are most likely available)
 
 # add task to create local settings. prompt for values? (after #161)
+# remove --settings= stuff after that.
 
-# add task to run syncdb, load fixtures etc
+# add task to load fixtures
 
 # add install_centos task that will add gunicorn initscript and nginx config
 
@@ -112,10 +113,15 @@ def update_src(branch="master"):
     Options: branch=BRANCH_NAME (default: master)
     """
     require("mercury_src", **require_hosts)
+    local("git push origin")
     with cd("%(mercury_src)s" % env):
         run("git fetch")
         run("git checkout %s" % branch)
         run("git merge origin/%s" % branch)
+
+
+def manage():
+    return os.path.join("%(mercury_src)s" % env, "manage.py")
 
 
 @task
@@ -127,6 +133,19 @@ def deploy(branch="master"):
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     update_src(branch)
     install_dependencies()
-    manage = os.path.join("%(mercury_src)s" % env, "manage.py")
-    virtualenv_run(manage + " collectstatic --noinput "
+    virtualenv_run(manage() + " collectstatic --noinput "
                    "--settings=mercury.settings_production")
+    syncdb()
+    migrate()
+
+
+@task
+def syncdb():
+    require("mercury_src", "mercury_virtualenv", **require_hosts)
+    virtualenv_run(manage() + " syncdb --settings=mercury.settings_production")
+
+
+@task
+def migrate():
+    require("mercury_src", "mercury_virtualenv", **require_hosts)
+    virtualenv_run(manage() + " migrate --settings=mercury.settings_production")
