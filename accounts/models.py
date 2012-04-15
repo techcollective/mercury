@@ -154,7 +154,7 @@ class QuoteInvoiceBase(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ["-date_created", "-id"]
+        ordering = ["-date_created", "-pk"]
 
 
 class Quote(QuoteInvoiceBase):
@@ -176,8 +176,6 @@ class Quote(QuoteInvoiceBase):
 
 
 class Invoice(QuoteInvoiceBase):
-    class Meta:
-        ordering = ["-date_created"]
     status = models.ForeignKey(InvoiceStatus,
                                default=get_or_create_default_invoice_status)
     date_due = models.DateField(default=datetime.date.today)
