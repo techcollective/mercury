@@ -23,7 +23,7 @@ require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 # that postgresql headers are most likely available)
 
 # add task to create local settings. prompt for values? (after #161)
-# remove --settings= stuff after that.
+# remove --settings= in manage() after that.
 
 # add task to load fixtures
 
@@ -31,7 +31,7 @@ require_hosts = {"provided_by": "host.HOST (run 'fab usage' for more help)"}
 
 # update calls to install_dependencies to allow setting deps arg
 
-# add tasks to start/stop/reload gunicorn (maybe look at supervisord)
+# add tasks to start/stop gunicorn (maybe look at supervisord)
 
 # success message from install saying "now run deploy if this is a production
 # server"? because it doesn't do collectstatic.
@@ -120,8 +120,13 @@ def update_src(branch="master"):
         run("git merge origin/%s" % branch)
 
 
-def manage():
-    return os.path.join("%(mercury_src)s" % env, "manage.py")
+def manage(command):
+    """
+    Runs arbitrary commands using manage.py in the virtualenv
+    """
+    manage_py = os.path.join("%(mercury_src)s" % env, "manage.py")
+    virtualenv_run(manage_py + " %s --settings=mercury.settings_production"
+                   % command)
 
 
 @task
@@ -133,10 +138,10 @@ def deploy(branch="master"):
     require("mercury_src", "mercury_virtualenv", **require_hosts)
     update_src(branch)
     install_dependencies()
-    virtualenv_run(manage() + " collectstatic --noinput "
-                   "--settings=mercury.settings_production")
+    manage("collectstatic --noinput")
     syncdb()
     migrate()
+    reload_gunicorn()
 
 
 @task
@@ -145,7 +150,7 @@ def syncdb():
     Run syncdb
     """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
-    virtualenv_run(manage() + " syncdb --settings=mercury.settings_production")
+    manage("syncdb")
 
 
 @task
@@ -154,4 +159,13 @@ def migrate():
     Run South migrations
     """
     require("mercury_src", "mercury_virtualenv", **require_hosts)
-    virtualenv_run(manage() + " migrate --settings=mercury.settings_production")
+    manage("migrate")
+
+
+@task
+def reload_gunicorn():
+    """
+    Send SIGHUP to gunicorn
+    """
+    require("gunicorn_pidfile")
+    run("kill -HUP $(cat \"%(gunicorn_pidfile)s\")" % env)
