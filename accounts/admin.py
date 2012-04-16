@@ -366,6 +366,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     list_filter = ["manage_stock", "is_taxable", StockStatusListFilter,
                    "categories"]
     list_editable = ["number_in_stock"]
+    filter_horizontal = ["categories"]
 
 
 class SalesReportAdmin(MercuryAdmin):
