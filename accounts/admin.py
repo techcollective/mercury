@@ -363,7 +363,8 @@ class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
     list_display = ["name", "price", "number_in_stock", "manage_stock",
                     "is_taxable"]
-    list_filter = ["manage_stock", "is_taxable", StockStatusListFilter]
+    list_filter = ["manage_stock", "is_taxable", StockStatusListFilter,
+                   "categories"]
     list_editable = ["number_in_stock"]
 
 
@@ -374,7 +375,7 @@ class SalesReportAdmin(MercuryAdmin):
                     "total", "is_taxable", "get_invoice_link"]
     # todo: custom default filter that shows only paid stuff? after all
     # this is a *sales* report
-    list_filter = ["invoice__status", "is_taxable",
+    list_filter = ["invoice__status", "is_taxable", "item__categories",
                    "invoice__created_by"]
     allowed_lookups = ["invoice__date_created__gte",
                        "invoice__date_created__lte"]
