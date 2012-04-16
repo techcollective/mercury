@@ -52,6 +52,10 @@ class InvoiceTerm(models.Model):
         super(InvoiceTerm, self).delete(*args, **kwargs)
 
 
+class ProductOrServiceCategory(models.Model):
+    name = models.CharField(max_length=100)
+
+
 class Image(models.Model):
     image_name = models.CharField(max_length=50, unique=True)
     path = models.ImageField(upload_to="images")
