@@ -7,8 +7,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
 from configuration.models import (PaymentType,
-                                          InvoiceStatus,
-                                          InvoiceTerm)
+                                  InvoiceStatus,
+                                  InvoiceTerm,
+                                  ProductOrServiceCategory)
 from accounts.fields import CurrencyField
 from mercury.helpers import (refresh,
                              check_deposited_payments,
@@ -59,6 +60,7 @@ class ProductOrService(models.Model):
     number_in_stock = models.IntegerField(null=True, blank=True)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
+    categories = models.ManyToManyField(ProductOrServiceCategory, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()

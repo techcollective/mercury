@@ -57,6 +57,9 @@ class ProductOrServiceCategory(models.Model):
         verbose_name_plural = "Product and service categories"
     name = models.CharField(max_length=100)
 
+    def __unicode__(self):
+        return self.name
+
 
 class Image(models.Model):
     image_name = models.CharField(max_length=50, unique=True)
