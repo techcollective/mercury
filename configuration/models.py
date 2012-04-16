@@ -53,6 +53,8 @@ class InvoiceTerm(models.Model):
 
 
 class ProductOrServiceCategory(models.Model):
+    class Meta:
+        verbose_name_plural = "Product and service categories"
     name = models.CharField(max_length=100)
 
 
