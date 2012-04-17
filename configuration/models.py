@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import cache
 
 from configuration.exceptions import NoSuchSetting
 
@@ -90,8 +91,14 @@ class ConfigManager(models.Manager):
         Raises NoSuchSetting if the setting is missing and the 'default' arg
         is not supplied.
         """
+        setting_name = setting_name.lower()
+        cache_key = "Config." + setting_name
+        cached_result = cache.get(cache_key)
+        if cached_result is not None:
+            return cached_result
         try:
-            value = self.get(name=setting_name.lower()).value
+            value = self.get(name=setting_name).value
+            cache.set(cache_key, value)
         except Config.DoesNotExist:
             if "default" in kwargs:
                 return kwargs["default"]
