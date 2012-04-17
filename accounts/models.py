@@ -83,11 +83,11 @@ class ProductOrService(models.Model):
         verbose_name_plural = "Products and services"
 
 
-# todo: add help_text to description if autofill is enabled
-
 class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
+    # help_text for description is dynamically set in the ModelAdmin's
+    # render_change_form()
     description = models.CharField(max_length=200, blank=True)
     subtotal = CurrencyField(default=0, read_only=True)
     total_tax = CurrencyField(default=0, read_only=True)

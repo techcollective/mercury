@@ -17,7 +17,8 @@ from accounts.models import (Customer,
                                      Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import (get_or_create_paid_invoice_status,
-                             get_display_paid, refresh, get_change_url)
+                             get_display_paid, refresh, get_change_url,
+                             get_fill_description)
 
 
 # Custom inline classes
@@ -165,6 +166,14 @@ class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
         instance = form.instance
         instance.update()
         instance.save()
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        if get_fill_description():
+            context["adminform"].form.fields["description"].help_text = ("This"
+            " will automatically be filled if left blank.")
+        return super(InvoiceQuoteBaseAdmin,
+                     self).render_change_form(request, context, *args,
+                                              **kwargs)
 
 
 class InvoiceAdmin(InvoiceQuoteBaseAdmin):
