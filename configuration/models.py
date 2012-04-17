@@ -153,8 +153,8 @@ class Config(models.Model):
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
-        cache.set(get_cache_key(self.name), self.value)
         super(Config, self).save(*args, **kwargs)
+        cache.set(get_cache_key(self.name), self.value)
 
     def delete(self, *args, **kwargs):
         cache_key = get_cache_key(self.name)
