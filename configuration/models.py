@@ -83,6 +83,10 @@ class Template(models.Model):
         return self.name
 
 
+def get_cache_key(name):
+    return "Config." + name
+
+
 class ConfigManager(models.Manager):
     def get_setting(self, setting_name, **kwargs):
         """
@@ -92,7 +96,7 @@ class ConfigManager(models.Manager):
         is not supplied.
         """
         setting_name = setting_name.lower()
-        cache_key = "Config." + setting_name
+        cache_key = get_cache_key(setting_name)
         cached_result = cache.get(cache_key)
         if cached_result is not None:
             return cached_result
@@ -149,7 +153,13 @@ class Config(models.Model):
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
+        cache.set(get_cache_key(self.name), self.value)
         super(Config, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        cache_key = get_cache_key(self.name)
+        super(Config, self).delete(*args, **kwargs)
+        cache.delete(cache_key)
 
     class Meta:
         verbose_name = "System Setting"
