@@ -26,7 +26,7 @@ def check_deposited_payments(obj, field_lookup):
     if num_payments != 0:
         url = get_changelist_url(Payment) + "?" + field_lookup + "=%s" % obj.pk
         message = ("Can't delete: " + capfirst(obj._meta.verbose_name) + " \""
-                   + str(obj) + "\" is linked to")
+                   + unicode(obj) + "\" is linked to")
         if num_payments == 1:
             message += " one deposited payment."
         else:
@@ -60,7 +60,7 @@ def model_to_dict(instance):
     for field in instance._meta.fields:
         if isinstance(field, ForeignKey):
             value = getattr(instance, field.name)
-            value = str(value)
+            value = unicode(value)
         else:
             value = field.value_to_string(instance)
         data[field.name] = value

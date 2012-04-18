@@ -294,7 +294,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
     def get_invoice_link(self, instance):
         invoice = instance.invoice
         url = get_change_url(invoice)
-        return "<a href=\"%s\">%s</a>" % (url, str(invoice))
+        return "<a href=\"%s\">%s</a>" % (url, unicode(invoice))
     get_invoice_link.allow_tags = True
     get_invoice_link.short_description = "Invoice"
     get_invoice_link.admin_order_field = "invoice"
@@ -305,7 +305,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
             return "None"
         else:
             url = get_change_url(deposit)
-            return "<a href=\"%s\">%s</a>" % (url, str(deposit))
+            return "<a href=\"%s\">%s</a>" % (url, unicode(deposit))
     get_deposit_link.allow_tags = True
     get_deposit_link.short_description = "Deposit"
     get_deposit_link.admin_order_field = "deposit"
