@@ -119,10 +119,10 @@ class QuoteInvoiceBase(models.Model):
         update = get_fill_description()
         if update and not self.description:
             entries = self.get_entries()
-            entries = [(entry.description or str(entry.item))
+            entries = [(entry.description or unicode(entry.item))
                        for entry in entries]
             entries = ", ".join(entries)
-            description = "%s - %s" % (str(self.customer), entries)
+            description = u"%s - %s" % (unicode(self.customer), entries)
             if len(description) > 200:  # field length limit
                 description = description[:197] + "..."
             self.description = description
@@ -133,7 +133,7 @@ class QuoteInvoiceBase(models.Model):
 
     def get_number(self):
         num_zeros = get_invoice_padding()
-        return str(self.pk).zfill(num_zeros)
+        return unicode(self.pk).zfill(num_zeros)
     get_number.short_description = "Number"
     get_number.admin_order_field = "id"
 
@@ -147,7 +147,7 @@ class QuoteInvoiceBase(models.Model):
         return get_change_url(self)
 
     def __unicode__(self):
-        status = str(getattr(self, "status", ""))
+        status = unicode(getattr(self, "status", ""))
         if status:
             status = " - %s" % status
         return (capfirst(self._meta.verbose_name) + " " +
@@ -246,7 +246,7 @@ class Entry(models.Model):
             add = " (%s)" % self.quantity
         else:
             add = ""
-        return u"%s%s" % (str(self.item), add)
+        return u"%s%s" % (unicode(self.item), add)
 
 
 class InvoiceEntry(Entry):
@@ -355,7 +355,7 @@ class Payment(models.Model):
 
     def delete(self, *args, **kwargs):
         if self.deposit:
-            message = "Can't delete: " + str(self) + " has been deposited"
+            message = "Can't delete: " + unicode(self) + " has been deposited"
             url = get_change_url(self)
             raise DepositedPaymentsException(message, url=url)
         else:
@@ -366,7 +366,7 @@ class Payment(models.Model):
             if not self.payment_type.manage_deposits and self.deposit:
                 message = ("The payment type '%s' isn't depositable, so this "
                            "payment can't belong to a deposit"
-                           % str(self.payment_type))
+                           % unicode(self.payment_type))
                 raise ValidationError(message)
 
     def get_change_url(self):
@@ -378,7 +378,7 @@ class Payment(models.Model):
                                               self.amount,
                                               suffix,
                                               self.payment_type,
-                                              str(self.invoice))
+                                              self.invoice)
 
     class Meta:
         ordering = ["-date_received"]
