@@ -201,6 +201,7 @@ LOGGING = {
 
 CACHES = {
     'default': {
+        'TIMEOUT': 86400,
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
