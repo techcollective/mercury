@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.cache import cache
+from django.utils.hashcompat import sha_constructor
 
 from configuration.exceptions import NoSuchSetting
 
@@ -84,7 +85,7 @@ class Template(models.Model):
 
 
 def get_cache_key(name):
-    return "Config." + name
+    return sha_constructor("configuration.Config." + name).hexdigest()
 
 
 class ConfigManager(models.Manager):
