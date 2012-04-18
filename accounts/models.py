@@ -83,11 +83,17 @@ class ProductOrService(models.Model):
         verbose_name_plural = "Products and services"
 
 
-class InvoiceQuoteManager(models.Manager):
+class SelectRelatedManager(models.Manager):
+    def __init__(self, select_related_fields=None):
+        select_related_fields = select_related_fields or []
+        self.select_related_fields = select_related_fields
+        super(SelectRelatedManager, self).__init__()
+
     def get_query_set(self):
         # this is to help with the performance of __unicode__ on the model
-        return super(InvoiceQuoteManager,
-                     self).get_query_set().select_related()
+        return super(SelectRelatedManager,
+                     self).get_query_set().select_related(
+                                                *self.select_related_fields)
 
 
 class QuoteInvoiceBase(models.Model):
@@ -103,7 +109,9 @@ class QuoteInvoiceBase(models.Model):
     created_by = models.ForeignKey(User, blank=True, null=True,
                                    help_text="This will automatically be set "
                                    "to the current user if left blank.")
-    objects = InvoiceQuoteManager()
+    objects = SelectRelatedManager(select_related_fields=["created_by",
+                                                          "customer",
+                                                          "status"])
 
     def update_tax(self):
         tax = decimal.Decimal(0)
@@ -318,6 +326,7 @@ class Deposit(models.Model):
     made_by = models.ForeignKey(User, blank=True, null=True, help_text="This "
                                 "will automatically be set to the current "
                                 "user if left blank.")
+    objects = SelectRelatedManager(select_related_fields=["made_by"])
 
     def update_total(self):
         total = self.payment_set.all().aggregate(
