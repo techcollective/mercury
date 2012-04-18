@@ -83,6 +83,13 @@ class ProductOrService(models.Model):
         verbose_name_plural = "Products and services"
 
 
+class InvoiceQuoteManager(models.Manager):
+    def get_query_set(self):
+        # this is to help with the performance of __unicode__ on the model
+        return super(InvoiceQuoteManager,
+                     self).get_query_set().select_related()
+
+
 class QuoteInvoiceBase(models.Model):
     customer = models.ForeignKey(Customer)
     date_created = models.DateField(default=datetime.date.today)
@@ -96,6 +103,7 @@ class QuoteInvoiceBase(models.Model):
     created_by = models.ForeignKey(User, blank=True, null=True,
                                    help_text="This will automatically be set "
                                    "to the current user if left blank.")
+    objects = InvoiceQuoteManager()
 
     def update_tax(self):
         tax = decimal.Decimal(0)
