@@ -204,3 +204,5 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+
+EMAIL_SUBJECT_PREFIX = "[Mercury] "
