@@ -115,7 +115,7 @@ def update_src(branch="master"):
     require("mercury_src", **require_hosts)
     local("git push origin %s" % branch)
     with cd("%(mercury_src)s" % env):
-        run("git fetch")
+        run("git fetch -p")
         run("git checkout %s" % branch)
         run("git merge origin/%s" % branch)
 
