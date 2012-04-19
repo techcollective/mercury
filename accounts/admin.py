@@ -3,6 +3,7 @@ import datetime
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Count
 
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
@@ -142,6 +143,22 @@ class DepositedStatusListFilter(SimpleListFilter):
                 payment_type__manage_deposits=True)
 
 
+class DuplicateNameListFilter(SimpleListFilter):
+    title = "duplicate names"
+    parameter_name = "duplicate_name"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Show Duplicates"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            duplicate_names = list(Customer.objects.values_list("name",
+                flat=True).annotate(dupes=Count("name")).filter(dupes__gt=1))
+            return queryset.filter(name__in=duplicate_names)
+
+
 # Admin classes
 
 class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
@@ -233,7 +250,7 @@ class CustomerAdmin(MercuryAdmin):
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable"]
+    list_filter = ["is_taxable", DuplicateNameListFilter]
 
     def get_address(self, instance):
         address = [instance.address, instance.city, instance.state]
