@@ -131,6 +131,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'mercury.urls'
@@ -153,6 +154,7 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'south',
+    'debug_toolbar',
     'ajax_select',
     'configuration',
     'accounts',
@@ -204,3 +206,4 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+INTERNAL_IPS = ('127.0.0.1',)
