@@ -13,7 +13,7 @@ Introduction
 After using a paid online invoicing service, we felt the need to switch to an
 open source alternative. Unsatisfied with all the options we evaluated, one of
 our developers wondered: "How difficult would it be to hack up a quick solution
-using excellent Django_'s excelling `admin interface`_?"
+using Django_'s excellent `admin interface`_?"
 
 The answer turned out to be: "Quite hard". We've been using the result for all
 our invoicing needs since mid-2010.
@@ -38,7 +38,7 @@ Please bear in mind that mercury is in beta.
 
 The recommended way to install mercury is using pip and virtualenv. If you just
 want to take it for a test drive, follow the installation instructions below,
-then continue with "`Getting up and running`_".
+then continue with "`Running the test server`_".
 
 To deploy into a production environment, follow the installation instructions
 below and then read the "Deployment_" section.
@@ -95,8 +95,6 @@ Running the test server
 TODO (For the impatient: './manage.py syncdb, ./manage.py migrate, ./manage.py
 loaddata configuration/fixtures/{initial_settings,admin_user}.json, ./manage.py
 runserver')
-
-.. _Deployment:
 
 Deployment
 ==========
