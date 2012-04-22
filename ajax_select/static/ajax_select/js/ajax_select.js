@@ -22,48 +22,51 @@ function highlightElement($element){
 }
 
 function handleResult(event, ui){
+    var field, input_id, split, replace, old_val, new_val, checked;
     input_id = event.target.id;
     $("#" + input_id + "_hidden").val(ui.item.pk);
     $("#" + input_id + "_val").val(ui.item.value);
     $("#" + input_id + "_clear").show();
-    if ($(ui.item).attr("autofill") != undefined) {
+    if ($(ui.item).attr("autofill") !== undefined) {
         for (field in ui.item.autofill) {
-            // this is to work with id's in inlines, which look like
-            // id_invoiceentry_set-0-item, where the target field will
-            // look like id_invoiceentry_set-0-cost.
-            split = "-"
-            replace = input_id.split(split);
-            if (replace.length == 1){
-                // this will deal with regular fields which look like
-                // id_customer
-                replace = "id_" + field
-            }
-            else {
-                replace = replace.slice(0,-1);
-                replace.push(field);
-                replace = replace.join(split);
-            }
-            replace = "#" + replace;
-            new_val = ui.item.autofill[field];
-            if ($(replace).attr("type") == "checkbox"){
-                checked = isChecked(replace);
-                if (checked != new_val){
-                    if (new_val == false) {
-                        uncheckCheckBox(replace);
+            if (ui.item.autofill.hasOwnProperty(field)) {
+                // this is to work with id's in inlines, which look like
+                // id_invoiceentry_set-0-item, where the target field will
+                // look like id_invoiceentry_set-0-cost.
+                split = "-";
+                replace = input_id.split(split);
+                if (replace.length === 1){
+                    // this will deal with regular fields which look like
+                    // id_customer
+                    replace = "id_" + field;
+                }
+                else {
+                    replace = replace.slice(0,-1);
+                    replace.push(field);
+                    replace = replace.join(split);
+                }
+                replace = "#" + replace;
+                new_val = ui.item.autofill[field];
+                if ($(replace).attr("type") === "checkbox"){
+                    checked = isChecked(replace);
+                    if (checked !== new_val){
+                        if (new_val === false) {
+                            uncheckCheckBox(replace);
+                            }
+                        else {
+                            checkCheckBox(replace);
                         }
-                    else {
-                        checkCheckBox(replace);
+                        highlightElement($(replace));
                     }
-                    highlightElement($(replace));
                 }
-            }
-            else {
-                old_val = $(replace).val();
-                if (new_val === null){
-                    new_val = "";
-                }
-                if (old_val != new_val){
-                    highlightElement($(replace).val(new_val));
+                else {
+                    old_val = $(replace).val();
+                    if (new_val === null){
+                        new_val = "";
+                    }
+                    if (old_val !== new_val){
+                        highlightElement($(replace).val(new_val));
+                    }
                 }
             }
         }
@@ -71,10 +74,11 @@ function handleResult(event, ui){
 }
 
 function handleChange(event, ui){
+    var val_id, hidden_id, clear_id;
     val_id = this.id + "_val";
     // blank the input and hidden id fields if the value in the box
     // is invalid (it should match the value it was originally set to)
-    if($("#" + val_id).val() != $(this).val()){
+    if($("#" + val_id).val() !== $(this).val()){
         hidden_id = this.id + "_hidden";
         clear_id = this.id + "_clear";
         $(this).val("");
@@ -97,6 +101,7 @@ $(document).ready(function(){
     });
     // Clicking on X clears the input
     $("body").delegate(".ajax-clearfield", "click", function(){
+        var input_id;
         input_id = this.id;
         input_id = input_id.replace("_clear", "");
         $("#" + input_id).val("");
@@ -106,6 +111,7 @@ $(document).ready(function(){
     });
     // so that new items from + popups end up in the input
     $("body").delegate(".ajax-input", "didAddPopup", function(event, id, repr) {
+        var data;
         data = Object();
         data.item = Object();
         data.item.pk = id;
@@ -115,6 +121,7 @@ $(document).ready(function(){
     });
     // Hide X's if the input box is empty
     $(".ajax-clearfield").each(function(){
+        var input_id;
         input_id = this.id;
         input_id = input_id.replace("_clear", "");
         if (! $("#" + input_id).val()){

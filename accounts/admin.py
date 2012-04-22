@@ -3,10 +3,12 @@ import datetime
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Count
 
 from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
 
+from configuration.models import InvoiceStatus
 from accounts.models import (Customer,
                                      ProductOrService,
                                      Invoice,
@@ -104,6 +106,33 @@ class UnpaidStatusListFilter(SimpleListFilter):
                 date_due__lt=datetime.date.today())
 
 
+class CustomerOwesListFilter(SimpleListFilter):
+    title = "unpaid invoices"
+    parameter_name = "unpaid_invoices"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("unpaid", "Unpaid"),
+            ("unpaid_overdue", "Unpaid and Overdue"),
+        )
+
+    def queryset(self, request, queryset):
+        paid_status = get_or_create_paid_invoice_status()
+        # the reason this doesn't just exclude paid invoices is because then
+        # the query result includes customers *without* invoices
+        if self.value() == "unpaid":
+            return queryset.filter(
+                pk__in=Invoice.objects.values("customer").filter(
+                    status__in=InvoiceStatus.objects.exclude(
+                        status=paid_status)))
+        if self.value() == "unpaid_overdue":
+            return queryset.filter(
+                pk__in=Invoice.objects.values("customer").filter(
+                    date_due__lt=datetime.date.today(),
+                    status__in=InvoiceStatus.objects.exclude(
+                        status=paid_status)))
+
+
 class StockStatusListFilter(SimpleListFilter):
     title = "stock status"
     parameter_name = "stock_status"
@@ -140,6 +169,22 @@ class DepositedStatusListFilter(SimpleListFilter):
         if self.value() == "undeposited":
             return queryset.filter(deposit__isnull=True).filter(
                 payment_type__manage_deposits=True)
+
+
+class DuplicateNameListFilter(SimpleListFilter):
+    title = "duplicate names"
+    parameter_name = "duplicate_name"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "Show Duplicates"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            duplicate_names = list(Customer.objects.values_list("name",
+                flat=True).annotate(dupes=Count("name")).filter(dupes__gt=1))
+            return queryset.filter(name__in=duplicate_names)
 
 
 # Admin classes
@@ -233,7 +278,7 @@ class CustomerAdmin(MercuryAdmin):
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable"]
+    list_filter = ["is_taxable", CustomerOwesListFilter, DuplicateNameListFilter]
 
     def get_address(self, instance):
         address = [instance.address, instance.city, instance.state]
