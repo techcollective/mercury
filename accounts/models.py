@@ -361,6 +361,12 @@ class Payment(models.Model):
     received_by = models.ForeignKey(User, blank=True, null=True,
                                     help_text="This will automatically be "
                                     "set to the current user if left blank.")
+    objects = SelectRelatedManager(select_related_fields=["invoice",
+                                                          "invoice__status",
+                                                          "invoice__customer",
+                                                          "payment_type",
+                                                          "deposit",
+                                                          "received_by"])
 
     def save(self, *args, **kwargs):
         self.full_clean()
