@@ -80,7 +80,7 @@ class ProductNameAjaxChannel(AjaxChannel):
         return {"cost": model_instance.price, "is_taxable": model_instance.is_taxable}
 
 
-class InvoiceAjaxChannel(AjaxChannel):
+class UnpaidInvoiceAjaxChannel(AjaxChannel):
     def __init__(self):
         self.model = models.Invoice
         self.field = "pk"

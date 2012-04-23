@@ -319,7 +319,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
                        "invoice__status__pk",  # invoice status
                        "invoice__customer__default_payment_terms__pk",  # terms
                        ]
-    form = make_ajax_form(Payment, {"invoice": "invoice"})
+    form = make_ajax_form(Payment, {"invoice": "unpaid_invoice"})
     list_display = ["get_invoice_link", "get_customer_link", "date_received",
                     "comment", "get_deposit_link", "received_by",
                     "payment_type", "amount"]
