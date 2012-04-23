@@ -31,6 +31,19 @@ from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
 
+class SelectRelatedManager(models.Manager):
+    def __init__(self, select_related_fields=None):
+        select_related_fields = select_related_fields or []
+        self.select_related_fields = select_related_fields
+        super(SelectRelatedManager, self).__init__()
+
+    def get_query_set(self):
+        # this is to help with the performance of __unicode__ on the model
+        return super(SelectRelatedManager,
+                     self).get_query_set().select_related(
+                                                *self.select_related_fields)
+
+
 class Customer(models.Model):
     class Meta:
         ordering = ["name"]
@@ -80,20 +93,8 @@ class ProductOrService(models.Model):
         return self.name
 
     class Meta:
+        ordering = ["name"]
         verbose_name_plural = "Products and services"
-
-
-class SelectRelatedManager(models.Manager):
-    def __init__(self, select_related_fields=None):
-        select_related_fields = select_related_fields or []
-        self.select_related_fields = select_related_fields
-        super(SelectRelatedManager, self).__init__()
-
-    def get_query_set(self):
-        # this is to help with the performance of __unicode__ on the model
-        return super(SelectRelatedManager,
-                     self).get_query_set().select_related(
-                                                *self.select_related_fields)
 
 
 class QuoteInvoiceBase(models.Model):
