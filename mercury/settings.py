@@ -164,6 +164,7 @@ if DEBUG:
 AJAX_LOOKUP_CHANNELS = {
     'customer_name': "accounts.helpers.CustomerNameAjaxChannel",
     'product_or_service_name': "accounts.helpers.ProductNameAjaxChannel",
+    'invoice': "accounts.helpers.InvoiceAjaxChannel",
     'unpaid_invoice': "accounts.helpers.UnpaidInvoiceAjaxChannel",
 }
 

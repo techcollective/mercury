@@ -80,7 +80,7 @@ class ProductNameAjaxChannel(AjaxChannel):
         return {"cost": model_instance.price, "is_taxable": model_instance.is_taxable}
 
 
-class UnpaidInvoiceAjaxChannel(AjaxChannel):
+class InvoiceAjaxChannel(AjaxChannel):
     def __init__(self):
         self.model = models.Invoice
         self.field = "pk"
@@ -107,9 +107,17 @@ class UnpaidInvoiceAjaxChannel(AjaxChannel):
         # also search for customer name
         filter = filter | Q(customer__name__icontains=q)
 
+        return models.Invoice.objects.filter(filter)
+
+
+class UnpaidInvoiceAjaxChannel(InvoiceAjaxChannel):
+    def _get_queryset(self, q, request):
         paid_status = get_or_create_paid_invoice_status()
-        return models.Invoice.objects.filter(filter).order_by(
-            "date_created").exclude(status=paid_status)
+        qs = super(UnpaidInvoiceAjaxChannel, self)._get_queryset(q, request)
+        return qs.exclude(status=paid_status)
 
     def generate_autofill(self, model_instance):
+        """
+        Autofill for the Payment add page "amount" field
+        """
         return {"amount": model_instance.grand_total}

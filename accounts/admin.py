@@ -423,7 +423,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
     filter_horizontal = ["categories"]
 
 
-class SalesReportAdmin(MercuryAdmin):
+class SalesReportAdmin(MercuryAjaxAdmin):
     actions = None
     date_range = "invoice__date_created"
     list_display = ["item", "description", "cost", "quantity", "discount",
@@ -434,6 +434,8 @@ class SalesReportAdmin(MercuryAdmin):
                    "invoice__created_by"]
     allowed_lookups = ["invoice__date_created__gte",
                        "invoice__date_created__lte"]
+    form = make_ajax_form(InvoiceEntry, {"invoice": "invoice",
+                                         "item": "product_or_service_name"})
 
     def get_invoice_link(self, instance):
         invoice = instance.invoice
@@ -442,6 +444,11 @@ class SalesReportAdmin(MercuryAdmin):
     get_invoice_link.allow_tags = True
     get_invoice_link.short_description = "Invoice"
     get_invoice_link.admin_order_field = "invoice"
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+        obj.invoice.update()
+        obj.invoice.save()
 
 
 # Registration
