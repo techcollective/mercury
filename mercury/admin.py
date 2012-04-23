@@ -62,6 +62,8 @@ class MercuryAdmin(admin.ModelAdmin):
             return handle_exception(request, e)
 
     def delete_selected_wrapper(self, request, queryset):
+        # i use a wrapper instead of a custom method so that i can use the
+        # existing functionality without having to copy and paste it all.
         try:
             return admin.actions.delete_selected(self, request, queryset)
         except MercuryException as e:
