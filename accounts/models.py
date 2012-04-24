@@ -70,21 +70,22 @@ class Customer(models.Model):
 class ProductOrService(models.Model):
     name = models.CharField(max_length=100)
     price = CurrencyField(null=True, blank=True)
-    number_in_stock = models.IntegerField(null=True, blank=True)
+    stock = models.DecimalField(null=True, blank=True, max_digits=14,
+                                decimal_places=2)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
     categories = models.ManyToManyField(ProductOrServiceCategory, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        if self.number_in_stock is not None:
+        if self.stock is not None:
             allow_negative = get_negative_stock()
-            if not allow_negative and self.number_in_stock < 0:
-                self.number_in_stock = 0
+            if not allow_negative and self.stock < 0:
+                self.stock = 0
         super(ProductOrService, self).save(*args, **kwargs)
 
     def clean(self):
-        if self.manage_stock and (self.number_in_stock is None):
+        if self.manage_stock and (self.stock is None):
             raise ValidationError("Number in stock must be set when managing "
                                   "stock. Please enter a number or switch "
                                   "stock management off for this item.")
@@ -276,9 +277,9 @@ class InvoiceEntry(Entry):
     def delete(self, *args, **kwargs):
         if self.item.manage_stock:
             # refresh is called because if multiple items are deleted, they
-            # contain stale versions of item.number_in_stock
+            # contain stale versions of item.stock
             item = refresh(self.item)
-            item.number_in_stock += self.quantity
+            item.stock += self.quantity
             item.save()
         super(InvoiceEntry, self).delete(*args, **kwargs)
 
@@ -295,9 +296,9 @@ def stock_callback(sender, **kwargs):
             # an existing entry is being edited
             stock_change = new_instance.quantity - old_instance.quantity
         # refresh is called because if multiple items are modified, they
-        # contain stale versions of item.number_in_stock
+        # contain stale versions of item.stock
         item = refresh(new_instance.item)
-        item.number_in_stock -= stock_change
+        item.stock -= stock_change
         item.save()
 
 # this is to manage stock when invoice items are added or edited

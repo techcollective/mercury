@@ -145,10 +145,10 @@ class StockStatusListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "instock":
-            return queryset.exclude(number_in_stock__lte=0).filter(
+            return queryset.exclude(stock__lte=0).filter(
                 manage_stock=True)
         if self.value() == "nostock":
-            return queryset.filter(number_in_stock__lte=0).filter(
+            return queryset.filter(stock__lte=0).filter(
                 manage_stock=True)
 
 
@@ -416,11 +416,11 @@ class PaymentAdmin(MercuryAjaxAdmin):
 
 class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
-    list_display = ["name", "price", "number_in_stock", "manage_stock",
+    list_display = ["name", "price", "stock", "manage_stock",
                     "is_taxable"]
     list_filter = ["manage_stock", "is_taxable", StockStatusListFilter,
                    "categories"]
-    list_editable = ["number_in_stock"]
+    list_editable = ["stock"]
     filter_horizontal = ["categories"]
 
 
