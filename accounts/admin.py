@@ -19,7 +19,7 @@ from accounts.models import (Customer,
                                      Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import (get_or_create_paid_invoice_status,
-                             get_display_paid, refresh, get_change_url,
+                             get_display_paid, get_change_url,
                              get_fill_description)
 
 
@@ -278,7 +278,8 @@ class CustomerAdmin(MercuryAdmin):
         ("Contact Information", {"fields": ["phone_number", "email_address"]}),
         ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable", CustomerOwesListFilter, DuplicateNameListFilter]
+    list_filter = ["is_taxable", CustomerOwesListFilter,
+                   DuplicateNameListFilter]
 
     def get_address(self, instance):
         address = [instance.address, instance.city, instance.state]
@@ -440,7 +441,8 @@ class SalesReportAdmin(MercuryAjaxAdmin):
     def get_invoice_link(self, instance):
         invoice = instance.invoice
         url = get_change_url(invoice)
-        return "<a href=\"%s\">%s - %s</a>" % (url, invoice, invoice.date_created)
+        return "<a href=\"%s\">%s - %s</a>" % (url, invoice,
+                                               invoice.date_created)
     get_invoice_link.allow_tags = True
     get_invoice_link.short_description = "Invoice"
     get_invoice_link.admin_order_field = "invoice"

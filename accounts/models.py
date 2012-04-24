@@ -285,7 +285,7 @@ class InvoiceEntry(Entry):
 
 def stock_callback(sender, **kwargs):
     new_instance = kwargs["instance"]
-    if new_instance.item.manage_stock:
+    if new_instance.item.manage_stock and not kwargs["raw"]:
         try:
             old_instance = sender.objects.get(pk=new_instance.pk)
         except sender.DoesNotExist:
