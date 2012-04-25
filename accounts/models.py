@@ -75,13 +75,6 @@ class ProductOrService(models.Model):
     is_taxable = models.BooleanField(default=get_product_taxable)
     categories = models.ManyToManyField(ProductOrServiceCategory, blank=True)
 
-    def save(self, *args, **kwargs):
-        if self.stock is not None:
-            allow_negative = get_negative_stock()
-            if not allow_negative and self.stock < 0:
-                self.stock = 0
-        super(ProductOrService, self).save(*args, **kwargs)
-
     def clean(self):
         if self.manage_stock and (self.stock is None):
             raise ValidationError("Number in stock must be set when managing "
@@ -94,6 +87,23 @@ class ProductOrService(models.Model):
     class Meta:
         ordering = ["name"]
         verbose_name_plural = "Products and services"
+
+
+def check_negative_stock(sender, **kwargs):
+    instance = kwargs["instance"]
+    if instance.manage_stock:
+        # re-fetch the product/service instance from the db to get the actual
+        # stock number. it is set to an F() expression by the invoice entry
+        # creation signal handler. see
+        # ("https://docs.djangoproject.com/en/1.4/ref/models/instances/"
+        #  "#updating-attributes-based-on-existing-fields")
+        obj = sender.objects.get(pk=instance.pk)
+        allow_negative = get_negative_stock()
+        if not allow_negative and obj.stock < 0:
+            obj.stock = 0
+            obj.save()
+
+models.signals.post_save.connect(check_negative_stock, sender=ProductOrService)
 
 
 class QuoteInvoiceBase(models.Model):
