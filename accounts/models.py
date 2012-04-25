@@ -11,8 +11,7 @@ from configuration.models import (PaymentType,
                                   InvoiceTerm,
                                   ProductOrServiceCategory)
 from accounts.fields import CurrencyField
-from mercury.helpers import (refresh,
-                             check_deposited_payments,
+from mercury.helpers import (check_deposited_payments,
                              get_change_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
@@ -281,25 +280,23 @@ class InvoiceEntry(Entry):
         super(InvoiceEntry, self).delete(*args, **kwargs)
 
 
-def stock_callback(sender, **kwargs):
+def update_stock_on_invoiceentry_save(sender, **kwargs):
     new_instance = kwargs["instance"]
     if new_instance.item.manage_stock and not kwargs["raw"]:
         try:
             old_instance = sender.objects.get(pk=new_instance.pk)
         except sender.DoesNotExist:
             # a new entry is being added
-            stock_change = new_instance.quantity
+            stock_used = new_instance.quantity
         else:
             # an existing entry is being edited
-            stock_change = new_instance.quantity - old_instance.quantity
-        # refresh is called because if multiple items are modified, they
-        # contain stale versions of item.stock
-        item = refresh(new_instance.item)
-        item.stock -= stock_change
-        item.save()
+            stock_used = new_instance.quantity - old_instance.quantity
+        new_instance.item.stock = models.F("stock") - stock_used
+        new_instance.item.save()
 
 # this is to manage stock when invoice items are added or edited
-models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
+models.signals.pre_save.connect(update_stock_on_invoiceentry_save,
+                                sender=InvoiceEntry)
 
 
 class QuoteEntry(Entry):
