@@ -77,7 +77,6 @@ class ProductOrService(models.Model):
     categories = models.ManyToManyField(ProductOrServiceCategory, blank=True)
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         if self.stock is not None:
             allow_negative = get_negative_stock()
             if not allow_negative and self.stock < 0:
@@ -275,11 +274,9 @@ class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
 
     def delete(self, *args, **kwargs):
-        if self.item.manage_stock:
-            # refresh is called because if multiple items are deleted, they
-            # contain stale versions of item.stock
-            item = refresh(self.item)
-            item.stock += self.quantity
+        item = self.item
+        if item.manage_stock:
+            item.stock = models.F("stock") + self.quantity
             item.save()
         super(InvoiceEntry, self).delete(*args, **kwargs)
 
