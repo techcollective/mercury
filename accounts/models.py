@@ -104,8 +104,8 @@ def check_negative_stock(sender, **kwargs):
         if not allow_negative and obj.stock < 0:
             obj.stock = 0
             obj.save()
-            log_stock_change(obj, "Auto-set stock to zero since current settings"
-                             " do not allow negative stock.")
+            log_stock_change(obj, "Auto-set stock to zero since current "
+                             "settings do not allow negative stock.")
 
 models.signals.post_save.connect(check_negative_stock, sender=ProductOrService)
 
@@ -284,34 +284,43 @@ class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
 
 
-def update_stock_on_invoiceentry_save(sender, **kwargs):
-    # if creating or editing an invoice entry, update stock accordingly
+def invoiceentry_edit(sender, **kwargs):
+    # if editing an invoice entry, update stock accordingly using the change in
+    # quantity (if any)
     new_instance = kwargs["instance"]
-    if new_instance.item.manage_stock and not kwargs["raw"]:
-        try:
-            old_instance = sender.objects.get(pk=new_instance.pk)
-        except sender.DoesNotExist:
-            # a new entry is being added
-            stock_used = new_instance.quantity
-        else:
-            # an existing entry is being edited
-            stock_used = new_instance.quantity - old_instance.quantity
-        change = - stock_used
-        increment_stock(new_instance.item, change)
+    if (new_instance.pk and new_instance.item.manage_stock and not
+        kwargs["raw"]):
+        old_instance = sender.objects.get(pk=new_instance.pk)
+        quantity_increase = new_instance.quantity - old_instance.quantity
+        change = - quantity_increase
+        invoiceentry_increment_stock(new_instance, change, "Editing")
 
 
-def update_stock_on_invoiceentry_delete(sender, **kwargs):
+def invoiceentry_create(sender, **kwargs):
+    # if creating a new invoice entry, update stock by removing quantity used
+    if kwargs["created"] and not kwargs["raw"]:
+        instance = kwargs["instance"]
+        change = - instance.quantity
+        invoiceentry_increment_stock(instance, change, "Creating")
+
+
+def invoiceentry_delete(sender, **kwargs):
     # If deleting an an invoice entry, put the stock back
     instance = kwargs["instance"]
-    item = instance.item
-    if item.manage_stock:
-        increment_stock(item, instance.quantity)
+    if instance.item.manage_stock:
+        invoiceentry_increment_stock(instance, instance.quantity, "Deleting")
 
 
-models.signals.pre_save.connect(update_stock_on_invoiceentry_save,
-                                sender=InvoiceEntry)
-models.signals.post_delete.connect(update_stock_on_invoiceentry_delete,
-                                   sender=InvoiceEntry)
+def invoiceentry_increment_stock(entry, change, action):
+   # fixme: don't hardcode decimal places (issue #165)
+    message = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)" %
+               (action, entry.pk, entry.invoice.pk, change))
+    increment_stock(entry.item, change, message)
+
+
+models.signals.pre_save.connect(invoiceentry_edit, sender=InvoiceEntry)
+models.signals.post_save.connect(invoiceentry_create, sender=InvoiceEntry)
+models.signals.post_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
 
 
 def increment_stock(item, change, message=None):
@@ -323,9 +332,9 @@ def increment_stock(item, change, message=None):
     if message is None:
         # fixme: don't hardcode decimal places (issue #165)
         message = "Auto-incremented stock (%+0.2f)" % change
-    # log the change before saving, so that if the item additionally logs
-    # anything (e.g. in the check_negative_stock() hook), the log order is
-    # correct
+    # log the change before saving, so that the order of log entries remains
+    # correct even if the item.save() additionally logs something (e.g. in the
+    # check_negative_stock() hook)
     log_stock_change(item, message)
     item.stock = models.F("stock") + change
     item.save()
