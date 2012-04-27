@@ -307,6 +307,12 @@ def invoiceentry_create(sender, **kwargs):
 def invoiceentry_delete(sender, **kwargs):
     # If deleting an an invoice entry, put the stock back
     instance = kwargs["instance"]
+    # if someone alters the quantity field on an invoice entry and also checks
+    # "delete", we end up with their newly entered quantity here. i don't see
+    # why someone would do that, but IMO if it happens the best thing to do is
+    # to ignore the altered quantity. so we re-fetch from the DB just to cover
+    # this unusual scenario
+    instance = sender.objects.get(pk=instance.pk)
     if instance.item.manage_stock:
         invoiceentry_increment_stock(instance, instance.quantity, "Deleting")
 
@@ -320,7 +326,7 @@ def invoiceentry_increment_stock(entry, change, action):
 
 models.signals.pre_save.connect(invoiceentry_edit, sender=InvoiceEntry)
 models.signals.post_save.connect(invoiceentry_create, sender=InvoiceEntry)
-models.signals.post_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
+models.signals.pre_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
 
 
 def increment_stock(item, change, message=None):
@@ -334,7 +340,7 @@ def increment_stock(item, change, message=None):
         message = "Auto-incremented stock (%+0.2f)" % change
     # log the change before saving, so that the order of log entries remains
     # correct even if the item.save() additionally logs something (e.g. in the
-    # check_negative_stock() hook)
+    # check_negative_stock() hook).
     log_stock_change(item, message)
     item.stock = models.F("stock") + change
     item.save()
