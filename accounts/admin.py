@@ -419,6 +419,10 @@ class ProductOrServiceAdmin(MercuryAdmin):
     list_editable = ["stock"]
     filter_horizontal = ["categories"]
 
+    def log_change(self, request, object, message):
+        message += " Stock: %s" % object.stock
+        super(ProductOrServiceAdmin, self).log_change(request, object, message)
+
 
 class SalesReportAdmin(MercuryAjaxAdmin):
     actions = None
