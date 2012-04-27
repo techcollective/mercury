@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.contrib import admin
+import pandora
 
 from configuration.models import (PaymentType,
                                   InvoiceStatus,
@@ -102,6 +104,8 @@ def check_negative_stock(sender, **kwargs):
         if not allow_negative and obj.stock < 0:
             obj.stock = 0
             obj.save()
+            log_stock_change(obj, "Auto-set stock to zero since current settings"
+                             " do not allow negative stock.")
 
 models.signals.post_save.connect(check_negative_stock, sender=ProductOrService)
 
@@ -214,9 +218,6 @@ class Invoice(QuoteInvoiceBase):
     def delete(self, *args, **kwargs):
         # prevent a delete that will cascade to deposited payments
         check_deposited_payments(self, "invoice__pk")
-        for entry in self.get_entries():
-            # this is done so that stock is updated
-            entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
 
     def update(self):
@@ -282,15 +283,9 @@ class InvoiceEntry(Entry):
 
     invoice = models.ForeignKey(Invoice)
 
-    def delete(self, *args, **kwargs):
-        item = self.item
-        if item.manage_stock:
-            item.stock = models.F("stock") + self.quantity
-            item.save()
-        super(InvoiceEntry, self).delete(*args, **kwargs)
-
 
 def update_stock_on_invoiceentry_save(sender, **kwargs):
+    # if creating or editing an invoice entry, update stock accordingly
     new_instance = kwargs["instance"]
     if new_instance.item.manage_stock and not kwargs["raw"]:
         try:
@@ -301,12 +296,45 @@ def update_stock_on_invoiceentry_save(sender, **kwargs):
         else:
             # an existing entry is being edited
             stock_used = new_instance.quantity - old_instance.quantity
-        new_instance.item.stock = models.F("stock") - stock_used
-        new_instance.item.save()
+        change = - stock_used
+        increment_stock(new_instance.item, change)
 
-# this is to manage stock when invoice items are added or edited
+
+def update_stock_on_invoiceentry_delete(sender, **kwargs):
+    # If deleting an an invoice entry, put the stock back
+    instance = kwargs["instance"]
+    item = instance.item
+    if item.manage_stock:
+        increment_stock(item, instance.quantity)
+
+
 models.signals.pre_save.connect(update_stock_on_invoiceentry_save,
                                 sender=InvoiceEntry)
+models.signals.post_delete.connect(update_stock_on_invoiceentry_delete,
+                                   sender=InvoiceEntry)
+
+
+def increment_stock(item, change, message=None):
+    """
+    Increase the amount of an `item` in stock by `change`, creating an admin
+    log entry for auditing purposes. If no `message` is supplied, a generic
+    one is created.
+    """
+    if message is None:
+        # fixme: don't hardcode decimal places (issue #165)
+        message = "Auto-incremented stock (%+0.2f)" % change
+    # log the change before saving, so that if the item additionally logs
+    # anything (e.g. in the check_negative_stock() hook), the log order is
+    # correct
+    log_stock_change(item, message)
+    item.stock = models.F("stock") + change
+    item.save()
+
+
+def log_stock_change(item, message):
+    if "request" in pandora.box:
+        ProductOrServiceAdmin = admin.site._registry[ProductOrService]
+        ProductOrServiceAdmin.log_change(pandora.box["request"], item, message)
 
 
 class QuoteEntry(Entry):

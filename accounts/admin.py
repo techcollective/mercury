@@ -9,14 +9,8 @@ from ajax_select import make_ajax_form
 from ajax_select.fields import autoselect_fields_check_can_add
 
 from configuration.models import InvoiceStatus
-from accounts.models import (Customer,
-                                     ProductOrService,
-                                     Invoice,
-                                     Quote,
-                                     InvoiceEntry,
-                                     QuoteEntry,
-                                     Payment,
-                                     Deposit,)
+from accounts.models import (Customer, ProductOrService, Invoice, Quote,
+                             InvoiceEntry, QuoteEntry, Payment, Deposit,)
 from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
 from mercury.helpers import (get_or_create_paid_invoice_status,
                              get_display_paid, get_change_url,
