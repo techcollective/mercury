@@ -31,18 +31,19 @@ class ProductOrServiceInline(AjaxTabularInline):
     extra = 0
     verbose_name = "Product or service"
     verbose_name_plural = "Products or services"
-    form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"})
     # todo: do i really want to exclude total?
     exclude = ["total"]
-    ordering = ["-invoice", "pk"]
+    ordering = ["pk"]
 
 
 class InvoiceEntryInline(ProductOrServiceInline):
     model = InvoiceEntry
+    form = make_ajax_form(InvoiceEntry, {"item": "product_or_service_name"})
 
 
 class QuoteEntryInline(ProductOrServiceInline):
     model = QuoteEntry
+    form = make_ajax_form(QuoteEntry, {"item": "product_or_service_name"})
 
 
 class InvoicePaymentInline(admin.TabularInline):
