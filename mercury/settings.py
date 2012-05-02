@@ -163,10 +163,10 @@ if DEBUG:
     INSTALLED_APPS += ['django_extensions']
 
 AJAX_LOOKUP_CHANNELS = {
-    'customer_name': "accounts.helpers.CustomerNameAjaxChannel",
-    'product_or_service_name': "accounts.helpers.ProductNameAjaxChannel",
-    'invoice': "accounts.helpers.InvoiceAjaxChannel",
-    'unpaid_invoice': "accounts.helpers.UnpaidInvoiceAjaxChannel",
+    'customer_name': "accounts.ajax.CustomerNameAjaxChannel",
+    'product_or_service_name': "accounts.ajax.ProductNameAjaxChannel",
+    'invoice': "accounts.ajax.InvoiceAjaxChannel",
+    'unpaid_invoice': "accounts.ajax.UnpaidInvoiceAjaxChannel",
 }
 
 LOGIN_URL = "/"

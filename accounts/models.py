@@ -6,6 +6,8 @@ from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib import admin
+from django.dispatch import receiver
+
 import pandora
 
 from configuration.models import (PaymentType,
@@ -32,6 +34,38 @@ from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
 
+# A few helper functions
+
+def invoiceentry_increment_stock(entry, change, action):
+    if change:
+        # fixme: don't hardcode decimal places (issue #165)
+        msg = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
+                   (action, entry.pk, entry.invoice.pk, change))
+        item = entry.item
+        item.stock = models.F("stock") + change
+        item.save()
+        log_stock_change(item, msg)
+
+
+def log_stock_change(item, message, audit_stock=True):
+    if "request" in pandora.box:
+        ProductOrServiceAdmin = admin.site._registry[ProductOrService]
+        # re-fetch from db, see comment for check_negative_stock for infos
+        obj = ProductOrServiceAdmin.model.objects.get(pk=item.pk)
+        ProductOrServiceAdmin.log_change(pandora.box["request"], obj, message,
+                                         audit_stock=audit_stock)
+
+
+def get_date_due(customer):
+    now = datetime.date.today()
+    term = customer.default_payment_terms.days_until_invoice_due
+    term = datetime.timedelta(days=term)
+    date_due = now + term
+    return date_due
+
+
+# Custom manager
+
 class SelectRelatedManager(models.Manager):
     def __init__(self, select_related_fields=None):
         select_related_fields = select_related_fields or []
@@ -44,6 +78,8 @@ class SelectRelatedManager(models.Manager):
                      self).get_query_set().select_related(
                                                 *self.select_related_fields)
 
+
+# Models and signal receivers
 
 class Customer(models.Model):
     class Meta:
@@ -91,6 +127,7 @@ class ProductOrService(models.Model):
         verbose_name_plural = "Products and services"
 
 
+@receiver(models.signals.post_save, sender=ProductOrService)
 def check_negative_stock(sender, **kwargs):
     instance = kwargs["instance"]
     if instance.manage_stock:
@@ -109,8 +146,6 @@ def check_negative_stock(sender, **kwargs):
             log_stock_change(obj, "Auto-set stock to zero since current "
                              "settings do not allow negative stock.",
                              audit_stock=False)
-
-models.signals.post_save.connect(check_negative_stock, sender=ProductOrService)
 
 
 class QuoteInvoiceBase(models.Model):
@@ -197,7 +232,6 @@ class Quote(QuoteInvoiceBase):
         return self.quoteentry_set.all()
 
     def create_invoice(self):
-        from accounts.helpers import get_date_due
         new_invoice = Invoice()
         fields = [f.name for f in self._meta.fields if f.name != "id"]
         for field in fields:
@@ -287,6 +321,7 @@ class InvoiceEntry(Entry):
     invoice = models.ForeignKey(Invoice)
 
 
+@receiver(models.signals.pre_save, sender=InvoiceEntry)
 def invoiceentry_edit(sender, **kwargs):
     # if editing an invoice entry, both quantity and item could change.
     new_instance = kwargs["instance"]
@@ -308,6 +343,7 @@ def invoiceentry_edit(sender, **kwargs):
                 invoiceentry_increment_stock(new_instance, change, "Editing")
 
 
+@receiver(models.signals.post_save, sender=InvoiceEntry)
 def invoiceentry_create(sender, **kwargs):
     # if creating a new invoice entry, update stock by removing quantity used
     if kwargs["created"] and not kwargs["raw"]:
@@ -316,6 +352,7 @@ def invoiceentry_create(sender, **kwargs):
         invoiceentry_increment_stock(instance, change, "Creating")
 
 
+@receiver(models.signals.pre_delete, sender=InvoiceEntry)
 def invoiceentry_delete(sender, **kwargs):
     # If deleting an an invoice entry, put the stock back
     instance = kwargs["instance"]
@@ -327,31 +364,6 @@ def invoiceentry_delete(sender, **kwargs):
     instance = sender.objects.get(pk=instance.pk)
     if instance.item.manage_stock:
         invoiceentry_increment_stock(instance, instance.quantity, "Deleting")
-
-
-def invoiceentry_increment_stock(entry, change, action):
-    if change:
-        # fixme: don't hardcode decimal places (issue #165)
-        msg = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
-                   (action, entry.pk, entry.invoice.pk, change))
-        item = entry.item
-        item.stock = models.F("stock") + change
-        item.save()
-        log_stock_change(item, msg)
-
-
-models.signals.pre_save.connect(invoiceentry_edit, sender=InvoiceEntry)
-models.signals.post_save.connect(invoiceentry_create, sender=InvoiceEntry)
-models.signals.pre_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
-
-
-def log_stock_change(item, message, audit_stock=True):
-    if "request" in pandora.box:
-        ProductOrServiceAdmin = admin.site._registry[ProductOrService]
-        # re-fetch from db, see comment for check_negative_stock for infos
-        obj = ProductOrService.objects.get(pk=item.pk)
-        ProductOrServiceAdmin.log_change(pandora.box["request"], obj, message,
-                                         audit_stock=audit_stock)
 
 
 class QuoteEntry(Entry):
@@ -458,6 +470,7 @@ class Payment(models.Model):
         ordering = ["-date_received"]
 
 
+@receiver(models.signals.pre_save, sender=Payment)
 def payment_presave(sender, **kwargs):
     instance = kwargs["instance"]
     if instance.pk:
@@ -475,5 +488,3 @@ def payment_presave(sender, **kwargs):
                 deposit = original.deposit
                 deposit.total -= original.amount
                 deposit.save()
-
-models.signals.pre_save.connect(payment_presave, sender=Payment)
