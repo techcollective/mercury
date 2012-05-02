@@ -320,7 +320,7 @@ def invoiceentry_delete(sender, **kwargs):
 
 def invoiceentry_increment_stock(entry, change, action):
    # fixme: don't hardcode decimal places (issue #165)
-    message = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)" %
+    message = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
                (action, entry.pk, entry.invoice.pk, change))
     increment_stock(entry.item, change, message)
 
