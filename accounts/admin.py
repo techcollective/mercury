@@ -225,7 +225,6 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
                                     "created_by"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
-    hide_delete_warning = (InvoiceEntry,)
     inlines = [InvoiceEntryInline, InvoicePaymentInline]
     list_display = ["get_number", "description", "notes", "get_customer_link",
                     "status", "grand_total", "date_created", "date_due",
@@ -255,7 +254,6 @@ class QuoteAdmin(InvoiceQuoteBaseAdmin):
                                     "description", "notes", "created_by"]}),
         ("Totals", {"fields": ["subtotal", "total_tax", "grand_total"]}),
     ]
-    hide_delete_warning = (QuoteEntry,)
     inlines = [QuoteEntryInline]
     list_display = ["get_number", "description", "notes", "get_customer_link",
                     "grand_total", "date_created", "created_by"]
@@ -294,7 +292,6 @@ class CustomerAdmin(MercuryAdmin):
 
 class DepositAdmin(MercuryAdmin):
     inlines = [DepositPaymentInline]
-    hide_delete_warning = (Payment,)
     list_display = ["total", "date", "comment", "made_by"]
     date_hierarchy = "date"
     list_filter = ["made_by"]
