@@ -104,6 +104,8 @@ def check_negative_stock(sender, **kwargs):
         if not allow_negative and obj.stock < 0:
             obj.stock = 0
             obj.save()
+            # pass audit_stock=False since the appropriate number will
+            # appear in the LogEntry of the event that triggered this hook.
             log_stock_change(obj, "Auto-set stock to zero since current "
                              "settings do not allow negative stock.",
                              audit_stock=False)
