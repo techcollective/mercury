@@ -56,7 +56,7 @@ class CustomerNameAjaxChannel(AjaxChannel):
         self.field = "name"
 
     def generate_autofill(self, model_instance):
-        return {"date_due": get_date_due(model_instance)}
+        return {"date_due": models.get_date_due(model_instance)}
 
 
 class ProductNameAjaxChannel(AjaxChannel):
@@ -90,7 +90,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         except (decimal.InvalidOperation, TypeError):
             pass
         else:
-            lookup = lookup | Q(grand_total__contains=q)
+            lookup = lookup | Q(grand_total=q)
 
         # also search for customer name
         lookup = lookup | Q(customer__name__icontains=q)
