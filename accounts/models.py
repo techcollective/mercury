@@ -349,7 +349,9 @@ def increment_stock(item, change, message=None):
 def log_stock_change(item, message, audit_stock=True):
     if "request" in pandora.box:
         ProductOrServiceAdmin = admin.site._registry[ProductOrService]
-        ProductOrServiceAdmin.log_change(pandora.box["request"], item, message,
+        # re-fetch from db, see comment for check_negative_stock for infos
+        obj = self.model.objects.get(pk=item.pk)
+        ProductOrServiceAdmin.log_change(pandora.box["request"], obj, message,
                                          audit_stock=audit_stock)
 
 
