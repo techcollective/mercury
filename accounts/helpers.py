@@ -86,7 +86,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         self.field = "pk"
 
     def _get_queryset(self, q, request):
-        filter = Q()
+        lookup = Q()
 
         # search for invoice number if q is an int
         try:
@@ -94,7 +94,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         except (ValueError, TypeError):
             pass
         else:
-            filter = filter | Q(pk=q)
+            lookup = lookup | Q(pk=q)
 
         # also search for total if q is a decimal
         try:
@@ -102,14 +102,22 @@ class InvoiceAjaxChannel(AjaxChannel):
         except (decimal.InvalidOperation, TypeError):
             pass
         else:
-            filter = filter | Q(grand_total__contains=q)
+            lookup = lookup | Q(grand_total__contains=q)
 
         # also search for customer name
-        filter = filter | Q(customer__name__icontains=q)
+        lookup = lookup | Q(customer__name__icontains=q)
 
+        return models.Invoice.objects.filter(lookup)
+
+
+class UnpaidInvoiceAjaxChannel(InvoiceAjaxChannel):
+    def _get_queryset(self, q, request):
         paid_status = get_or_create_paid_invoice_status()
-        return models.Invoice.objects.filter(filter).order_by(
-            "date_created").exclude(status=paid_status)
+        qs = super(UnpaidInvoiceAjaxChannel, self)._get_queryset(q, request)
+        return qs.exclude(status=paid_status)
 
     def generate_autofill(self, model_instance):
+        """
+        Autofill for the Payment add page "amount" field
+        """
         return {"amount": model_instance.grand_total}

@@ -24,13 +24,14 @@ def check_deposited_payments(obj, field_lookup):
     num_payments = Payment.objects.filter(**filter).exclude(
                                                         deposit=None).count()
     if num_payments != 0:
-        url = get_changelist_url(Payment) + "?" + field_lookup + "=%s" % obj.pk
+        url = ("%s?%s=%s&deposited_status=deposited" %
+               (get_changelist_url(Payment), field_lookup, obj.pk))
         message = ("Can't delete: " + capfirst(obj._meta.verbose_name) + " \""
                    + unicode(obj) + "\" is linked to")
         if num_payments == 1:
-            message += " one deposited payment."
+            message += " one deposited payment, shown below"
         else:
-            message += " %s deposited payments." % num_payments
+            message += " %s deposited payments, listed below" % num_payments
         raise DepositedPaymentsException(message, url=url)
 
 
