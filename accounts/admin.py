@@ -420,8 +420,10 @@ class ProductOrServiceAdmin(MercuryAdmin):
     filter_horizontal = ["categories"]
 
     def log_change(self, request, object, message):
-        message += " Stock: %s" % object.stock
-        super(ProductOrServiceAdmin, self).log_change(request, object, message)
+        # re-fetch from db to get stock number (might be an F() expression)
+        obj = self.model.objects.get(pk=object.pk)
+        message += " Stock: %s" % obj.stock
+        super(ProductOrServiceAdmin, self).log_change(request, obj, message)
 
 
 class SalesReportAdmin(MercuryAjaxAdmin):
