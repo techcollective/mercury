@@ -290,8 +290,8 @@ class InvoiceEntry(Entry):
 def invoiceentry_edit(sender, **kwargs):
     # if editing an invoice entry, both quantity and item could change.
     new_instance = kwargs["instance"]
-    old_instance = sender.objects.get(pk=new_instance.pk)
     if new_instance.pk and not kwargs["raw"]:
+        old_instance = sender.objects.get(pk=new_instance.pk)
         if (new_instance.item == old_instance.item and
             new_instance.item.manage_stock):
             quantity_increase = new_instance.quantity - old_instance.quantity
@@ -330,7 +330,7 @@ def invoiceentry_delete(sender, **kwargs):
 
 
 def invoiceentry_increment_stock(entry, change, action):
-    if change != 0:
+    if change:
         # fixme: don't hardcode decimal places (issue #165)
         msg = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
                    (action, entry.pk, entry.invoice.pk, change))
