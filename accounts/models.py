@@ -332,15 +332,12 @@ models.signals.post_save.connect(invoiceentry_create, sender=InvoiceEntry)
 models.signals.pre_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
 
 
-def increment_stock(item, change, message=None):
+def increment_stock(item, change, message):
     """
     Increase the amount of an `item` in stock by `change`, creating an admin
     log entry for auditing purposes. If no `message` is supplied, a generic
     one is created.
     """
-    if message is None:
-        # fixme: don't hardcode decimal places (issue #165)
-        message = "Auto-incremented stock (%+0.2f)" % change
     item.stock = models.F("stock") + change
     item.save()
     log_stock_change(item, message)
