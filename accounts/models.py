@@ -338,12 +338,9 @@ def increment_stock(item, change, message=None):
     if message is None:
         # fixme: don't hardcode decimal places (issue #165)
         message = "Auto-incremented stock (%+0.2f)" % change
-    # log the change before saving, so that the order of log entries remains
-    # correct even if the item.save() additionally logs something (e.g. in the
-    # check_negative_stock() hook).
-    log_stock_change(item, message)
     item.stock = models.F("stock") + change
     item.save()
+    log_stock_change(item, message)
 
 
 def log_stock_change(item, message):
