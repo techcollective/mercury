@@ -334,23 +334,15 @@ def invoiceentry_increment_stock(entry, change, action):
         # fixme: don't hardcode decimal places (issue #165)
         msg = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
                    (action, entry.pk, entry.invoice.pk, change))
-        increment_stock(entry.item, change, msg)
+        item = entry.item
+        item.stock = models.F("stock") + change
+        item.save()
+        log_stock_change(item, msg)
 
 
 models.signals.pre_save.connect(invoiceentry_edit, sender=InvoiceEntry)
 models.signals.post_save.connect(invoiceentry_create, sender=InvoiceEntry)
 models.signals.pre_delete.connect(invoiceentry_delete, sender=InvoiceEntry)
-
-
-def increment_stock(item, change, message):
-    """
-    Increase the amount of an `item` in stock by `change`, creating an admin
-    log entry for auditing purposes. If no `message` is supplied, a generic
-    one is created.
-    """
-    item.stock = models.F("stock") + change
-    item.save()
-    log_stock_change(item, message)
 
 
 def log_stock_change(item, message, audit_stock=True):
