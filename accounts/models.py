@@ -288,15 +288,24 @@ class InvoiceEntry(Entry):
 
 
 def invoiceentry_edit(sender, **kwargs):
-    # if editing an invoice entry, update stock accordingly using the change in
-    # quantity (if any)
+    # if editing an invoice entry, both quantity and item could change.
     new_instance = kwargs["instance"]
-    if (new_instance.pk and new_instance.item.manage_stock and not
-        kwargs["raw"]):
-        old_instance = sender.objects.get(pk=new_instance.pk)
-        quantity_increase = new_instance.quantity - old_instance.quantity
-        change = - quantity_increase
-        invoiceentry_increment_stock(new_instance, change, "Editing")
+    old_instance = sender.objects.get(pk=new_instance.pk)
+    if new_instance.pk and not kwargs["raw"]:
+        if (new_instance.item == old_instance.item and
+            new_instance.item.manage_stock):
+            quantity_increase = new_instance.quantity - old_instance.quantity
+            stock_change = - quantity_increase
+            invoiceentry_increment_stock(new_instance, stock_change, "Editing")
+        else:
+            # for stock puposes changing item is treated as if the old entry
+            # was deleted and the new entry was created.
+            if old_instance.item.manage_stock:
+                invoiceentry_increment_stock(old_instance, old_instance.quantity,
+                                             "Editing")
+            if new_instance.item.manage_stock:
+                change = - new_instance.quantity
+                invoiceentry_increment_stock(new_instance, change, "Editing")
 
 
 def invoiceentry_create(sender, **kwargs):
