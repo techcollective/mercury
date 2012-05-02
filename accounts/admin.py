@@ -421,7 +421,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
 
     def log_change(self, request, obj, message, audit_stock=True):
         if audit_stock:
-            message += " Stock: %s" % obj.stock
+            message += " Stock: %0.2f" % obj.stock
         super(ProductOrServiceAdmin, self).log_change(request, obj, message)
 
 
