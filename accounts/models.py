@@ -231,12 +231,14 @@ class Quote(QuoteInvoiceBase):
     def get_entries(self):
         return self.quoteentry_set.all()
 
-    def create_invoice(self):
+    def create_invoice(self, created_by):
         new_invoice = Invoice()
-        fields = [f.name for f in self._meta.fields if f.name != "id"]
+        exclude = ["id", "date_created", "created_by"]
+        fields = [f.name for f in self._meta.fields if f.name not in exclude]
         for field in fields:
             setattr(new_invoice, field, getattr(self, field))
         new_invoice.date_due = get_date_due(self.customer)
+        new_invoice.created_by = created_by
         new_invoice.save()
         entries = self.get_entries()
         for entry in entries:
@@ -347,7 +349,7 @@ def invoiceentry_edit(sender, **kwargs):
 def invoiceentry_create(sender, **kwargs):
     # if creating a new invoice entry, update stock by removing quantity used
     instance = kwargs["instance"]
-    if kwargs["created"] and instance.manage_stock and not kwargs["raw"]:
+    if kwargs["created"] and instance.item.manage_stock and not kwargs["raw"]:
         change = - instance.quantity
         invoiceentry_increment_stock(instance, change, "Creating")
 
