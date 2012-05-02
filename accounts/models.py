@@ -346,8 +346,8 @@ def invoiceentry_edit(sender, **kwargs):
 @receiver(models.signals.post_save, sender=InvoiceEntry)
 def invoiceentry_create(sender, **kwargs):
     # if creating a new invoice entry, update stock by removing quantity used
-    if kwargs["created"] and not kwargs["raw"]:
-        instance = kwargs["instance"]
+    instance = kwargs["instance"]
+    if kwargs["created"] and instance.manage_stock and not kwargs["raw"]:
         change = - instance.quantity
         invoiceentry_increment_stock(instance, change, "Creating")
 
