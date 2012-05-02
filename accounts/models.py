@@ -301,8 +301,8 @@ def invoiceentry_edit(sender, **kwargs):
             # for stock puposes changing item is treated as if the old entry
             # was deleted and the new entry was created.
             if old_instance.item.manage_stock:
-                invoiceentry_increment_stock(old_instance, old_instance.quantity,
-                                             "Editing")
+                invoiceentry_increment_stock(old_instance,
+                                             old_instance.quantity, "Editing")
             if new_instance.item.manage_stock:
                 change = - new_instance.quantity
                 invoiceentry_increment_stock(new_instance, change, "Editing")
