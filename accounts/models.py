@@ -105,7 +105,8 @@ def check_negative_stock(sender, **kwargs):
             obj.stock = 0
             obj.save()
             log_stock_change(obj, "Auto-set stock to zero since current "
-                             "settings do not allow negative stock.")
+                             "settings do not allow negative stock.",
+                             audit_stock=False)
 
 models.signals.post_save.connect(check_negative_stock, sender=ProductOrService)
 
@@ -343,10 +344,11 @@ def increment_stock(item, change, message=None):
     log_stock_change(item, message)
 
 
-def log_stock_change(item, message):
+def log_stock_change(item, message, audit_stock=True):
     if "request" in pandora.box:
         ProductOrServiceAdmin = admin.site._registry[ProductOrService]
-        ProductOrServiceAdmin.log_change(pandora.box["request"], item, message)
+        ProductOrServiceAdmin.log_change(pandora.box["request"], item, message,
+                                         audit_stock=audit_stock)
 
 
 class QuoteEntry(Entry):
