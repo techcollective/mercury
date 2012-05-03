@@ -193,12 +193,12 @@ class CustomerAdmin(MercuryAdmin):
     list_display = ["name", "phone_number", "email_address", "get_address",
                     "is_taxable"]
     fieldsets = [
-        (None, {"fields": ["name", "is_taxable", "default_payment_terms", "categories"]}),
+        (None, {"fields": ["name", "is_taxable", "default_payment_terms", "tags"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address", "address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable", CustomerOwesListFilter, "categories",
+    list_filter = ["is_taxable", CustomerOwesListFilter, "tags",
                    DuplicateNameListFilter]
-    filter_horizontal = ["categories"]
+    filter_horizontal = ["tags"]
 
     def get_address(self, instance):
         address = [instance.address, instance.city, instance.state]
@@ -220,9 +220,9 @@ class ProductOrServiceAdmin(MercuryAdmin):
     list_display = ["name", "price", "stock", "manage_stock",
                     "is_taxable"]
     list_filter = ["manage_stock", "is_taxable", StockStatusListFilter,
-                   "categories"]
+                   "tags"]
     list_editable = ["stock"]
-    filter_horizontal = ["categories"]
+    filter_horizontal = ["tags"]
 
     def log_change(self, request, obj, message, audit_stock=True):
         if audit_stock:
@@ -314,7 +314,7 @@ class SalesReportAdmin(MercuryAjaxAdmin):
                     "total", "is_taxable", "get_invoice_link"]
     # todo: custom default filter that shows only paid stuff? after all
     # this is a *sales* report
-    list_filter = ["invoice__status", "is_taxable", "item__categories",
+    list_filter = ["invoice__status", "is_taxable", "item__tags",
                    "invoice__created_by"]
     allowed_lookups = ["invoice__date_created__gte",
                        "invoice__date_created__lte"]
