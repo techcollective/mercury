@@ -13,7 +13,8 @@ import pandora
 from configuration.models import (PaymentType,
                                   InvoiceStatus,
                                   InvoiceTerm,
-                                  ProductOrServiceCategory)
+                                  ProductOrServiceCategory,
+                                  CustomerCategory)
 from accounts.fields import CurrencyField
 from mercury.helpers import (check_deposited_payments,
                              get_change_url,
@@ -94,6 +95,7 @@ class Customer(models.Model):
     is_taxable = models.BooleanField(default=get_customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
+    categories = models.ManyToManyField(CustomerCategory, blank=True)
 
     def __unicode__(self):
         return self.name
