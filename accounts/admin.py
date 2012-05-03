@@ -193,12 +193,12 @@ class CustomerAdmin(MercuryAdmin):
     list_display = ["name", "phone_number", "email_address", "get_address",
                     "is_taxable"]
     fieldsets = [
-        (None, {"fields": ["name", "is_taxable", "default_payment_terms"]}),
-        ("Contact Information", {"fields": ["phone_number", "email_address"]}),
-        ("Address", {"fields": ["address", "city", "state", "zip_code"]}),
+        (None, {"fields": ["name", "is_taxable", "default_payment_terms", "categories"]}),
+        ("Contact Information", {"fields": ["phone_number", "email_address", "address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable", CustomerOwesListFilter,
+    list_filter = ["is_taxable", CustomerOwesListFilter, "categories",
                    DuplicateNameListFilter]
+    filter_horizontal = ["categories"]
 
     def get_address(self, instance):
         address = [instance.address, instance.city, instance.state]
