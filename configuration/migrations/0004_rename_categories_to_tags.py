@@ -7,6 +7,9 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    # make sure customer category stuff has all happened before we rename to tags
+    depends_on = (("accounts", "0008_add_m2m_customer_categories"),)
+
     def forwards(self, orm):
         db.rename_table('configuration_productorservicecategory', 'configuration_productorservicetag')
         db.rename_table('configuration_customercategory', 'configuration_customertag')
