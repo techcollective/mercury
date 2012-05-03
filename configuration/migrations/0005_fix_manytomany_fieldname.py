@@ -7,8 +7,6 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = (("accounts", "0008_add_m2m_customer_categories"),)
-
     def forwards(self, orm):
         db.rename_column("accounts_customer_categories", "customercategory_id", "customertag_id")
         db.rename_column("accounts_productorservice_categories", "productorservicecategory_id", "productorservicetag_id")

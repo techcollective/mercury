@@ -6,7 +6,7 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
-    depends_on = (("configuration", "0003_auto__add_customercategory"),)
+
     def forwards(self, orm):
         # Adding M2M table for field categories on 'Customer'
         db.create_table('accounts_customer_categories', (
