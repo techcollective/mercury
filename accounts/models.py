@@ -95,7 +95,9 @@ class Customer(models.Model):
     is_taxable = models.BooleanField(default=get_customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
-    tags = models.ManyToManyField(CustomerTag, blank=True)
+    # verbose_name is set to get a meaningful list_filter title
+    tags = models.ManyToManyField(CustomerTag, blank=True,
+                                  verbose_name="Customer tags")
 
     def __unicode__(self):
         return self.name
@@ -113,7 +115,9 @@ class ProductOrService(models.Model):
                                 decimal_places=2)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
-    tags = models.ManyToManyField(ProductOrServiceTag, blank=True)
+    # verbose_name is set to get a meaningful list_filter title
+    tags = models.ManyToManyField(ProductOrServiceTag, blank=True,
+                                  verbose_name="Product / service tags")
 
     def clean(self):
         if self.manage_stock and (self.stock is None):

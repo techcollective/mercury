@@ -290,7 +290,8 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
                     "status", "grand_total", "date_created", "date_due",
                     "created_by"]
     list_display_links = ["get_number", "description"]
-    list_filter = [UnpaidStatusListFilter, "status", "created_by"]
+    list_filter = [UnpaidStatusListFilter, "status", "customer__tags",
+                   "created_by"]
 
     def save_formset(self, request, form, formset, change):
         # if adding inline payments to an invoice, set the creator of
@@ -315,7 +316,7 @@ class SalesReportAdmin(MercuryAjaxAdmin):
     # todo: custom default filter that shows only paid stuff? after all
     # this is a *sales* report
     list_filter = ["invoice__status", "is_taxable", "item__tags",
-                   "invoice__created_by"]
+                   "invoice__customer__tags", "invoice__created_by"]
     allowed_lookups = ["invoice__date_created__gte",
                        "invoice__date_created__lte"]
     form = make_ajax_form(InvoiceEntry, {"invoice": "invoice",
