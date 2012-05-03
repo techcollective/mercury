@@ -54,7 +54,7 @@ class InvoiceTerm(models.Model):
         super(InvoiceTerm, self).delete(*args, **kwargs)
 
 
-class Category(models.Model):
+class Tag(models.Model):
     class Meta:
         abstract = True
 
@@ -64,14 +64,13 @@ class Category(models.Model):
         return self.name
 
 
-class ProductOrServiceCategory(Category):
+class ProductOrServiceTag(Tag):
     class Meta:
-        verbose_name_plural = "Product and service categories"
+        verbose_name_plural = "Product and service tags"
 
 
-class CustomerCategory(Category):
-    class Meta:
-        verbose_name_plural = "Customer categories"
+class CustomerTag(Tag):
+    pass
 
 
 class Image(models.Model):
