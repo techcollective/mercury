@@ -193,8 +193,11 @@ class CustomerAdmin(MercuryAdmin):
     list_display = ["name", "phone_number", "email_address", "get_address",
                     "is_taxable"]
     fieldsets = [
-        (None, {"fields": ["name", "is_taxable", "default_payment_terms", "tags"]}),
-        ("Contact Information", {"fields": ["phone_number", "email_address", "address", "city", "state", "zip_code"]}),
+        (None, {"fields": ["name", "is_taxable", "default_payment_terms",
+                           "notes", "tags"]}),
+        ("Contact Information", {"fields": ["phone_number", "email_address",
+                                            "address", "city", "state",
+                                            "zip_code"]}),
     ]
     list_filter = ["is_taxable", CustomerOwesListFilter,
                    "default_payment_terms", "tags", DuplicateNameListFilter]
