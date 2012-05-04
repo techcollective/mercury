@@ -95,6 +95,7 @@ class Customer(models.Model):
     is_taxable = models.BooleanField(default=get_customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
+    notes = models.CharField(max_length=200, blank=True)
     # verbose_name is set to get a meaningful list_filter title
     tags = models.ManyToManyField(CustomerTag, blank=True,
                                   verbose_name="Customer tags")
