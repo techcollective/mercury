@@ -196,8 +196,8 @@ class CustomerAdmin(MercuryAdmin):
         (None, {"fields": ["name", "is_taxable", "default_payment_terms", "tags"]}),
         ("Contact Information", {"fields": ["phone_number", "email_address", "address", "city", "state", "zip_code"]}),
     ]
-    list_filter = ["is_taxable", CustomerOwesListFilter, "tags",
-                   DuplicateNameListFilter]
+    list_filter = ["is_taxable", CustomerOwesListFilter,
+                   "default_payment_terms", "tags", DuplicateNameListFilter]
     filter_horizontal = ["tags"]
 
     def get_address(self, instance):
@@ -273,7 +273,7 @@ class QuoteAdmin(InvoiceQuoteBaseAdmin):
     inlines = [QuoteEntryInline]
     list_display = ["get_number", "description", "notes", "get_customer_link",
                     "grand_total", "date_created", "created_by"]
-    list_filter = ["created_by"]
+    list_filter = ["customer__tags", "created_by"]
     list_display_links = ["get_number", "description"]
 
 
