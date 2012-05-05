@@ -1,7 +1,14 @@
 {% extends "admin/change_list.html" %}
 
-{% load total %}
+{% load total date_range %}
+
+{% block date_hierarchy %}
+{{ block.super }}
+{% date_range cl %}
+{% endblock %}
+
 {% block result_list %}
     {{ block.super }}
-    {% total "grand_total" %}
+    {% total "subtotal" "Subtotal" %}
+    {% total "total_tax" "Total tax" %}
 {% endblock %}

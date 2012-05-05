@@ -236,7 +236,7 @@ class ProductOrServiceAdmin(MercuryAdmin):
 
 class InvoiceQuoteBaseAdmin(MercuryAjaxAdmin):
     search_fields = ["customer__name", "description", "id"]
-    date_hierarchy = "date_created"
+    date_range = "date_created"
 
     def save_model(self, request, obj, form, change):
         if not obj.created_by:
