@@ -1,6 +1,7 @@
 {% if totals %}
 {% for total in totals %}
-<p class="paginator" style="float: right; font-size: 12px; font-weight: bold;">
-{{ total.title }}{% if multi_page %} across all pages{% endif %}: {{ total.total }}</p>
+<p class="paginator" style="float: right; font-size: 12px; font-weight: bold; height: 22px">
+{{ total.title }}: {{ total.total }}{% if multi_page %} <sup><span style="border-bottom-style: dotted; border-bottom-width: 1px" title="calculated across all pages">*</span></sup>{% endif %}
+</p>
 {% endfor %}
 {% endif %}
