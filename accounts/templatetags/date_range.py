@@ -21,7 +21,7 @@ class DateRangeForm(forms.Form):
                                                    required=False)
 
 
-@register.inclusion_tag('admin/date_range.html', takes_context=True)
+@register.inclusion_tag('accounts/date_range.html', takes_context=True)
 def date_range(context):
     cl = context.get("cl")
     if hasattr(cl.model_admin, "date_range"):
@@ -51,7 +51,7 @@ def date_range(context):
         lq_end_day = calendar.monthrange(lq_year, lq_end_month)[1]
         last_quarter_start = datetime.date(lq_year, lq_start_month, 1)
         last_quarter_end = datetime.date(lq_year, lq_end_month, lq_end_day)
-        return {"show": True, "form": form, "other_params": other_params,
+        return {"form": form, "other_params": other_params,
                 "start_field": "id_" + start_field,
                 "end_field": "id_" + end_field,
                 "last_quarter_start": last_quarter_start,

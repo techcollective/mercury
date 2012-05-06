@@ -1,5 +1,5 @@
 {% extends "admin/accounts/change_list.html" %}
-{% load total i18n %}
+{% load i18n %}
 {% load url from future %}
 
 {% block title %}Sales | Mercury{% endblock %}
@@ -41,8 +41,3 @@
 {% endblock %}
 
 {% block object-tools %}{% endblock %}
-
-{% block result_list %}
-    {{ block.super }}
-    {% total "total" "Total (without tax)" %}
-{% endblock %}

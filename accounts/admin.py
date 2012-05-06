@@ -295,7 +295,7 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
     list_display_links = ["get_number", "description"]
     list_filter = [UnpaidStatusListFilter, "status", "customer__tags",
                    "created_by"]
-
+    list_totals = ["subtotal", "total_tax"]
     def save_formset(self, request, form, formset, change):
         # if adding inline payments to an invoice, set the creator of
         # the payments.
@@ -320,6 +320,7 @@ class SalesReportAdmin(MercuryAjaxAdmin):
     # this is a *sales* report
     list_filter = ["invoice__status", "is_taxable", "item__tags",
                    "invoice__customer__tags", "invoice__created_by"]
+    list_totals = [("total", "Total (without tax)")]
     form = make_ajax_form(InvoiceEntry, {"invoice": "invoice",
                                          "item": "product_or_service_name"})
 
@@ -367,6 +368,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
                     "payment_type", "amount"]
     list_display_links = ["amount"]
     list_filter = [DepositedStatusListFilter, "payment_type", "received_by"]
+    list_totals = [("amount", "Total")]
     actions = ["deposit"]
     date_range = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
