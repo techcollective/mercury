@@ -323,6 +323,7 @@ class SalesReportAdmin(MercuryAjaxAdmin):
     list_totals = [("total", "Total (without tax)")]
     form = make_ajax_form(InvoiceEntry, {"invoice": "invoice",
                                          "item": "product_or_service_name"})
+    search_fields = ["item__name", "invoice__customer__name", "description"]
 
     def get_invoice_link(self, instance):
         invoice = instance.invoice

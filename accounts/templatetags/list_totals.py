@@ -35,7 +35,7 @@ def list_totals(context):
         results = query_set.aggregate(**kwargs)
         # get results ready for template
         for total in totals:
-            # fixme: why or 0?
+            # the "or 0" is because the result is be None when the cl is empty
             result = results[total["field"]] or 0
             result = "%s%s%s" % (prefix, str(result), suffix)
             total.update({"total": result})
