@@ -1,5 +1,5 @@
 {% extends "admin/change_list.html" %}
-{% load total i18n date_range %}
+{% load total i18n %}
 {% load url from future %}
 
 {% block title %}Sales | Mercury{% endblock %}
@@ -41,11 +41,6 @@
 {% endblock %}
 
 {% block object-tools %}{% endblock %}
-
-{% block date_hierarchy %}
-{{ block.super }}
-{% date_range cl %}
-{% endblock %}
 
 {% block result_list %}
     {{ block.super }}
