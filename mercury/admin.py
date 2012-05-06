@@ -11,7 +11,7 @@ from accounts.models import Entry
 from ajax_select.admin import AjaxSelectAdmin
 
 
-# served minified JS in production
+# serve minified JS in production
 MINI = ".min"
 if settings.DEBUG:
     MINI = ""
@@ -40,6 +40,7 @@ class MercuryAdmin(admin.ModelAdmin):
         return super(MercuryAdmin, self).lookup_allowed(lookup, value)
 
     class Media:
+        css = {"all": ("mercury/css/custom.css",)}
         js = ("ajax_select/js/jquery-1.7.2%s.js" % MINI,
               "ajax_select/js/autogrow%s.js" % MINI,
               )

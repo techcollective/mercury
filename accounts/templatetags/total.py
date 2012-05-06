@@ -8,7 +8,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("accounts/total.html", takes_context=True)
-def total(context, field, always_show=False):
+def total(context, field, title="Total"):
     total = ""
     if "cl" in context:
         prefix, suffix = get_currency_symbol()
@@ -20,5 +20,4 @@ def total(context, field, always_show=False):
         total = query_set.aggregate(total=Sum(field))["total"]
         total = total or 0
         total = "%s%s%s" % (prefix, str(total), suffix)
-        show_total = (query_string != "?") or always_show
-    return {"total": total, "multi_page": multi_page, "show_total": show_total}
+    return {"title": title, "total": total, "multi_page": multi_page}
