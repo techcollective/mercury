@@ -37,6 +37,10 @@ class MercuryAdmin(admin.ModelAdmin):
     def lookup_allowed(self, lookup, value):
         if lookup in self.allowed_lookups:
             return True
+        if hasattr(self, "date_range"):
+            allowed_lookups = [self.date_range + f for f in ["__gte", "__lte"]]
+            if lookup in allowed_lookups:
+                return True
         return super(MercuryAdmin, self).lookup_allowed(lookup, value)
 
     class Media:

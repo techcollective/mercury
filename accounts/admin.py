@@ -320,8 +320,6 @@ class SalesReportAdmin(MercuryAjaxAdmin):
     # this is a *sales* report
     list_filter = ["invoice__status", "is_taxable", "item__tags",
                    "invoice__customer__tags", "invoice__created_by"]
-    allowed_lookups = ["invoice__date_created__gte",
-                       "invoice__date_created__lte"]
     form = make_ajax_form(InvoiceEntry, {"invoice": "invoice",
                                          "item": "product_or_service_name"})
 
@@ -370,7 +368,7 @@ class PaymentAdmin(MercuryAjaxAdmin):
     list_display_links = ["amount"]
     list_filter = [DepositedStatusListFilter, "payment_type", "received_by"]
     actions = ["deposit"]
-    date_hierarchy = "date_received"
+    date_range = "date_received"
     search_fields = ["invoice__customer__name", "invoice__pk", "amount"]
 
     def get_customer_link(self, instance):
