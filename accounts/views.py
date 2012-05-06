@@ -154,7 +154,7 @@ def quote_to_pdf(request, quote_id):
 def quote_to_invoice(request):
     if request.POST:
         quote = Quote.objects.get(pk=request.POST["quote_id"])
-        invoice = quote.create_invoice()
+        invoice = quote.create_invoice(request.user)
         messages.info(request, "Invoice successfully created.")
         return HttpResponseRedirect(get_change_url(invoice))
     else:

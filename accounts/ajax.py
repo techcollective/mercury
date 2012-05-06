@@ -1,23 +1,11 @@
-"""
-Helper classes and functions for the accounts app
-"""
-
 import decimal
-import datetime
 
 from django.db.models import Q
 
 from accounts import models
+
 from mercury.helpers import (get_or_create_paid_invoice_status,
                              get_autocomplete_limit)
-
-
-def get_date_due(customer):
-    now = datetime.date.today()
-    term = customer.default_payment_terms.days_until_invoice_due
-    term = datetime.timedelta(days=term)
-    date_due = now + term
-    return date_due
 
 
 class AjaxChannel(object):
@@ -68,7 +56,7 @@ class CustomerNameAjaxChannel(AjaxChannel):
         self.field = "name"
 
     def generate_autofill(self, model_instance):
-        return {"date_due": get_date_due(model_instance)}
+        return {"date_due": models.get_date_due(model_instance)}
 
 
 class ProductNameAjaxChannel(AjaxChannel):
@@ -102,7 +90,7 @@ class InvoiceAjaxChannel(AjaxChannel):
         except (decimal.InvalidOperation, TypeError):
             pass
         else:
-            lookup = lookup | Q(grand_total__contains=q)
+            lookup = lookup | Q(grand_total=q)
 
         # also search for customer name
         lookup = lookup | Q(customer__name__icontains=q)

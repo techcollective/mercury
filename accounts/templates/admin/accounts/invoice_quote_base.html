@@ -34,7 +34,7 @@
 // If adding a new invoice, open a new item row
 // Using document.ready causes django to init the calendar widgets twice
 addEvent(window, 'load', function(){
-     django.jQuery("a:contains('Add another Product Or Service')").click();
+  django.jQuery("a:contains('Add another Product Or Service')").click();
 });
 </script>
 {% else %}
@@ -42,9 +42,9 @@ addEvent(window, 'load', function(){
 // If viewing an invoice with no payments, open a payment row
 // Using document.ready causes django to init the calendar widgets twice
 addEvent(window, 'load', function(){
-     if ($("#payment_set-0").val() == undefined){
-          django.jQuery("a:contains('Add another Payment')").click();
-     }
+  if ($("#payment_set-0").val() == undefined){
+    django.jQuery("a:contains('Add another Payment')").click();
+  }
 });
 </script>
 {% endif %}

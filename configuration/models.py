@@ -54,13 +54,23 @@ class InvoiceTerm(models.Model):
         super(InvoiceTerm, self).delete(*args, **kwargs)
 
 
-class ProductOrServiceCategory(models.Model):
+class Tag(models.Model):
     class Meta:
-        verbose_name_plural = "Product and service categories"
+        abstract = True
+
     name = models.CharField(max_length=100)
 
     def __unicode__(self):
         return self.name
+
+
+class ProductOrServiceTag(Tag):
+    class Meta:
+        verbose_name_plural = "Product and service tags"
+
+
+class CustomerTag(Tag):
+    pass
 
 
 class Image(models.Model):

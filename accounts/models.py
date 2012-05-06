@@ -5,14 +5,18 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.contrib import admin
+from django.dispatch import receiver
+
+import pandora
 
 from configuration.models import (PaymentType,
                                   InvoiceStatus,
                                   InvoiceTerm,
-                                  ProductOrServiceCategory)
+                                  ProductOrServiceTag,
+                                  CustomerTag)
 from accounts.fields import CurrencyField
-from mercury.helpers import (refresh,
-                             check_deposited_payments,
+from mercury.helpers import (check_deposited_payments,
                              get_change_url,
                              get_currency_symbol,
                              get_or_create_default_invoice_status,
@@ -31,6 +35,38 @@ from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
 
+# A few helper functions
+
+def invoiceentry_increment_stock(entry, change, action):
+    if change:
+        # fixme: don't hardcode decimal places (issue #165)
+        msg = ("%s sale #%s on invoice #%s auto-incremented stock (%+0.2f)." %
+                   (action, entry.pk, entry.invoice.pk, change))
+        item = entry.item
+        item.stock = models.F("stock") + change
+        item.save()
+        log_stock_change(item, msg)
+
+
+def log_stock_change(item, message, audit_stock=True):
+    if "request" in pandora.box:
+        ProductOrServiceAdmin = admin.site._registry[ProductOrService]
+        # re-fetch from db, see comment for check_negative_stock for infos
+        obj = ProductOrServiceAdmin.model.objects.get(pk=item.pk)
+        ProductOrServiceAdmin.log_change(pandora.box["request"], obj, message,
+                                         audit_stock=audit_stock)
+
+
+def get_date_due(customer):
+    now = datetime.date.today()
+    term = customer.default_payment_terms.days_until_invoice_due
+    term = datetime.timedelta(days=term)
+    date_due = now + term
+    return date_due
+
+
+# Custom manager
+
 class SelectRelatedManager(models.Manager):
     def __init__(self, select_related_fields=None):
         select_related_fields = select_related_fields or []
@@ -43,6 +79,8 @@ class SelectRelatedManager(models.Manager):
                      self).get_query_set().select_related(
                                                 *self.select_related_fields)
 
+
+# Models and signal receivers
 
 class Customer(models.Model):
     class Meta:
@@ -57,6 +95,10 @@ class Customer(models.Model):
     is_taxable = models.BooleanField(default=get_customer_taxable)
     default_payment_terms = models.ForeignKey(InvoiceTerm,
                                     default=get_or_create_default_invoice_term)
+    notes = models.CharField(max_length=200, blank=True)
+    # verbose_name is set to get a meaningful list_filter title
+    tags = models.ManyToManyField(CustomerTag, blank=True,
+                                  verbose_name="Customer tags")
 
     def __unicode__(self):
         return self.name
@@ -70,21 +112,16 @@ class Customer(models.Model):
 class ProductOrService(models.Model):
     name = models.CharField(max_length=100)
     price = CurrencyField(null=True, blank=True)
-    number_in_stock = models.IntegerField(null=True, blank=True)
+    stock = models.DecimalField(null=True, blank=True, max_digits=14,
+                                decimal_places=2)
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
-    categories = models.ManyToManyField(ProductOrServiceCategory, blank=True)
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        if self.number_in_stock is not None:
-            allow_negative = get_negative_stock()
-            if not allow_negative and self.number_in_stock < 0:
-                self.number_in_stock = 0
-        super(ProductOrService, self).save(*args, **kwargs)
+    # verbose_name is set to get a meaningful list_filter title
+    tags = models.ManyToManyField(ProductOrServiceTag, blank=True,
+                                  verbose_name="Product / service tags")
 
     def clean(self):
-        if self.manage_stock and (self.number_in_stock is None):
+        if self.manage_stock and (self.stock is None):
             raise ValidationError("Number in stock must be set when managing "
                                   "stock. Please enter a number or switch "
                                   "stock management off for this item.")
@@ -95,6 +132,27 @@ class ProductOrService(models.Model):
     class Meta:
         ordering = ["name"]
         verbose_name_plural = "Products and services"
+
+
+@receiver(models.signals.post_save, sender=ProductOrService)
+def check_negative_stock(sender, **kwargs):
+    instance = kwargs["instance"]
+    if instance.manage_stock:
+        # re-fetch the product/service instance from the db to get the actual
+        # stock number. it is set to an F() expression by the invoice entry
+        # creation signal handler. see
+        # ("https://docs.djangoproject.com/en/1.4/ref/models/instances/"
+        #  "#updating-attributes-based-on-existing-fields")
+        obj = sender.objects.get(pk=instance.pk)
+        allow_negative = get_negative_stock()
+        if not allow_negative and obj.stock < 0:
+            obj.stock = 0
+            obj.save()
+            # pass audit_stock=False since the appropriate number will
+            # appear in the LogEntry of the event that triggered this hook.
+            log_stock_change(obj, "Auto-set stock to zero since current "
+                             "settings do not allow negative stock.",
+                             audit_stock=False)
 
 
 class QuoteInvoiceBase(models.Model):
@@ -180,13 +238,14 @@ class Quote(QuoteInvoiceBase):
     def get_entries(self):
         return self.quoteentry_set.all()
 
-    def create_invoice(self):
-        from accounts.helpers import get_date_due
+    def create_invoice(self, created_by):
         new_invoice = Invoice()
-        fields = [f.name for f in self._meta.fields if f.name != "id"]
+        exclude = ["id", "date_created", "created_by"]
+        fields = [f.name for f in self._meta.fields if f.name not in exclude]
         for field in fields:
             setattr(new_invoice, field, getattr(self, field))
         new_invoice.date_due = get_date_due(self.customer)
+        new_invoice.created_by = created_by
         new_invoice.save()
         entries = self.get_entries()
         for entry in entries:
@@ -205,9 +264,6 @@ class Invoice(QuoteInvoiceBase):
     def delete(self, *args, **kwargs):
         # prevent a delete that will cascade to deposited payments
         check_deposited_payments(self, "invoice__pk")
-        for entry in self.get_entries():
-            # this is done so that stock is updated
-            entry.delete()
         super(Invoice, self).delete(*args, **kwargs)
 
     def update(self):
@@ -273,35 +329,50 @@ class InvoiceEntry(Entry):
 
     invoice = models.ForeignKey(Invoice)
 
-    def delete(self, *args, **kwargs):
-        if self.item.manage_stock:
-            # refresh is called because if multiple items are deleted, they
-            # contain stale versions of item.number_in_stock
-            item = refresh(self.item)
-            item.number_in_stock += self.quantity
-            item.save()
-        super(InvoiceEntry, self).delete(*args, **kwargs)
 
-
-def stock_callback(sender, **kwargs):
+@receiver(models.signals.pre_save, sender=InvoiceEntry)
+def invoiceentry_edit(sender, **kwargs):
+    # if editing an invoice entry, both quantity and item could change.
     new_instance = kwargs["instance"]
-    if new_instance.item.manage_stock:
-        try:
-            old_instance = sender.objects.get(pk=new_instance.pk)
-        except sender.DoesNotExist:
-            # a new entry is being added
-            stock_change = new_instance.quantity
+    if new_instance.pk and not kwargs["raw"]:
+        old_instance = sender.objects.get(pk=new_instance.pk)
+        if (new_instance.item == old_instance.item and
+            new_instance.item.manage_stock):
+            quantity_increase = new_instance.quantity - old_instance.quantity
+            stock_change = - quantity_increase
+            invoiceentry_increment_stock(new_instance, stock_change, "Editing")
         else:
-            # an existing entry is being edited
-            stock_change = new_instance.quantity - old_instance.quantity
-        # refresh is called because if multiple items are modified, they
-        # contain stale versions of item.number_in_stock
-        item = refresh(new_instance.item)
-        item.number_in_stock -= stock_change
-        item.save()
+            # for stock puposes changing item is treated as if the old entry
+            # was deleted and the new entry was created.
+            if old_instance.item.manage_stock:
+                invoiceentry_increment_stock(old_instance,
+                                             old_instance.quantity, "Editing")
+            if new_instance.item.manage_stock:
+                change = - new_instance.quantity
+                invoiceentry_increment_stock(new_instance, change, "Editing")
 
-# this is to manage stock when invoice items are added or edited
-models.signals.pre_save.connect(stock_callback, sender=InvoiceEntry)
+
+@receiver(models.signals.post_save, sender=InvoiceEntry)
+def invoiceentry_create(sender, **kwargs):
+    # if creating a new invoice entry, update stock by removing quantity used
+    instance = kwargs["instance"]
+    if kwargs["created"] and instance.item.manage_stock and not kwargs["raw"]:
+        change = - instance.quantity
+        invoiceentry_increment_stock(instance, change, "Creating")
+
+
+@receiver(models.signals.pre_delete, sender=InvoiceEntry)
+def invoiceentry_delete(sender, **kwargs):
+    # If deleting an an invoice entry, put the stock back
+    instance = kwargs["instance"]
+    # if someone alters the quantity field on an invoice entry and also checks
+    # "delete", we end up with their newly entered quantity here. i don't see
+    # why someone would do that, but IMO if it happens the best thing to do is
+    # to ignore the altered quantity. so we re-fetch from the DB just to cover
+    # this unusual scenario
+    instance = sender.objects.get(pk=instance.pk)
+    if instance.item.manage_stock:
+        invoiceentry_increment_stock(instance, instance.quantity, "Deleting")
 
 
 class QuoteEntry(Entry):
@@ -408,6 +479,7 @@ class Payment(models.Model):
         ordering = ["-date_received"]
 
 
+@receiver(models.signals.pre_save, sender=Payment)
 def payment_presave(sender, **kwargs):
     instance = kwargs["instance"]
     if instance.pk:
@@ -425,5 +497,3 @@ def payment_presave(sender, **kwargs):
                 deposit = original.deposit
                 deposit.total -= original.amount
                 deposit.save()
-
-models.signals.pre_save.connect(payment_presave, sender=Payment)

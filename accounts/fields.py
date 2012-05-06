@@ -70,6 +70,7 @@ class CurrencyField(models.DecimalField):
     def value_to_string(self, obj):
         prefix, suffix = get_currency_symbol()
         value = self.value_from_object(obj)
+        # fixme: don't format decimal places here (issue #165)
         sub = "%" + "0.%sf" % get_currency_decimal_places()
         value = sub % value
         return "%s%s%s" % (prefix, value, suffix)

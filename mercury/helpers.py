@@ -35,13 +35,6 @@ def check_deposited_payments(obj, field_lookup):
         raise DepositedPaymentsException(message, url=url)
 
 
-def refresh(instance):
-    """
-    Returns the same model instance fresh from the DB.
-    """
-    return instance.__class__.objects.get(pk=instance.pk)
-
-
 def get_model_info(model):
     return (model._meta.app_label, model._meta.module_name)
 
