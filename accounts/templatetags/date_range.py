@@ -21,8 +21,9 @@ class DateRangeForm(forms.Form):
                                                    required=False)
 
 
-@register.inclusion_tag('admin/date_range.html')
-def date_range(cl):
+@register.inclusion_tag('admin/date_range.html', takes_context=True)
+def date_range(context):
+    cl = context.get("cl")
     if hasattr(cl.model_admin, "date_range"):
         field_name = cl.model_admin.date_range
         start_field = "%s__gte" % field_name
