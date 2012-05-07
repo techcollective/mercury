@@ -45,15 +45,7 @@
     {% endfor %}
         {# gigantic hack to make a "reports app" appear in the index #}
         {% if app_list|length != 1%}
-        <div class="module">
-        <table summary="{% blocktrans %}Reports available in the reports application.{% endblocktrans %}">
-        <caption>{% blocktrans %} Reports {% endblocktrans %}</caption>
-            <tr>
-                <th scope="row"><a href="/accounts/invoiceentry">Sales</a></th>
-                <td><a href="/accounts/invoiceentry" class="changelink">{% trans 'View' %}</a></td>
-            </tr>
-        </table>
-        </div>
+            {% include "admin/reports/app_index.html" %}
         {% endif %}
 {% else %}
     <p>{% trans "You don't have permission to edit anything." %}</p>
