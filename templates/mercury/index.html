@@ -1,0 +1,17 @@
+{% extends "admin/index.html" %}
+
+
+{% comment %}
+some JS surgery to insert the reports "app" into the index. nasty, but
+other options seemed at least as nasty (copy-pasting django's index.html)
+{% endcomment %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="/static/ajax_select/js/jquery-1.7.2.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#content-main").append("{% filter escapejs %}{% include "admin/reports/app_index.html" %}{% endfilter %}");
+    });
+</script>
+{% endblock %}

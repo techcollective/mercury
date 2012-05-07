@@ -27,7 +27,7 @@ def handle_exception(request, mercury_exception):
 
 
 class MercuryAdminSite(admin.sites.AdminSite):
-    pass
+    index_template = "mercury/index.html"
 
 
 site = MercuryAdminSite(name="mercury")
