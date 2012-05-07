@@ -1,10 +1,11 @@
-from django.contrib.admin import site
 from django.db import models
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 
 from ajax_select import get_lookup
+
+from mercury.admin import site
 
 @login_required
 def ajax_lookup(request, channel):
