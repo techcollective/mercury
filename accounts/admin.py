@@ -1,8 +1,7 @@
 import datetime
 
-from django.contrib import admin
 from django.contrib import messages
-from django.contrib.admin import SimpleListFilter
+from django.contrib.admin import SimpleListFilter, TabularInline
 from django.db.models import Count
 
 from ajax_select import make_ajax_form
@@ -11,7 +10,7 @@ from ajax_select.fields import autoselect_fields_check_can_add
 from configuration.models import InvoiceStatus
 from accounts.models import (Customer, ProductOrService, Invoice, Quote,
                              InvoiceEntry, QuoteEntry, Payment, Deposit,)
-from mercury.admin import MercuryAdmin, MercuryAjaxAdmin
+from mercury.admin import MercuryAdmin, MercuryAjaxAdmin, site
 from mercury.helpers import (get_or_create_paid_invoice_status,
                              get_display_paid, get_change_url,
                              get_fill_description)
@@ -19,7 +18,7 @@ from mercury.helpers import (get_or_create_paid_invoice_status,
 
 # Custom inline classes
 
-class AjaxTabularInline(admin.TabularInline):
+class AjaxTabularInline(TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         formset = super(AjaxTabularInline, self).get_formset(request, obj,
                                                             **kwargs)
@@ -46,7 +45,7 @@ class QuoteEntryInline(ProductOrServiceInline):
     form = make_ajax_form(QuoteEntry, {"item": "product_or_service_name"})
 
 
-class InvoicePaymentInline(admin.TabularInline):
+class InvoicePaymentInline(TabularInline):
     model = Payment
     extra = 0
     exclude = ["deposit"]
@@ -54,7 +53,7 @@ class InvoicePaymentInline(admin.TabularInline):
     show_last = True
 
 
-class DepositPaymentInline(admin.TabularInline):
+class DepositPaymentInline(TabularInline):
     model = Payment
     extra = 0
     max_num = 0
@@ -63,7 +62,7 @@ class DepositPaymentInline(admin.TabularInline):
     link_readonly = "amount"
 
 
-class CustomerInvoiceInline(admin.TabularInline):
+class CustomerInvoiceInline(TabularInline):
     model = Invoice
     extra = 0
     max_num = 0
@@ -460,10 +459,10 @@ class PaymentAdmin(MercuryAjaxAdmin):
 
 # Registration
 
-admin.site.register(Customer, CustomerAdmin)
-admin.site.register(ProductOrService, ProductOrServiceAdmin)
-admin.site.register(Invoice, InvoiceAdmin)
-admin.site.register(Quote, QuoteAdmin)
-admin.site.register(Payment, PaymentAdmin)
-admin.site.register(Deposit, DepositAdmin)
-admin.site.register(InvoiceEntry, SalesReportAdmin)
+site.register(Customer, CustomerAdmin)
+site.register(ProductOrService, ProductOrServiceAdmin)
+site.register(Invoice, InvoiceAdmin)
+site.register(Quote, QuoteAdmin)
+site.register(Payment, PaymentAdmin)
+site.register(Deposit, DepositAdmin)
+site.register(InvoiceEntry, SalesReportAdmin)

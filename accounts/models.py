@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.text import capfirst
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from django.contrib import admin
 from django.dispatch import receiver
 
 import pandora
@@ -34,7 +33,6 @@ from mercury.helpers import (check_deposited_payments,
 from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
-
 # A few helper functions
 
 def invoiceentry_increment_stock(entry, change, action):
@@ -50,9 +48,10 @@ def invoiceentry_increment_stock(entry, change, action):
 
 def log_stock_change(item, message, audit_stock=True):
     if "request" in pandora.box:
-        ProductOrServiceAdmin = admin.site._registry[ProductOrService]
+        from mercury.admin import site
+        ProductOrServiceAdmin = site._registry[ProductOrService]
         # re-fetch from db, see comment for check_negative_stock for infos
-        obj = ProductOrServiceAdmin.model.objects.get(pk=item.pk)
+        obj = ProductOrService.objects.get(pk=item.pk)
         ProductOrServiceAdmin.log_change(pandora.box["request"], obj, message,
                                          audit_stock=audit_stock)
 
