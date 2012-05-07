@@ -16,19 +16,26 @@ MINI = ".min"
 if settings.DEBUG:
     MINI = ""
 
-# This is disabled so that the custom method that calls it can catch any
-# MecuryExceptions raised during deletion. Also note that the delete_selected
-# method that is called is a patched version that optionally does individual
-# .delete() calls instead of queryset.delete().
-admin.site.disable_action('delete_selected')
-
-
 def handle_exception(request, mercury_exception):
     messages.error(request, str(mercury_exception))
     if isinstance(mercury_exception, RedirectException):
         return HttpResponseRedirect(mercury_exception.url)
     else:
         return HttpResponseRedirect(request.get_full_path())
+
+
+class MercuryAdminSite(admin.sites.AdminSite):
+    pass
+
+
+site = MercuryAdminSite(name="mercury")
+
+
+# This is disabled so that the custom method that calls it can catch any
+# MecuryExceptions raised during deletion. Also note that the delete_selected
+# method that is called is a patched version that optionally does individual
+# .delete() calls instead of queryset.delete().
+site.disable_action('delete_selected')
 
 
 class MercuryAdmin(admin.ModelAdmin):
