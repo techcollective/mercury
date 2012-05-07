@@ -2,4 +2,16 @@
    to clear the filter bar. The first line re-sets the margin to zero on all
    totals boxes, then second line sets the margin on the correct one. */
 .change-list .filtered p.paginator { margin-right: 0px !important; }
-#changelist-form p:first-of-type { margin-right: 160px !important }
+#changelist-form p:first-of-type { margin-right: 160px !important; }
+
+/* right border only on last total box (or paginator if no totals) */
+.change-list .filtered p.paginator { border-right: 0px; }
+#changelist-form p:first-of-type { border-right: 1px solid #DDDDDD; }
+
+.total-box {
+    border-left: 0px;
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+    height: 22px
+}
