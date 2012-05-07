@@ -295,6 +295,7 @@ class InvoiceAdmin(InvoiceQuoteBaseAdmin):
     list_filter = [UnpaidStatusListFilter, "status", "customer__tags",
                    "created_by"]
     list_totals = ["subtotal", "total_tax"]
+
     def save_formset(self, request, form, formset, change):
         # if adding inline payments to an invoice, set the creator of
         # the payments.

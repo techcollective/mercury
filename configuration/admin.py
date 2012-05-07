@@ -1,5 +1,3 @@
-from django.contrib import admin
-
 from configuration.models import (PaymentType,
                                   InvoiceStatus,
                                   InvoiceTerm,
@@ -8,7 +6,7 @@ from configuration.models import (PaymentType,
                                   Image,
                                   ProductOrServiceTag,
                                   CustomerTag)
-from mercury.admin import MercuryAdmin
+from mercury.admin import MercuryAdmin, site
 
 
 class ConfigAdmin(MercuryAdmin):
@@ -17,11 +15,11 @@ class ConfigAdmin(MercuryAdmin):
 
 # All models must have MercuryAdmin (or subclasses) ModelAdmins
 # so that global list_per_page and other functionality works.
-admin.site.register(PaymentType, MercuryAdmin)
-admin.site.register(InvoiceStatus, MercuryAdmin)
-admin.site.register(InvoiceTerm, MercuryAdmin)
-admin.site.register(ProductOrServiceTag, MercuryAdmin)
-admin.site.register(CustomerTag, MercuryAdmin)
-admin.site.register(Template, MercuryAdmin)
-admin.site.register(Config, ConfigAdmin)
-admin.site.register(Image, MercuryAdmin)
+site.register(PaymentType, MercuryAdmin)
+site.register(InvoiceStatus, MercuryAdmin)
+site.register(InvoiceTerm, MercuryAdmin)
+site.register(ProductOrServiceTag, MercuryAdmin)
+site.register(CustomerTag, MercuryAdmin)
+site.register(Template, MercuryAdmin)
+site.register(Config, ConfigAdmin)
+site.register(Image, MercuryAdmin)

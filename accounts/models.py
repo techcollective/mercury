@@ -33,6 +33,7 @@ from mercury.helpers import (check_deposited_payments,
 from accounts.exceptions import (DepositedPaymentsException,
                                          AccountsException)
 
+
 # A few helper functions
 
 def invoiceentry_increment_stock(entry, change, action):
