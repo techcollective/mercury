@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
@@ -36,6 +38,10 @@ site = MercuryAdminSite(name="mercury")
 # method that is called is a patched version that optionally does individual
 # .delete() calls instead of queryset.delete().
 site.disable_action('delete_selected')
+
+# register auth app
+site.register(Group, GroupAdmin)
+site.register(User, UserAdmin)
 
 
 class MercuryAdmin(admin.ModelAdmin):
