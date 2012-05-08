@@ -160,4 +160,4 @@ def quote_to_invoice(request):
     else:
         messages.error(request, ("The location %s shouldn't be directly " +
                        " browsed to.") % reverse("quote_to_invoice"))
-        return HttpResponseRedirect(reverse("admin:index"))
+        return HttpResponseRedirect(reverse("mercury:index"))

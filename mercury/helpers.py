@@ -41,12 +41,12 @@ def get_model_info(model):
 
 def get_changelist_url(model):
     info = get_model_info(model)
-    return reverse("admin:%s_%s_changelist" % info)
+    return reverse("mercury:%s_%s_changelist" % info)
 
 
 def get_change_url(instance):
     info = get_model_info(instance)
-    return reverse("admin:%s_%s_change" % info, args=[instance.pk])
+    return reverse("mercury:%s_%s_change" % info, args=[instance.pk])
 
 
 def model_to_dict(instance):
