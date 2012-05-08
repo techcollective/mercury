@@ -10,7 +10,6 @@ from django.template.response import TemplateResponse
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
-from accounts.models import Entry
 
 from ajax_select.admin import AjaxSelectAdmin
 
