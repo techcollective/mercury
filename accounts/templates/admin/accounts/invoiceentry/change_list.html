@@ -34,7 +34,7 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; Reports
+&rsaquo; <a href="{% url 'mercury:reports_index' %}">Reports</a>
 &rsaquo; Sales
 </div>
 {% endblock %}
