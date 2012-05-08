@@ -26,18 +26,18 @@ latter case you see the input disappear as you hit the submit button.
 (function($) {
     $(document).ready(function($) {
         $("#date_range_form").submit(function(){
-                var $t = $(this);
-                $t.find("input").each(function(){
-                        var $t = $(this);
-                        if ($t.val() == "") {
-                            $t.attr("name", "");
-                        }
-                    });
+            var $t = $(this);
+            $t.find("input").each(function(){
+                    var $t = $(this);
+                    if ($t.val() == "") {
+                        $t.attr("name", "");
+                    }
+                });
             });
         $("#last_quarter_shortcut").click(function(){
-                $("#{{ start_field }}").val("{{ last_quarter_start|date:"Y-m-d" }}");
-                $("#{{ end_field }}").val("{{ last_quarter_end|date:"Y-m-d" }}");
-                $("#date_range_form").submit();
+            $("#{{ start_field }}").val("{{ last_quarter_start|date:"Y-m-d" }}");
+            $("#{{ end_field }}").val("{{ last_quarter_end|date:"Y-m-d" }}");
+            $("#date_range_form").submit();
             });
     });
 })(django.jQuery);
