@@ -1,7 +1,21 @@
 {% extends "admin/base_site.html" %}
 
-{% load i18n %}
+{% load static i18n %}
 {% load url from future %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/jsi18n/"></script>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="/static/admin/css/changelists.css" />
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -12,8 +26,8 @@
 {% endblock %}
 
 {% block content %}
-{% include "accounts/date_range.html" %}
-<div>
+<div id="changelist" class="module">
+    {% include "accounts/date_range.html" %}
     <p>Total tax charged: {{ tax }}</p>
     <p>Total taxed sales: {{ taxed_sales }}</p>
     <p>Total: {{ total }}</p>
