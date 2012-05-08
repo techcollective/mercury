@@ -2,8 +2,9 @@
 
 
 {% comment %}
-some JS surgery to insert the reports "app" into the index. nasty, but
-other options seemed at least as nasty (copy-pasting django's index.html)
+some JS surgery to insert the reports "app" into the index and stop "sales"
+from appearing under the accounts app. nasty, but other options seemed at least
+as nasty (copy-pasting django's index.html)
 {% endcomment %}
 
 {% block extrahead %}
@@ -11,6 +12,7 @@ other options seemed at least as nasty (copy-pasting django's index.html)
 <script type="text/javascript" src="/static/ajax_select/js/jquery-1.7.2.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
+        $("table[summary='Models available in the Accounts application.']").find("a:contains('Sales')").parentsUntil("tbody").last().remove();
         $("#content-main").append("{% filter escapejs %}{% include "admin/reports/_app.html" %}{% endfilter %}");
     });
 </script>
