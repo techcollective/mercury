@@ -46,7 +46,7 @@ class MercuryAdminSite(admin.sites.AdminSite):
                                 context, current_app=self.name)
 
     def tax_report(self, request):
-        context = {}
+        context = {"title": "Tax"}
         return TemplateResponse(request, "admin/reports/tax.html", context,
                                 current_app=self.name)
 
