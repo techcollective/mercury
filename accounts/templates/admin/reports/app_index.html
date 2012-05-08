@@ -1,11 +1,21 @@
+{% extends "admin/index.html" %}
 {% load i18n %}
+{% load url from future %}
 
-<div class="module">
-<table summary="{% blocktrans %}Reports available in the reports application.{% endblocktrans %}">
-<caption>{% blocktrans %} Reports {% endblocktrans %}</caption>
-    <tr>
-        <th scope="row"><a href="/accounts/invoiceentry">Sales</a></th>
-        <td><a href="/accounts/invoiceentry" class="changelink">{% trans 'View' %}</a></td>
-    </tr>
-</table>
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo;
+Reports
 </div>
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<div id="content-main">
+    {% include "admin/reports/_app.html" %}
+</div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

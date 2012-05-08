@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<div class="module">
+<table summary="{% blocktrans %}Reports available in the reports application.{% endblocktrans %}">
+<caption><a href="{% url mercury:reports_index %}" class="section">{% blocktrans %} Reports {% endblocktrans %}</a></caption>
+    <tr>
+        <th scope="row"><a href="/accounts/invoiceentry">Sales</a></th>
+        <td><a href="/accounts/invoiceentry" class="changelink">{% trans 'View' %}</a></td>
+    </tr>
+</table>
+</div>

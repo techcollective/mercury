@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.conf.urls import patterns, url
+from django.template.response import TemplateResponse
 
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
@@ -28,6 +30,20 @@ def handle_exception(request, mercury_exception):
 
 class MercuryAdminSite(admin.sites.AdminSite):
     index_template = "mercury/index.html"
+
+    def get_urls(self):
+        urls = super(MercuryAdminSite, self).get_urls()
+        custom_urls = patterns('',
+            url(r'^reports/$', self.admin_view(self.reports_index),
+                name="reports_index")
+        )
+        return custom_urls + urls
+
+    def reports_index(self, request):
+        context = {"title": "Reports administration"}
+        return TemplateResponse(request, "admin/reports/app_index.html",
+                                context, current_app=self.name)
+
 
 
 site = MercuryAdminSite(name="mercury")
