@@ -33,8 +33,10 @@ class MercuryAdminSite(admin.sites.AdminSite):
     def get_urls(self):
         urls = super(MercuryAdminSite, self).get_urls()
         custom_urls = patterns('',
-            url(r'^reports/$', self.admin_view(self.reports_index),
-                name="reports_index")
+            url(r"^reports/$", self.admin_view(self.reports_index),
+                name="reports_index"),
+            url(r"^reports/tax$", self.admin_view(self.tax_report),
+                name="tax_report")
         )
         return custom_urls + urls
 
@@ -42,6 +44,11 @@ class MercuryAdminSite(admin.sites.AdminSite):
         context = {"title": "Reports administration"}
         return TemplateResponse(request, "admin/reports/app_index.html",
                                 context, current_app=self.name)
+
+    def tax_report(self, request):
+        context = {}
+        return TemplateResponse(request, "admin/reports/tax.html", context,
+                                current_app=self.name)
 
 
 
