@@ -10,3 +10,12 @@
 &rsaquo; {{ title }}
 </div>
 {% endblock %}
+
+{% block content %}
+{% include "accounts/date_range.html" %}
+<div>
+    <p>Total tax charged: {{ tax }}</p>
+    <p>Total taxed sales: {{ taxed_sales }}</p>
+    <p>Total: {{ total }}</p>
+</div>
+{% endblock %}

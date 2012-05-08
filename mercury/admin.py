@@ -11,6 +11,7 @@ from django.template.response import TemplateResponse
 from mercury.helpers import get_items_per_page
 from mercury.exceptions import RedirectException, MercuryException
 
+from accounts.templatetags.date_range import DateRangeForm
 from ajax_select.admin import AjaxSelectAdmin
 
 
@@ -46,7 +47,12 @@ class MercuryAdminSite(admin.sites.AdminSite):
                                 context, current_app=self.name)
 
     def tax_report(self, request):
-        context = {"title": "Tax"}
+        tax = 123
+        taxed_sales = 456
+        total = 579
+        form = DateRangeForm(start_field="start", end_field="end")
+        context = {"title": "Tax", "tax": tax, "taxed_sales": taxed_sales,
+                   "total": total, "form": form}
         return TemplateResponse(request, "admin/reports/tax.html", context,
                                 current_app=self.name)
 
