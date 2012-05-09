@@ -1,5 +1,5 @@
 {% extends "admin/index.html" %}
-
+{% load static %}
 
 {% comment %}
 some JS surgery to insert the reports "app" into the index and stop "sales"
@@ -9,7 +9,7 @@ as nasty (copy-pasting django's index.html)
 
 {% block extrahead %}
 {{ block.super }}
-<script type="text/javascript" src="/static/ajax_select/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="{% static "ajax_select/js/jquery-1.7.2.js" %}"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         $("table[summary='Models available in the Accounts application.']").find("a:contains('Sales')").parentsUntil("tbody").last().remove();
