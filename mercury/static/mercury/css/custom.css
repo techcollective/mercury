@@ -12,6 +12,23 @@
     border-left: 0px;
     float: right;
     font-size: 12px;
-    font-weight: bold;
     height: 22px
 }
+
+.report-results p {
+    color: #666666;
+    padding: 1em 0.5em;
+    font-size: 12px;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+.report-results div {
+    float: left;
+    border-right: 1px solid #CCCCCC;
+}
+
+.report-results div:last-of-type { float: none; overflow: hidden; border-right: none; }
+
+.report-results div p:last-of-type { margin-bottom: 0; border: none; }
+
+.bold { font-weight: bold; }

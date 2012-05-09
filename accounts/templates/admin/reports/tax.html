@@ -17,6 +17,7 @@
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "mercury/css/custom.css" %}" />
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -30,8 +31,17 @@
 {% block content %}
 <div id="changelist" class="module">
     {% include "accounts/date_range.html" %}
-    <p>Total tax charged: {{ tax }}</p>
-    <p>Total taxed sales: {{ taxed_sales }}</p>
-    <p>Total: {{ total }}</p>
+    <div class="report-results">
+        <div>
+            <p>Taxable sales: </p>
+            <p>Tax: </p>
+            <p>Taxable sales + Tax: </p>
+        </div>
+        <div class="bold">
+            <p>{{ taxed_sales }}</p>
+            <p>{{ tax }}</p>
+            <p>{{ total }}</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
