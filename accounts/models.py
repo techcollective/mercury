@@ -17,7 +17,7 @@ from configuration.models import (PaymentType,
 from accounts.fields import CurrencyField
 from mercury.helpers import (check_deposited_payments,
                              get_change_url,
-                             get_currency_symbol,
+                             add_currency_symbol,
                              get_or_create_default_invoice_status,
                              get_tax_percentage,
                              get_or_create_default_invoice_term,
@@ -412,9 +412,8 @@ class Deposit(models.Model):
         super(Deposit, self).delete(*args, **kwargs)
 
     def __unicode__(self):
-        prefix, suffix = get_currency_symbol()
-        return u"Deposit of %s%s%s on %s" % (prefix, self.total, suffix,
-                                             self.date)
+        return u"Deposit of %s on %s" % (add_currency_symbol(self.total),
+                                         self.date)
 
     class Meta:
         ordering = ["-date"]
@@ -468,12 +467,8 @@ class Payment(models.Model):
         return get_change_url(self)
 
     def __unicode__(self):
-        prefix, suffix = get_currency_symbol()
-        return u"%s%s%s %s payment for %s" % (prefix,
-                                              self.amount,
-                                              suffix,
-                                              self.payment_type,
-                                              self.invoice)
+        return u"%s %s payment for %s" % (add_currency_symbol(self.amount),
+                                          self.payment_type, self.invoice)
 
     class Meta:
         ordering = ["-date_received"]

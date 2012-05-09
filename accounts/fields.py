@@ -5,7 +5,7 @@ from django.utils.encoding import force_unicode
 from django.forms.util import flatatt
 from django.forms import fields
 
-from mercury.helpers import get_currency_symbol, get_currency_decimal_places
+from mercury.helpers import add_currency_symbol, get_currency_decimal_places
 
 
 class CurrencyInputWidget(Widget):
@@ -15,30 +15,27 @@ class CurrencyInputWidget(Widget):
     """
     input_type = "text"
 
-    def _get_render_result(self, name, value, attrs):
-        prefix, suffix = get_currency_symbol()
+    def _get_final_attrs(self, name, value, attrs):
         if value is None:
             value = ''
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
             final_attrs['value'] = force_unicode(value)
-        return (prefix, final_attrs, suffix)
+        return final_attrs
 
     def render(self, name, value, attrs=None):
-        prefix, final_attrs, suffix = self._get_render_result(name, value,
-                                                              attrs)
-        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs),
-                                                 suffix))
+        final_attrs = self._get_final_attrs(name, value, attrs)
+        return mark_safe(add_currency_symbol(u' <input%s /> ' %
+                                             flatatt(final_attrs)))
 
 
 class ReadOnlyCurrencyInputWidget(CurrencyInputWidget):
-    def render(self, name, value, attrs=None):
-        prefix, final_attrs, suffix = self._get_render_result(name, value,
-                                                              attrs)
+    def _get_final_attrs(self, *args, **kwargs):
+        final_attrs = super(ReadOnlyCurrencyInputWidget,
+                            self)._get_final_attrs(*args, **kwargs)
         final_attrs.update({"readonly": ""})
-        return mark_safe(u'%s <input%s /> %s' % (prefix, flatatt(final_attrs),
-                                                 suffix))
+        return final_attrs
 
 
 class CurrencyFormField(fields.DecimalField):
@@ -68,12 +65,11 @@ class CurrencyField(models.DecimalField):
         return super(CurrencyField, self).formfield(**defaults)
 
     def value_to_string(self, obj):
-        prefix, suffix = get_currency_symbol()
         value = self.value_from_object(obj)
         # fixme: don't format decimal places here (issue #165)
         sub = "%" + "0.%sf" % get_currency_decimal_places()
         value = sub % value
-        return "%s%s%s" % (prefix, value, suffix)
+        return add_currency_symbol(value)
 
 
 from south.modelsinspector import add_introspection_rules

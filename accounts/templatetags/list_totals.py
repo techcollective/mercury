@@ -2,7 +2,7 @@ from django import template
 from django.db.models import Sum
 from django.utils.text import capfirst
 
-from mercury.helpers import get_currency_symbol
+from mercury.helpers import add_currency_symbol
 
 
 register = template.Library()
@@ -12,7 +12,6 @@ register = template.Library()
 def list_totals(context):
     cl = context.get("cl")
     if hasattr(cl.model_admin, "list_totals"):
-        prefix, suffix = get_currency_symbol()
         query_string = cl.get_query_string()
         multi_page = cl.multi_page
         if cl.show_all:
@@ -36,7 +35,6 @@ def list_totals(context):
         # get results ready for template
         for total in totals:
             # the "or 0" is because the result is be None when the cl is empty
-            result = results[total["field"]] or 0
-            result = "%s%s%s" % (prefix, str(result), suffix)
+            result = add_currency_symbol(results[total["field"]] or 0)
             total.update({"total": result})
         return {"totals": totals, "multi_page": multi_page}

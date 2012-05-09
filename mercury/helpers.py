@@ -82,6 +82,12 @@ def get_currency_symbol():
     return (prefix, suffix)
 
 
+def add_currency_symbol(obj):
+    prefix, suffix = get_currency_symbol()
+    obj = unicode(obj)
+    return u"%s%s%s" % (prefix, obj, suffix)
+
+
 def get_tax_percentage():
     tax_percentage = get_setting("tax as percentage", default=0)
     try:

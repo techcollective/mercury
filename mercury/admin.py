@@ -10,7 +10,7 @@ from django.template.response import TemplateResponse
 from django.contrib.admin.views.main import ERROR_FLAG
 from django.db.models import Sum
 
-from mercury.helpers import get_items_per_page
+from mercury.helpers import get_items_per_page, add_currency_symbol
 from mercury.exceptions import RedirectException, MercuryException
 
 from accounts.templatetags.date_range import DateRangeForm, context_helper
@@ -75,8 +75,9 @@ class MercuryAdminSite(admin.sites.AdminSite):
             is_taxable=True, **invoiceentry_filter).aggregate(
             sales=Sum("total"))["sales"]
         total = tax + taxed_sales
-        context = {"title": "Tax", "tax": tax, "taxed_sales": taxed_sales,
-                   "total": total, "form": form}
+        context = {"title": "Tax", "tax": add_currency_symbol(tax),
+                   "taxed_sales": add_currency_symbol(taxed_sales),
+                   "total": add_currency_symbol(total), "form": form}
         context.update(context_helper(start_field, end_field))
         return TemplateResponse(request, "admin/reports/tax.html", context,
                                 current_app=self.name)
