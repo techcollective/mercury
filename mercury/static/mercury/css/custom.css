@@ -17,18 +17,19 @@
 
 .report-results p {
     color: #666666;
-    padding: 1em 0.5em;
+    padding: 0.7em 0.7em;
     font-size: 12px;
-    border-bottom: 1px solid #CCCCCC;
+    border-bottom: 1px solid #EEEEEE;
+    margin: 0px;
 }
 
 .report-results div {
     float: left;
-    border-right: 1px solid #CCCCCC;
+    border-right: 1px solid #EEEEEE;
 }
 
 .report-results div:last-of-type { float: none; overflow: hidden; border-right: none; }
 
-.report-results div p:last-of-type { margin-bottom: 0; border: none; }
+.report-results div p:last-of-type { margin-bottom: 0px; border: none; }
 
 .bold { font-weight: bold; }
