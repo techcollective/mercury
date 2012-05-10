@@ -114,6 +114,17 @@ class ProductOrService(models.Model):
     price = CurrencyField(null=True, blank=True)
     stock = models.DecimalField(null=True, blank=True, max_digits=14,
                                 decimal_places=2)
+    stock_min = models.DecimalField(null=True, blank=True, max_digits=14,
+                                    decimal_places=2, verbose_name="Minimum",
+                                    help_text = "This item will appear on the "
+                                    "shopping list report when its stock "
+                                    "is less than or equal to this level.")
+    restock_to = models.DecimalField(null=True, blank=True, max_digits=14,
+                                     decimal_places=2, help_text = "If set, "
+                                     "the shopping list report will show the "
+                                     "the quantity that should be ordered in "
+                                     "order to bring the current stock up to "
+                                     "this level.")
     manage_stock = models.BooleanField(default=get_manage_stock)
     is_taxable = models.BooleanField(default=get_product_taxable)
     # verbose_name is set to get a meaningful list_filter title
