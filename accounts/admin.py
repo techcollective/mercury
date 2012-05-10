@@ -219,16 +219,15 @@ class CustomerAdmin(MercuryAdmin):
 
 class ProductOrServiceAdmin(MercuryAdmin):
     search_fields = ["name"]
-    list_display = ["name", "price", "stock", "manage_stock",
-                    "is_taxable"]
+    list_display = ["name", "price", "stock", "manage_stock", "is_taxable"]
     list_filter = ["manage_stock", "is_taxable", StockStatusListFilter,
                    "tags"]
     list_editable = ["stock"]
     filter_horizontal = ["tags"]
     fieldsets = [
-        (None, {"fields": ["name", "price", "is_taxable", "manage_stock",
-                           "tags"]}),
-        ("Stock Management", {"fields": ["stock", "stock_min", "restock_to"]}),
+        (None, {"fields": ["name", "price", "is_taxable", "tags"]}),
+        ("Stock Management", {"fields": ["stock", "manage_stock", "stock_min",
+                                         "restock_to"]}),
     ]
 
     def log_change(self, request, obj, message, audit_stock=True):

@@ -126,7 +126,11 @@ class ProductOrService(models.Model):
                                      "the quantity that should be ordered in "
                                      "order to bring the current stock up to "
                                      "this level.")
-    manage_stock = models.BooleanField(default=get_manage_stock)
+    manage_stock = models.BooleanField(default=get_manage_stock,
+                                       help_text="If checked, adding this "
+                                       "item to an invoice will automatically "
+                                       "subtract the amount sold from the "
+                                       "quantity currently in stock.")
     is_taxable = models.BooleanField(default=get_product_taxable)
     # verbose_name is set to get a meaningful list_filter title
     tags = models.ManyToManyField(ProductOrServiceTag, blank=True,
