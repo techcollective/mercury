@@ -13,7 +13,11 @@
     </div>
 {% endfor %}
 <button class="button" type="submit" />Go</button>
-<span style="margin-left: 1em">Shortcut: <a href="javascript: void(0)" id="last_quarter_shortcut">Last quarter</a></span>
+<span style="margin-left: 1em">Shortcuts:
+<a href="javascript: void(0)" id="last_month_shortcut">Last month</a> |
+<a href="javascript: void(0)" id="last_quarter_shortcut">Last quarter</a> |
+<a href="javascript: void(0)" id="last_year_shortcut">Last year</a>
+</span>
 </form>
 </div>
 {% comment %}
@@ -34,9 +38,19 @@ latter case you see the input disappear as you hit the submit button.
                     }
                 });
             });
+        $("#last_month_shortcut").click(function(){
+            $("#{{ start_field }}").val("{{ last_month_start|date:"Y-m-d" }}");
+            $("#{{ end_field }}").val("{{ last_month_end|date:"Y-m-d" }}");
+            $("#date_range_form").submit();
+            });
         $("#last_quarter_shortcut").click(function(){
             $("#{{ start_field }}").val("{{ last_quarter_start|date:"Y-m-d" }}");
             $("#{{ end_field }}").val("{{ last_quarter_end|date:"Y-m-d" }}");
+            $("#date_range_form").submit();
+            });
+        $("#last_year_shortcut").click(function(){
+            $("#{{ start_field }}").val("{{ last_year_start|date:"Y-m-d" }}");
+            $("#{{ end_field }}").val("{{ last_year_end|date:"Y-m-d" }}");
             $("#date_range_form").submit();
             });
     });
