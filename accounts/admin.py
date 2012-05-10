@@ -343,7 +343,7 @@ class SalesReportAdmin(MercuryAjaxAdmin):
 class DepositAdmin(MercuryAdmin):
     inlines = [DepositPaymentInline]
     list_display = ["total", "date", "comment", "made_by"]
-    date_hierarchy = "date"
+    date_range = "date"
     list_filter = ["made_by"]
 
     def save_model(self, request, obj, form, change):
