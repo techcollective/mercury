@@ -30,6 +30,10 @@
 
 .report-results div:last-of-type { float: none; overflow: hidden; border-right: none; }
 
-.report-results div p:last-of-type { margin-bottom: 0px; border: none; }
+.note-box {
+    width: 50%;
+    font-size: 10px;
+    margin-top: 1em;
+}
 
 .bold { font-weight: bold; }
