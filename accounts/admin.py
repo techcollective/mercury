@@ -225,6 +225,11 @@ class ProductOrServiceAdmin(MercuryAdmin):
                    "tags"]
     list_editable = ["stock"]
     filter_horizontal = ["tags"]
+    fieldsets = [
+        (None, {"fields": ["name", "price", "is_taxable", "manage_stock",
+                           "tags"]}),
+        ("Stock Management", {"fields": ["stock", "stock_min", "restock_to"]}),
+    ]
 
     def log_change(self, request, obj, message, audit_stock=True):
         if audit_stock:

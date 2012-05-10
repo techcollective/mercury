@@ -113,7 +113,8 @@ class ProductOrService(models.Model):
     name = models.CharField(max_length=100)
     price = CurrencyField(null=True, blank=True)
     stock = models.DecimalField(null=True, blank=True, max_digits=14,
-                                decimal_places=2)
+                                decimal_places=2, help_text="The quantity "
+                                "currently in stock.")
     stock_min = models.DecimalField(null=True, blank=True, max_digits=14,
                                     decimal_places=2, verbose_name="Minimum",
                                     help_text = "This item will appear on the "
