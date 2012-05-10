@@ -1,5 +1,6 @@
 psycopg2==2.4.4
 xhtml2pdf==0.0.3
+pytz==2012c
 South==0.7.4
 django-pandora==0.1.0
 django-extensions==0.8
