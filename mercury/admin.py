@@ -23,6 +23,7 @@ MINI = ".min"
 if settings.DEBUG:
     MINI = ""
 
+
 def handle_exception(request, mercury_exception):
     messages.error(request, str(mercury_exception))
     if isinstance(mercury_exception, RedirectException):

@@ -368,7 +368,8 @@ class PaymentAdmin(MercuryAjaxAdmin):
                     "comment", "get_deposit_link", "received_by",
                     "payment_type", "amount"]
     list_display_links = ["amount"]
-    list_filter = [DepositedStatusListFilter, "payment_type", "received_by"]
+    list_filter = [DepositedStatusListFilter, "payment_type",
+                   "invoice__customer__tags", "received_by"]
     list_totals = [("amount", "Total")]
     actions = ["deposit"]
     date_range = "date_received"
