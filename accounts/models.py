@@ -440,7 +440,6 @@ class Payment(models.Model):
                                                           "received_by"])
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         super(Payment, self).save(*args, **kwargs)
         if self.deposit:
             # update deposit total
