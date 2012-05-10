@@ -85,6 +85,9 @@ def date_range(context):
         form = DateRangeForm({start_field: start_value,
                               end_field: end_value}, start_field=start_field,
                               end_field=end_field)
-        context = {"form": form, "other_params": other_params}
+        context = {"form": form, "other_params": other_params, "cl": cl,
+                   "search_box": cl.search_fields,
+                   "show_result_count": (cl.result_count !=
+                                         cl.full_result_count)}
         context.update(context_helper(start_field, end_field))
         return context

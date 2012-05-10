@@ -62,6 +62,9 @@ class MercuryAdminSite(admin.sites.AdminSite):
         end_date = form.cleaned_data.get(end_field)
         invoice_filter = {}
         invoiceentry_filter = {}
+        show_clear_link = False
+        if start_date or end_date:
+            show_clear_link = True
         if start_date:
             invoice_filter.update({"date_created__gte": start_date})
             invoiceentry_filter.update(
@@ -70,15 +73,17 @@ class MercuryAdminSite(admin.sites.AdminSite):
             invoice_filter.update({"date_created__lte": end_date})
             invoiceentry_filter.update(
                 {"invoice__date_created__lte": end_date})
+        # the 'or 0's below are because aggregate() can return None
         tax = Invoice.objects.filter(**invoice_filter).aggregate(
-            tax=Sum("total_tax"))["tax"]
+            tax=Sum("total_tax"))["tax"] or 0
         taxed_sales = InvoiceEntry.objects.filter(
             is_taxable=True, **invoiceentry_filter).aggregate(
-            sales=Sum("total"))["sales"]
+            sales=Sum("total"))["sales"] or 0
         total = tax + taxed_sales
         context = {"title": "Tax", "tax": add_currency_symbol(tax),
                    "taxed_sales": add_currency_symbol(taxed_sales),
-                   "total": add_currency_symbol(total), "form": form}
+                   "total": add_currency_symbol(total), "form": form,
+                   "show_clear_link": show_clear_link}
         context.update(context_helper(start_field, end_field))
         return TemplateResponse(request, "admin/reports/tax.html", context,
                                 current_app=self.name)

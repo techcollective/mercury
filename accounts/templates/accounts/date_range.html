@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% if form %}
 {{ form.media }}
 <div class="form-row actions">
@@ -17,6 +19,12 @@
 <a href="javascript: void(0)" id="last_month_shortcut">Last month</a> |
 <a href="javascript: void(0)" id="last_quarter_shortcut">Last quarter</a> |
 <a href="javascript: void(0)" id="last_year_shortcut">Last year</a>
+{% if not search_box and show_result_count %}
+<span style="margin-left: 1.5em" class="small quiet">{% blocktrans count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %} (<a href="?{% if cl.is_popup %}pop=1{% endif %}">{% blocktrans with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktrans %}</a>)</span>
+{% endif %}
+{% if show_clear_link %}
+    <span style="margin-left: 1.5em" class="small quiet"><a href="?">Clear filters</a></span>
+{% endif %}
 </span>
 </form>
 </div>
