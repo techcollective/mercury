@@ -228,8 +228,12 @@ class ProductOrServiceAdmin(MercuryAdmin):
 
     def log_change(self, request, obj, message, audit_stock=True):
         if audit_stock:
-            # fixme: don't hardcode decimal places (issue #165)
-            message += " Stock: %0.2f" % obj.stock
+            message += " Stock: "
+            if obj.stock is None:
+                message += "None"
+            else:
+                # fixme: don't hardcode decimal places (issue #165)
+                message += "%0.2f" % obj.stock
         super(ProductOrServiceAdmin, self).log_change(request, obj, message)
 
 
