@@ -51,6 +51,11 @@ def add_popup(request, app_label,model):
 
     response = admin.add_view(request, request.path)
     if request.method == 'POST':
+        if hasattr(response, "render"):
+            # this is done because the response might be a TemplateResponse
+            # to re-display the form with errors, and it's not legal to access
+            # the content attribute before render() is called.
+            response.render()
         if 'dismissAddAnotherPopup' in response.content:
             return HttpResponse(response.content.replace('dismissAddAnotherPopup','didAddPopup'))
     return response
